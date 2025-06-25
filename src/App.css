@@ -1,38 +1,574 @@
-.App {
-  text-align: center;
+/* 기본 스타일 초기화 */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  color: #fff;
+  font-family: 'EB Garamond', 'Times New Roman', serif;
+  overflow: hidden;
 }
 
-.App-logo {
-  height: 40vmin;
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+.page-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* --- 로딩 스크린 --- */
+.loading-screen {
+  width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; position: relative; background-color: #000;
+}
+.cross-svg {
+  width: 300px; height: 450px; position: absolute; overflow: visible;
+  filter: drop-shadow(0 0 10px rgba(221, 221, 221, 0.6)) drop-shadow(0 0 20px rgba(221, 221, 221, 0.4));
+}
+.cross-svg path { fill: transparent; stroke: #ddd; stroke-width: 6; }
+.loading-text {
+  position: absolute; font-family: 'Cinzel', serif; font-size: 28px; font-weight: 700; color: #ff4500;
+  text-shadow: 0 0 5px #ff4500, 0 0 10px #ff4500; letter-spacing: 10px; writing-mode: vertical-rl;
+  text-orientation: mixed; height: 450px; display: flex; align-items: center; justify-content: center;
+}
+.loading-text span { display: inline-block; }
+
+/* --- 테마별 색상 변수 정의 --- */
+[data-theme='eva'] {
+  --main-bg: #000;
+  --highlight-color: #ff6a00;
+  --highlight-shadow: rgba(255, 106, 0, 0.7);
+  --content-bg: #0a0a0a;
+  --gradient-color: #000;
+}
+
+[data-theme='dod'] {
+  --main-bg: #420000;
+  --highlight-color: #fff0ab;
+  --highlight-shadow: rgba(255, 240, 171, 0.7);
+  --content-bg: #420000;
+  --gradient-color: #420000;
+}
+
+/* --- 메인 컨텐츠 --- */
+.main-content {
+  width: 100%; height: 100%;
+  background-color: var(--main-bg);
+  transition: background-color 0.8s ease-in-out;
+}
+.main-layout {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+.left-panel {
+  flex: 1; display: flex; justify-content: center; align-items: center; padding: 2rem;
+}
+.main-image {
+  max-width: 50vw;
+  object-fit: contain;
+}
+.right-panel {
+  flex: 1.2; display: flex; justify-content: center; align-items: center; padding: 2rem; overflow: hidden;
+}
+.menu-section {
+  width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; gap: 2rem;
+}
+.carousel-viewport {
+  width: 350px; height: 400px; position: relative; overflow: hidden;
+}
+.carousel-viewport::before,
+.carousel-viewport::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 100px;
+  z-index: 2; pointer-events: none; background-color: var(--gradient-color);
+  transition: background-color 0.8s ease-in-out;
+}
+.carousel-viewport::before {
+  top: 0;
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent);
+  mask-image: linear-gradient(to bottom, black, transparent);
+}
+.carousel-viewport::after {
+  bottom: 0;
+  -webkit-mask-image: linear-gradient(to top, black, transparent);
+  mask-image: linear-gradient(to top, black, transparent);
+}
+.carousel-list {
+  position: relative; width: 100%;
+}
+.menu-item {
+  width: 100%; height: 60px; display: flex; justify-content: center;
+  align-items: center; font-size: 1.8rem; font-weight: 700;
+  color: #666; cursor: pointer; transition: color 0.4s, text-shadow 0.4s;
+}
+.menu-item.active {
+  color: var(--highlight-color); text-shadow: 0 0 10px var(--highlight-shadow);
+}
+.nav-wrapper {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 400px; height: 500px; pointer-events: none;
+}
+.carousel-nav {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  z-index: 10; pointer-events: all;
+}
+.carousel-nav.top { top: 20px; }
+.carousel-nav.bottom { bottom: 20px; }
+.nav-button {
+  background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;
+  padding: 10px; transition: color 0.3s, text-shadow 0.3s;
+}
+.nav-button:hover {
+  color: var(--highlight-color); text-shadow: 0 0 10px var(--highlight-shadow);
+}
+.content-display {
+  flex-basis: 400px; padding: 2rem; border-radius: 8px;
+  background: var(--content-bg); transition: background-color 0.8s ease-in-out;
+}
+.content-display h2 {
+  margin-top: 0; font-family: 'Cinzel', serif; color: var(--highlight-color);
+  transition: color 0.8s ease-in-out;
+}
+.content-display p { line-height: 1.6; }
+
+
+/* --- Pilots Page Styles --- */
+.pilots-page-layout {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background-color: #000; z-index: 100; display: flex; flex-direction: column;
+}
+.back-button {
+  position: absolute; top: 30px; left: 40px; background: none; border: 1px solid #fff;
+  color: #fff; padding: 10px 20px; font-family: 'Cinzel', serif; font-size: 1rem;
+  cursor: pointer; z-index: 1001; transition: background 0.3s, color 0.3s;
+}
+.back-button:hover { background: #fff; color: #000; }
+.pilots-content {
+  flex-grow: 1; display: flex; align-items: center; justify-content: center;
+  position: relative; padding: 2rem;
+}
+.pilots-image-group {
+  position: relative; width: 600px; height: 600px;
+  transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.pilots-image-group::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;;
+  left: 0;
+  width: 100%;
+  height: 150px;
+  background: linear-gradient(to top, #000 20%, transparent);
+  pointer-events: none;
+  z-index: 10;
+}
+.pilot-image {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  transition: filter 0.4s ease-out, opacity 0.4s ease-out;
   pointer-events: none;
 }
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.nerv-logo {
+    opacity: 0.6;
+    width: 64%;
+    height: 60%;
+    top: -30%;
+    left: 20%;
+    z-index: -1;
+}
+.pilot-image.character {
+  opacity: 0;
+}
+.pilots-image-group.highlight-shinji .shinji,
+.pilots-image-group.highlight-rei .rei,
+.pilots-image-group.highlight-asuka .asuka {
+  opacity: 1;
+}
+.pilots-image-group.highlight-shinji .pilot-image:not(.shinji),
+.pilots-image-group.highlight-rei .pilot-image:not(.rei),
+.pilots-image-group.highlight-asuka .pilot-image:not(.asuka) {
+  filter: grayscale(1) blur(3px);
+  opacity: 0.5;
+}
+.character-description {
+  position: absolute; right: 12%; top: 50%; transform: translateY(-50%);
+  width: 400px; min-height: 300px; padding: 2rem;
+  background: rgba(255,255,255,0.05);
+  border-left: 2px solid var(--highlight-color);
+  box-sizing: border-box; opacity: 0; visibility: hidden;
+}
+.character-description h3 {
+  font-family: 'Cinzel', serif; color: var(--highlight-color);
+  font-size: 2rem; margin-top: 0;
+}
+.character-description p { line-height: 1.7; }
+.pilots-nav-bar {
+  position: absolute; bottom: 0; left: 0; width: 100%; height: 80px;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  display: flex; justify-content: center; align-items: center; gap: 3rem;
+  z-index: 120;
+}
+.nav-item {
+  font-family: 'Cinzel', serif; font-size: 1.2rem; color: #888;
+  cursor: pointer; padding: 10px; transition: color 0.3s, text-shadow 0.3s;
+}
+.nav-item:hover { color: #fff; }
+.nav-item.selected {
+    color: var(--highlight-color);
+    text-shadow: 0 0 10px var(--highlight-shadow);
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* --- Evangelion Page Styles --- */
+.evangelion-page-layout {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background-color: #0c0a14;
+  z-index: 100;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.eva-card-container {
+  display: flex;
+  gap: 5rem;
+  perspective: 2000px;
+}
+.eva-card {
+  width: 350px;
+  height: 500px;
+  position: relative;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  border-radius: 15px;
+}
+.card-bg {
+  position: absolute; width: 100%; height: 100%;
+  background-size: cover;
+  border-radius: 15px;
+  transform: translateZ(0);
+  border-left: solid 4px #fff;
+  border-bottom: solid 4px #fff;
+}
+.card-unit {
+  position: absolute;
+  transform: translateZ(80px);
+  pointer-events: none;
+  filter: drop-shadow(5px 15px 15px rgba(0,0,0,0.5));
+}
+.card-unit.unit01 {
+  width: 225%;
+  top: 6%;
+  left: 9%;
+}
+.card-unit.unit02 {
+  width: 226%;
+  top: 5%;
+  left: 3.4%;
+}
+.card-title {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  transform: translateZ(100px);
+  color: #fff;
+  text-shadow: 0 2px 10px #000;
+}
+.eva-fullscreen-view {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  opacity: 0; visibility: hidden;
+}
+.fullscreen-bg {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background-size: cover; background-position: center;
+  animation: bg-pan 20s linear infinite alternate;
+  cursor: pointer;
+}
+@keyframes bg-pan {
+  from { background-position: 0% 50%; }
+  to { background-position: 100% 50%; }
+}
+.eva-description {
+  position: absolute;
+  top: 50%;
+  right: 10%;
+  transform: translateY(-50%);
+  width: 450px;
+  padding: 2rem;
+  background: rgba(0,0,0,0.7);
+  border-radius: 10px;
+  border-left: 3px solid var(--highlight-color);
+  z-index: 1002;
+  opacity: 0;
+  visibility: hidden;
+}
+.eva-description h3, .eva-description p {
+    color: #fff;
+}
+.eva-description h3 { font-family: 'Cinzel', serif; font-size: 2rem; margin: 0 0 1rem 0; }
+.eva-description p { line-height: 1.7; }
+.eva-action-buttons {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 2rem;
+    z-index: 1001;
+}
+.eva-action-buttons button, .eva-description .close-desc-button, .close-desc-button {
+    background: rgba(0,0,0,0.5);
+    border: 1px solid #fff;
+    color: #fff;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    padding: 12px 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.eva-action-buttons button:hover, .eva-description .close-desc-button:hover, .close-desc-button:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* --- Angels Page Styles --- */
+.angels-page-layout {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background-color: #0d1a21;
+  z-index: 100;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  padding: 80px 40px 40px;
+  box-sizing: border-box;
+}
+.angels-content-grid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+  width: 100%;
+  height: 100%;
+}
+.gui-element {
+  border: 1px solid rgba(0, 255, 255, 0.4);
+  background: rgba(0, 50, 60, 0.2);
+  box-shadow: inset 0 0 15px rgba(0, 255, 255, 0.1);
+  padding: 1rem;
+  box-sizing: border-box;
+}
+.gui-header {
+  font-family: 'Courier New', Courier, monospace;
+  color: #0f0;
+  background: rgba(0, 255, 255, 0.1);
+  padding: 5px 10px;
+  margin: -1rem -1rem 1rem -1rem;
+  text-transform: uppercase;
+}
+.angel-selector-list {
+  display: flex;
+  flex-direction: column;
+}
+.selector-item {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.2rem;
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(0, 255, 255, 0.2);
+  transition: background 0.3s, color 0.3s;
+}
+.selector-item:hover {
+  background: rgba(0, 255, 255, 0.1);
+}
+.selector-item.active {
+  background: rgba(0, 255, 255, 0.2);
+  color: #0f0;
+}
+.item-id {
+  margin-right: 1rem;
+  color: #0f0;
+}
+.angel-display-panel {
+  display: flex;
+  flex-direction: column;
+}
+.display-content {
+  flex-grow: 1;
+  position: relative;
+  display: flex;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: center;
+  overflow: hidden;
+}
+.standby-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 2rem;
+  color: rgba(0, 255, 255, 0.5);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+.angel-info-box {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  gap: 1.5rem;
+}
+.angel-image-container {
+  flex-basis: 50%;
+  position: relative;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #000;
+}
+.angel-image-container img {
+  max-width: 68%;
+  max-height: 90%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px var(--highlight-color));
+  animation: float 4s ease-in-out infinite;
+}
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+.scan-lines {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(to bottom, transparent 50%, rgba(0, 255, 255, 0.05) 50%);
+  background-size: 100% 4px;
+  animation: scan 5s linear infinite;
+  pointer-events: none;
+}
+@keyframes scan {
+  from { background-position: 0 0; }
+  to { background-position: 0 100px; }
+}
+.angel-text-info {
+  flex-basis: 50%;
+}
+.angel-text-info h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.4);
+  padding-bottom: 0.5rem;
+}
+.angel-text-info .highlight {
+  color: #0f0;
+}
+.angel-text-info p {
+  font-family: 'Courier New', Courier, monospace;
+  line-height: 1.6;
+}
+.typing-effect {
+  width: 0;
+  overflow: hidden;
+  white-space: pre-wrap;
+  animation: typing 2s steps(40, end) forwards;
+}
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
 }
 
-.App-link {
-  color: #61dafb;
+/* --- NERV Page Styles (추가됨) --- */
+.nerv-page-layout {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: #000;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem;
+    box-sizing: border-box;
 }
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.nerv-main-content {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    width: 100%;
+    max-width: 1400px;
+}
+.nerv-image-container {
+    flex-shrink: 0;
+    position: relative;
+    width: 500px;
+    height: 600px;
+}
+/* 안개 효과 추가 */
+.nerv-image-container::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 200px; /* 안개 효과 높이 */
+    background: linear-gradient(to top, rgba(0,0,0,1) 56%, rgba(0,0,0,0));
+    z-index: 2; /* 겐도 이미지 위 */
+    pointer-events: none;
+}
+.nerv-logo-background {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 120%; /* 수정 가능한 위치 */
+    opacity: 0.2;
+    filter: invert(1);
+    z-index: 0;
+}
+.gendo-image {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 20px rgba(255,0,0,0.5));
+}
+.nerv-description-box {
+    flex-grow: 1;
+    padding: 2rem;
+    border: 1px solid #555;
+    background: rgba(10,10,10,0.5);
+}
+.nerv-header {
+    font-family: 'Orbitron', sans-serif;
+    color: #f00;
+    text-align: center;
+    font-size: 1.2rem;
+    letter-spacing: 4px;
+    border: 2px solid #f00;
+    padding: 10px;
+    margin-bottom: 2rem;
+    animation: blink 1.5s infinite;
+}
+@keyframes blink {
+    50% { opacity: 0.5; }
+}
+.nerv-title {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    color: #eee;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
+}
+.nerv-text {
+    font-family: 'EB Garamond', serif;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #ccc;
+    text-align: justify;
+}
+.nerv-text:not(:last-child) {
+    margin-bottom: 1rem;
 }
