@@ -3,14 +3,15 @@ import MenuCarousel from './MenuCarousel';
 import PilotsPage from './PilotsPage';
 import EvangelionPage from './EvangelionPage';
 import AngelsPage from './AngelsPage';
-import NervPage from './NervPage'; // NervPage import
+import NervPage from './NervPage';
+import SeelePage from './SeelePage'; // SeelePage import
 import mainImageEva from '../img/mainimg.png';
 import mainImageDod from '../img/mainimg2.png';
 
 const MainContent = () => {
   const [selectedContent, setSelectedContent] = useState(null);
   const [currentTheme, setCurrentTheme] = useState('eva');
-  const [page, setPage] = useState('main'); // 'main', 'pilots', 'evangelion', 'angels', 'nerv'
+  const [page, setPage] = useState('main'); // 'main', 'pilots', 'evangelion', 'angels', 'nerv', 'seele'
   
   const mainContentRef = useRef(null);
   const mainLayoutRef = useRef(null);
@@ -19,7 +20,6 @@ const MainContent = () => {
 
   useEffect(() => {
     if (page !== 'main') return;
-
     const newImage = currentTheme === 'eva' ? mainImageEva : mainImageDod;
     gsap.to(imageRef.current, {
         opacity: 0,
@@ -44,7 +44,8 @@ const MainContent = () => {
     if (menuItem.title === 'PILOTS') targetPage = 'pilots';
     if (menuItem.title === 'EVANGELION') targetPage = 'evangelion';
     if (menuItem.title === 'ANGELS') targetPage = 'angels';
-    if (menuItem.title === 'NERV') targetPage = 'nerv'; // NERV 페이지 추가
+    if (menuItem.title === 'NERV') targetPage = 'nerv';
+    if (menuItem.title === 'SEELE') targetPage = 'seele'; // SEELE 페이지 추가
 
     if (targetPage) {
       gsap.to(mainLayoutRef.current, {
@@ -103,6 +104,7 @@ const MainContent = () => {
       {page === 'evangelion' && <EvangelionPage onBack={handleBack} />}
       {page === 'angels' && <AngelsPage onBack={handleBack} />}
       {page === 'nerv' && <NervPage onBack={handleBack} />}
+      {page === 'seele' && <SeelePage onBack={handleBack} />}
     </div>
   );
 };
