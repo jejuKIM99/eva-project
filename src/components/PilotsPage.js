@@ -104,6 +104,7 @@ const PilotsPage = ({ onBack }) => {
     const highlightedChar = selectedChar || hoveredChar;
 
     useEffect(() => {
+        // 페이지가 오른쪽에서 왼쪽으로 나타나는 애니메이션
         gsap.fromTo(pageRef.current, { autoAlpha: 0, x: '100%' }, { autoAlpha: 1, x: '0%', duration: 0.8, ease: 'power3.out' });
     }, [gsap]);
 
@@ -117,10 +118,20 @@ const PilotsPage = ({ onBack }) => {
         }
     }, [selectedChar, gsap]);
 
+    // onBack 함수를 호출하기 전에 퇴장 애니메이션 추가
+    const handleBackClick = () => {
+        gsap.to(pageRef.current, {
+            autoAlpha: 0,
+            x: '100%', // 오른쪽으로 사라지는 애니메이션
+            duration: 0.8,
+            ease: 'power3.inOut',
+            onComplete: onBack // 애니메이션 완료 후 onBack 호출
+        });
+    };
 
     return (
         <div className="pilots-page-layout" ref={pageRef}>
-            <button className="back-button" onClick={onBack}>← BACK</button>
+            <button className="back-button" onClick={handleBackClick}>← BACK</button>
             <div className="pilots-content">
                 <div 
                     className={`pilots-image-group ${highlightedChar ? `highlight-${highlightedChar}` : ''}`}

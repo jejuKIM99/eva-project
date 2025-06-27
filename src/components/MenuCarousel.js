@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+// 에반게리온 설정으로 메뉴 데이터 업데이트
 const menuItemsData = [
-    { id: 1, title: 'PILOTS', content: 'The designated pilots of the Evangelion units.', theme: 'eva' },
-    { id: 2, title: 'EVANGELION', content: 'The synthetic humanoid entities known as Evangelion.', theme: 'eva' },
-    { id: 3, title: 'ANGELS', content: 'The mysterious beings that threaten humanity.', theme: 'eva' },
-    { id: 4, title: 'NERV', content: 'The special agency created to combat the Angels.', theme: 'eva' },
-    { id: 5, title: 'SEELE', content: 'The secret committee behind NERV.', theme: 'eva' },
-    { id: 6, title: 'PACT', content: 'The binding contracts made between humans and beasts.', theme: 'dod' },
-    { id: 7, title: 'CAIM', content: 'A prince whose kingdom was destroyed, bound by a pact with the red dragon.', theme: 'dod' },
-    { id: 8, title: 'ANGELUS', content: 'The ancient and proud red dragon, cynical of humanity.', theme: 'dod' },
-    { id: 9, 'title': 'GODDESS', content: 'The key to the seals that hold the world together, a role borne by Furiae.', theme: 'dod' },
-    { id: 10, title: 'THE WATCHERS', content: 'Grotesque beings from another world, also known as "gods".', theme: 'dod' }
+    { id: 1, title: 'PILOTS', content: 'The designated pilots of the Evangelion units.' },
+    { id: 2, title: 'EVANGELION', content: 'The synthetic humanoid entities known as Evangelion.' },
+    { id: 3, title: 'ANGELS', content: 'The mysterious beings that threaten humanity.' },
+    { id: 4, title: 'NERV', content: 'The special agency created to combat the Angels.' },
+    { id: 5, title: 'SEELE', content: 'The secret committee behind NERV.' },
+    { id: 6, title: 'IMPACTS', content: 'Cataclysmic events that have reshaped the Earth.' },
+    { id: 7, title: 'GEOFRONT', content: 'The massive underground cavern housing NERV headquarters.' },
+    { id: 8, title: 'MAGI SYSTEM', content: 'A trio of supercomputers forming the core of NERV.' },
+    { id: 9, title: 'LCL', content: 'The breathable, amber-colored liquid that fills an Evangelion\'s entry plug.' }
 ];
 
-const ITEM_HEIGHT = 60;
-const VIEWPORT_HEIGHT = 400;
+const ITEM_WIDTH = 200; // ITEM_HEIGHT -> ITEM_WIDTH
+const VIEWPORT_WIDTH = 800; // VIEWPORT_HEIGHT -> VIEWPORT_WIDTH
 const REAL_ITEM_COUNT = menuItemsData.length;
 const displayItems = [...menuItemsData, ...menuItemsData, ...menuItemsData];
 
@@ -25,14 +25,14 @@ const MenuCarousel = ({ onMenuSelect, onActiveItemClick, initialDelay }) => {
     const isAnimating = useRef(false);
     const gsap = window.gsap;
 
-    const yOffset = (VIEWPORT_HEIGHT / 2) - (ITEM_HEIGHT / 2);
+    const xOffset = (VIEWPORT_WIDTH / 2) - (ITEM_WIDTH / 2); // yOffset -> xOffset
 
     useEffect(() => {
         if (!listRef.current) return;
         
         if(isAnimating.current) {
             gsap.to(listRef.current, {
-                y: yOffset - (virtualIndex * ITEM_HEIGHT),
+                x: xOffset - (virtualIndex * ITEM_WIDTH), // y -> x
                 duration: 0.5,
                 ease: 'power2.out',
                 onComplete: () => {
@@ -41,16 +41,17 @@ const MenuCarousel = ({ onMenuSelect, onActiveItemClick, initialDelay }) => {
                     if (virtualIndex < REAL_ITEM_COUNT) {
                         newIndex += REAL_ITEM_COUNT;
                         setVirtualIndex(newIndex);
-                        gsap.set(listRef.current, { y: yOffset - (newIndex * ITEM_HEIGHT) });
+                        gsap.set(listRef.current, { x: xOffset - (newIndex * ITEM_WIDTH) }); // y -> x
                     } else if (virtualIndex >= REAL_ITEM_COUNT * 2) {
                         newIndex -= REAL_ITEM_COUNT;
                         setVirtualIndex(newIndex);
-                        gsap.set(listRef.current, { y: yOffset - (newIndex * ITEM_HEIGHT) });
+                        gsap.set(listRef.current, { x: xOffset - (newIndex * ITEM_WIDTH) }); // y -> x
                     }
                 },
             });
         }
-    }, [virtualIndex, yOffset, gsap]);
+    }, [virtualIndex, xOffset, gsap]); // yOffset -> xOffset
+
     useEffect(() => {
         const activeOriginalIndex = virtualIndex % REAL_ITEM_COUNT;
         const selectedItem = menuItemsData[activeOriginalIndex];
@@ -58,15 +59,18 @@ const MenuCarousel = ({ onMenuSelect, onActiveItemClick, initialDelay }) => {
             onMenuSelect(selectedItem);
         }
     }, [virtualIndex, onMenuSelect]);
+
     useEffect(() => {
-        gsap.set(listRef.current, { y: yOffset - (REAL_ITEM_COUNT * ITEM_HEIGHT) });
+        gsap.set(listRef.current, { x: xOffset - (REAL_ITEM_COUNT * ITEM_WIDTH) }); // y -> x
         gsap.fromTo(viewportRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 1, delay: initialDelay });
-    }, [initialDelay, yOffset, gsap]);
+    }, [initialDelay, xOffset, gsap]); // yOffset -> xOffset
+
     const handleNavigation = (steps) => {
         if (isAnimating.current) return;
         isAnimating.current = true;
         setVirtualIndex(prevIndex => prevIndex + steps);
     };
+
     const handleItemClick = (clickedItemIndex) => {
         const currentActiveIndex = virtualIndex % REAL_ITEM_COUNT;
         if (clickedItemIndex === currentActiveIndex) {
@@ -81,8 +85,12 @@ const MenuCarousel = ({ onMenuSelect, onActiveItemClick, initialDelay }) => {
             handleNavigation(diff);
         }
     };
+
     return (
-        <div style={{ position: 'relative' }}>
+        <div className="carousel-container-horizontal">
+            <div className="carousel-nav-horizontal left">
+                <button className="nav-button-horizontal" onClick={() => handleNavigation(-1)}>◄</button>
+            </div>
             <div className="carousel-viewport" ref={viewportRef}>
                 <div className="carousel-list" ref={listRef}>
                     {displayItems.map((item, index) => (
@@ -96,13 +104,8 @@ const MenuCarousel = ({ onMenuSelect, onActiveItemClick, initialDelay }) => {
                     ))}
                 </div>
             </div>
-            <div className="nav-wrapper">
-                <div className="carousel-nav top">
-                    <button className="nav-button" onClick={() => handleNavigation(-1)}>▲</button>
-                </div>
-                <div className="carousel-nav bottom">
-                    <button className="nav-button" onClick={() => handleNavigation(1)}>▼</button>
-                </div>
+             <div className="carousel-nav-horizontal right">
+                <button className="nav-button-horizontal" onClick={() => handleNavigation(1)}>►</button>
             </div>
         </div>
     );
