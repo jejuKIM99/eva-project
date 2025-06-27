@@ -995,7 +995,7 @@ body, html {
 }
 
 
-/* --- NERV Page Styles (추가됨) --- */
+/* --- NERV Page Styles (수정 및 추가) --- */
 .nerv-page-layout {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background-color: #000;
@@ -1005,6 +1005,12 @@ body, html {
     align-items: center;
     padding: 4rem;
     box-sizing: border-box;
+    overflow: hidden;
+    /* 텍스트 드래그 방지 */
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 .nerv-main-content {
     display: flex;
@@ -1019,16 +1025,15 @@ body, html {
     width: 500px;
     height: 600px;
 }
-/* 안개 효과 추가 */
 .nerv-image-container::after {
     content: '';
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 200px; /* 안개 효과 높이 */
+    height: 200px;
     background: linear-gradient(to top, rgba(0,0,0,1) 56%, rgba(0,0,0,0));
-    z-index: 2; /* 겐도 이미지 위 */
+    z-index: 2;
     pointer-events: none;
 }
 .nerv-logo-background {
@@ -1036,7 +1041,7 @@ body, html {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 120%; /* 수정 가능한 위치 */
+    width: 120%;
     opacity: 0.2;
     filter: invert(1);
     z-index: 0;
@@ -1086,6 +1091,302 @@ body, html {
 .nerv-text:not(:last-child) {
     margin-bottom: 1rem;
 }
+.enter-nerv-button {
+    background: transparent;
+    border: 2px solid #f00;
+    color: #f00;
+    font-family: 'Orbitron', sans-serif;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 2rem;
+    display: block;
+    width: 100%;
+    letter-spacing: 3px;
+}
+.enter-nerv-button:hover {
+    background: #f00;
+    color: #000;
+    box-shadow: 0 0 20px #f00;
+}
+
+/* --- NERV 조직도 GUI 스타일 --- */
+.nerv-gui-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 110;
+}
+.nerv-gui-hex-background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #080000;
+    background-image: 
+        linear-gradient(rgba(255,0,0,0.07) 1px, transparent 1px),
+        linear-gradient(60deg, rgba(255,0,0,0.07) 1px, transparent 1px),
+        linear-gradient(120deg, rgba(255,0,0,0.07) 1px, transparent 1px);
+    background-size: 40px 69px;
+}
+.nerv-gui-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    opacity: 0.3;
+    animation: slow-pulse 5s infinite ease-in-out;
+    filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.7));
+}
+@keyframes slow-pulse {
+    50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.05); }
+}
+.nerv-gui-exit {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    z-index: 1100; /* z-index 수정 */
+    background: #111;
+    color: #f00;
+    border: 1px solid #f00;
+    padding: 10px 20px;
+    font-family: 'Orbitron', sans-serif;
+    cursor: pointer;
+}
+.hex-grid-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+.hex-button {
+    position: absolute;
+    width: 140px;
+    height: 161.6px;
+    font-family: 'Share Tech Mono', monospace;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.hex-button .hex-inner {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    transition: all 0.3s ease;
+}
+.hex-button.inactive .hex-inner {
+    background: rgba(255, 0, 0, 0.05);
+    border: 1px solid rgba(255, 0, 0, 0.1);
+}
+.hex-button.inactive .hex-content {
+    color: rgba(255, 0, 0, 0.3);
+}
+.hex-button.active .hex-inner {
+    background: rgba(255, 0, 0, 0.2);
+    border: 1px solid #f00;
+}
+.hex-button.active {
+    cursor: pointer;
+}
+.hex-button.active:hover .hex-inner {
+    background: rgba(255, 0, 0, 0.4);
+}
+.hex-button.active:hover .hex-content {
+    color: #fff;
+}
+.hex-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    color: #f00;
+    text-shadow: 0 0 5px #f00;
+    padding: 10px;
+}
+.hex-label { text-transform: uppercase; }
+.hex-sublabel {
+    margin-top: 5px;
+    font-size: 0.8em;
+    color: #ff8c8c;
+    font-weight: bold;
+}
+.windows-area {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 600; /* z-index 수정 */
+}
+.personnel-profile-window {
+    position: absolute;
+    width: 500px;
+    background: rgba(20, 0, 0, 0.9);
+    border: 1px solid #f55;
+    box-shadow: 0 0 20px rgba(255,0,0,0.5);
+    pointer-events: auto;
+    backdrop-filter: blur(5px);
+}
+.profile-header {
+    background: #f00;
+    color: #000;
+    padding: 8px;
+    font-weight: bold;
+    font-family: 'Orbitron', sans-serif;
+    cursor: grab;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-transform: uppercase;
+}
+.profile-header:active { cursor: grabbing; }
+.profile-close-btn {
+    background: none; border: none; color: #000; font-weight: bold; cursor: pointer;
+}
+.profile-content { 
+    padding: 1.5rem; 
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.profile-main-info {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+.profile-image {
+    width: 120px;
+    height: 120px;
+    border: 2px solid #f55;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+.profile-title-section {
+    flex-grow: 1;
+}
+.profile-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.8rem;
+    color: #fff;
+}
+.profile-title {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.1rem;
+    color: #f55;
+}
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.profile-section {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid #333;
+    padding: 1rem;
+}
+.profile-section h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #f55;
+    border-bottom: 1px solid #f55;
+    padding-bottom: 0.5rem;
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+.profile-section p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #ccc;
+    margin: 0;
+}
+.profile-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.stat-graph-item {
+    display: grid;
+    grid-template-columns: 150px 1fr 40px;
+    align-items: center;
+    gap: 10px;
+}
+.stat-graph-label { font-size: 0.9rem; color: #ccc; }
+.stat-graph-bar-bg { background: #333; height: 12px; border: 1px solid #555; }
+.stat-graph-bar-fill { background: #f55; height: 100%; box-shadow: 0 0 5px #f55; }
+.stat-graph-value { font-family: 'Share Tech Mono', monospace; font-weight: bold; color: #fff; text-align: right;}
+
+.personnel-submenu {
+    position: absolute;
+    background: rgba(0,0,0,0.95);
+    border: 1px solid #f00;
+    padding: 5px;
+    z-index: 1000; /* z-index 수정 */
+    pointer-events: auto;
+}
+.personnel-submenu button {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    color: #f00;
+    padding: 10px 15px;
+    text-align: left;
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1rem;
+}
+.personnel-submenu button:hover {
+    background: #f00;
+    color: #000;
+}
+.nerv-digital-clock {
+    position: absolute;
+    top: 30px;
+    right: 180px;
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    z-index: 500;
+}
+.clock-info-panel {
+    text-align: right;
+    font-family: 'Orbitron', sans-serif;
+    color: #ff6a00;
+}
+.info-line-1 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    border-bottom: 2px solid #ff6a00;
+    padding-bottom: 2px;
+}
+.info-line-2 {
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+.clock-time-display {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: #ff6a00;
+    text-shadow: 0 0 15px rgba(255, 106, 0, 0.8);
+    background-color: #1a0a00;
+    padding: 5px 15px;
+    border: 2px solid #ff6a00;
+    min-width: 250px; /* 고정 너비 추가 */
+    text-align: center; /* 텍스트 중앙 정렬 */
+}
+/*seele page*/
 .seele-page-layout {
   position: absolute;
   top: 0;
