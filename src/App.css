@@ -665,8 +665,8 @@ body, html {
   background-size: cover;
   border-radius: 15px;
   transform: translateZ(0);
-  border-left: solid 4px #fff;
-  border-bottom: solid 4px #fff;
+  border-left: inset 4px #fff;
+  border-bottom: inset 4px #fff;
 }
 .card-unit {
   position: absolute;
@@ -674,6 +674,8 @@ body, html {
   pointer-events: none;
   filter: drop-shadow(5px 15px 15px rgba(0,0,0,0.5));
 }
+
+
 .card-unit.unit01 {
   width: 225%;
   top: 6%;
@@ -895,6 +897,8 @@ body, html {
     color: #000;
     box-shadow: 0 0 20px #f00;
 }
+
+
 
 /* --- Angels Page Styles (수정됨) --- */
 .angels-page-layout {
