@@ -600,7 +600,7 @@ body, html {
   /* 닫기 버튼 위치 및 스타일 변경 */
   .close-desc-button {
     position: sticky; /* 스크롤 하단에 고정 */
-    bottom: 0;
+    bottom: -16px;
     width: calc(100% + 2rem); /* 부모 패딩 고려하여 꽉 채움 */
     margin: 1.5rem -1rem -1rem -1rem; /* 원래 패딩만큼 확장 */
     border: none;

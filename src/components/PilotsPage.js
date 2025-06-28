@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-// 이미지 import (기존과 동일)
+// [수정] 'gsap' import 문을 삭제합니다.
+// import { gsap } from 'gsap'; 
+
+// 이미지 import
 import groupImage from '../img/group1.png';
 import shinjiImage from '../img/sinji1.png';
 import reiImage from '../img/lay1.png';
@@ -11,7 +14,7 @@ import reiProfileImage from '../img/Rei_profile.jpg';
 import asukaProfileImage from '../img/asuka_profile.jpg';
 
 
-// --- 캐릭터 데이터 (기존과 동일) ---
+// --- 캐릭터 데이터 ---
 const characterData = {
     shinji: { 
         name: "Shinji Ikari", 
@@ -55,7 +58,7 @@ const characterData = {
 };
 const characters = ['rei', 'shinji', 'asuka'];
 
-// --- 타이핑 효과를 위한 커스텀 훅 (기존과 동일) ---
+// --- 타이핑 효과를 위한 커스텀 훅 ---
 const useTypingEffect = (text, speed = 50) => {
     const [typedText, setTypedText] = useState('');
     const [isDone, setIsDone] = useState(false);
@@ -63,7 +66,6 @@ const useTypingEffect = (text, speed = 50) => {
     useEffect(() => {
         setTypedText('');
         setIsDone(false);
-
         if (!text) return;
 
         const timer = setTimeout(() => {
@@ -77,12 +79,10 @@ const useTypingEffect = (text, speed = 50) => {
                     setIsDone(true);
                 }
             }, speed);
-
             return () => clearInterval(typingInterval);
         }, 500);
 
         return () => clearTimeout(timer);
-
     }, [text, speed]);
 
     return { typedText, isDone };
@@ -90,19 +90,19 @@ const useTypingEffect = (text, speed = 50) => {
 
 
 const PilotsPage = ({ onBack }) => {
+    // [수정] CDN으로 불러온 gsap를 window 객체에서 직접 참조합니다.
+    const gsap = window.gsap;
+
     const [hoveredChar, setHoveredChar] = useState(null);
     const [selectedChar, setSelectedChar] = useState(null);
     const pageRef = useRef(null);
     const imageGroupRef = useRef(null);
     const descriptionRef = useRef(null);
-    const gsap = window.gsap;
 
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
     useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
@@ -116,38 +116,38 @@ const PilotsPage = ({ onBack }) => {
         gsap.fromTo(pageRef.current, { autoAlpha: 0, x: '100%' }, { autoAlpha: 1, x: '0%', duration: 0.8, ease: 'power3.out' });
     }, [gsap]);
 
-    // ▼▼▼ [핵심 수정] useEffect를 하나로 통합하여 경합 상태(Race Condition) 해결 ▼▼▼
     useEffect(() => {
-        // 1. 상태 변경 시 항상 스타일을 먼저 초기화 (리사이즈 문제 해결)
-        gsap.set([imageGroupRef.current, descriptionRef.current], { clearProps: 'all' });
+        gsap.set(descriptionRef.current, { clearProps: 'transform,opacity,visibility' });
 
-        // 2. 현재 상태에 맞는 애니메이션 적용
         if (selectedChar) {
-            gsap.set(descriptionRef.current, { visibility: 'visible', pointerEvents: 'auto' });
+            gsap.set(descriptionRef.current, { pointerEvents: 'auto' });
             if (isMobile) {
-                // 모바일: 화면 아래에서 위로 슬라이드 (가장 안정적인 방식)
-                gsap.to(descriptionRef.current, { y: '0%', duration: 0.6, ease: 'power3.out' });
+                gsap.to(descriptionRef.current, {
+                    y: '-50%',
+                    autoAlpha: 1,
+                    duration: 0.6,
+                    ease: 'power3.out'
+                });
             } else {
-                // 데스크톱: 기존 로직
                 gsap.to(descriptionRef.current, { autoAlpha: 1, duration: 0.5, delay: 0.2 });
                 gsap.to(imageGroupRef.current, { x: '-25%', scale: 0.9, duration: 0.8, ease: 'power3.inOut' });
             }
         } else {
-            const onHideComplete = () => {
-                gsap.set(descriptionRef.current, { visibility: 'hidden', pointerEvents: 'none' });
-            };
-
+            const onHideComplete = () => gsap.set(descriptionRef.current, { pointerEvents: 'none' });
             if (isMobile) {
-                // 모바일: 다시 화면 아래로 사라짐
-                gsap.to(descriptionRef.current, { y: '100%', duration: 0.5, ease: 'power3.in', onComplete: onHideComplete });
+                gsap.to(descriptionRef.current, {
+                    y: '100vh',
+                    autoAlpha: 0,
+                    duration: 0.5,
+                    ease: 'power3.in',
+                    onComplete: onHideComplete
+                });
             } else {
-                // 데스크톱: 기존 로직
                 gsap.to(descriptionRef.current, { autoAlpha: 0, duration: 0.4, onComplete: onHideComplete });
                 gsap.to(imageGroupRef.current, { x: '0%', scale: 1, duration: 0.8, ease: 'power3.inOut' });
             }
         }
     }, [selectedChar, isMobile, gsap]);
-    // ▲▲▲ [핵심 수정] 여기까지 ▲▲▲
 
     const handleBackClick = () => {
         gsap.to(pageRef.current, {
@@ -211,13 +211,11 @@ const PilotsPage = ({ onBack }) => {
                                         <span className="field-label">BLOOD TYPE</span>
                                         <span className="field-value">{content.bloodType}</span>
                                     </div>
-
                                 </div>
                                  <div className="info-field sync">
                                     <span className="field-label">SYNC. RATE</span>
                                     <span className="field-value">{content.syncRate}</span>
                                 </div>
-
                             </div>
                         </div>
                         <div className="id-card-footer">
