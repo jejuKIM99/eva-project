@@ -22,7 +22,7 @@ body, html {
   overflow: hidden;
 }
 
-/* --- 로딩 스크린 --- */
+/* --- 로딩 스크린 (기존과 동일) --- */
 .loading-screen {
   width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; position: relative; background-color: #000;
 }
@@ -38,7 +38,7 @@ body, html {
 }
 .loading-text span { display: inline-block; }
 
-/* --- 테마별 색상 변수 정의 (eva 테마만 사용) --- */
+/* --- 테마별 색상 변수 정의 (eva 테마만 남김) --- */
 [data-theme='eva'] {
   --main-bg: #000;
   --highlight-color: #ff6a00;
@@ -47,53 +47,50 @@ body, html {
   --gradient-color: #000;
 }
 
-/* --- 메인 컨텐츠 (레이아웃 수정) --- */
+/* --- 메인 컨텐츠 (레이아웃 변경) --- */
 .main-content {
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
   background-color: var(--main-bg);
   transition: background-color 0.8s ease-in-out;
 }
+
 .main-layout {
   display: flex;
   flex-direction: column; /* 수직 정렬로 변경 */
+  align-items: center;   /* 중앙 정렬 */
   justify-content: center; /* 수직 중앙 정렬 */
-  align-items: center; /* 수평 중앙 정렬 */
   width: 100%;
   height: 100%;
   padding: 2rem;
   box-sizing: border-box;
 }
 
-.main-image-container {
-    flex-shrink: 0;
-    margin-bottom: 2rem;
+.main-visual-container {
+  max-width: 500px; /* 이미지 최대 너비 제한 */
+  width: 100%;
+  margin-bottom: 2rem;
 }
 
 .main-image {
-  max-height: 45vh; /* 높이 제한 */
-  max-width: 90vw; /* 너비 제한 */
+  width: 100%;
+  height: auto;
   object-fit: contain;
 }
 
-.bottom-menu-section {
+/* --- 수평 캐러셀 스타일 (새로 추가) --- */
+.carousel-container {
+  width: 100%;
+  max-width: 1000px;
   display: flex;
   align-items: center;
-  gap: 2rem;
-  width: 100%;
-  max-width: 1400px; /* 최대 너비 설정 */
-}
-
-/* --- 수평 캐러셀 스타일 --- */
-.carousel-container-horizontal {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-grow: 1;
+  justify-content: center;
+  position: relative; /* 자식 요소의 absolute 포지셔닝 기준점 설정 */
 }
 
 .carousel-viewport {
-  width: 800px; /* 너비 증가 */
-  height: 100px; /* 높이 감소 */
+  width: 880px; /* 한 번에 보이는 아이템 개수에 맞춰 너비 조정 (220px * 4) */
+  height: 80px; /* 아이템 높이 + 여백 */
   position: relative;
   overflow: hidden;
 }
@@ -104,7 +101,7 @@ body, html {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 150px; /* 그라데이션 너비 */
+  width: 150px; /* 그라데이션 영역 너비 */
   z-index: 2;
   pointer-events: none;
   background-color: var(--gradient-color);
@@ -125,65 +122,170 @@ body, html {
 
 .carousel-list {
   position: relative;
+  display: flex; /* 수평 정렬 */
   height: 100%;
-  display: flex; /* 가로 정렬 */
-  align-items: center;
 }
 
 .menu-item {
-  width: 200px; /* 아이템 너비 고정 */
-  height: 100%;
+  width: 220px; /* 아이템 너비 */
+  height: 60px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: #666;
   cursor: pointer;
-  transition: color 0.4s, text-shadow 0.4s;
-  flex-shrink: 0; /* 아이템 크기 고정 */
+  transition: color 0.4s, text-shadow 0.4s, transform 0.4s;
+  flex-shrink: 0; /* 아이템이 줄어들지 않도록 설정 */
+  text-transform: uppercase;
+
+  /* --- ▼ [수정] 긴 텍스트 처리를 위한 코드 추가 --- */
+  white-space: nowrap;      /* 텍스트 줄바꿈 방지 */
+  overflow: hidden;         /* 넘치는 텍스트 숨김 */
+  text-overflow: ellipsis;  /* 넘치는 텍스트를 ...으로 표시 */
+  padding: 0 10px;          /* 좌우 여백을 주어 텍스트가 잘리지 않게 함 */
+  box-sizing: border-box;   /* 패딩을 너비에 포함 */
 }
 
 .menu-item.active {
   color: var(--highlight-color);
   text-shadow: 0 0 10px var(--highlight-shadow);
+  transform: scale(1.1);
 }
 
-.carousel-nav-horizontal {
-    z-index: 10;
-    pointer-events: all;
+.carousel-nav {
+  z-index: 10;
 }
 
-.nav-button-horizontal {
+.carousel-nav.left {
+  margin-right: 1rem;
+}
+.carousel-nav.right {
+  margin-left: 1rem;
+}
+
+.nav-button {
   background: none;
   border: none;
   color: #fff;
-  font-size: 2.5rem; /* 버튼 크기 증가 */
+  font-size: 2rem;
   cursor: pointer;
   padding: 10px;
   transition: color 0.3s, text-shadow 0.3s;
 }
 
-.nav-button-horizontal:hover {
+.nav-button:hover {
   color: var(--highlight-color);
   text-shadow: 0 0 10px var(--highlight-shadow);
 }
-/* --- 수평 캐러셀 스타일 끝 --- */
 
+/* --- 컨텐츠 디스플레이 (레이아웃 변경) --- */
 .content-display {
-  flex-basis: 400px;
-  flex-shrink: 0;
+  flex-grow: 0; /* 자동 성장 비활성화 */
+  width: 100%;
+  max-width: 700px; /* 최대 너비 제한 */
+  margin-top: 2.5rem;
   padding: 2rem;
   border-radius: 8px;
   background: var(--content-bg);
   transition: background-color 0.8s ease-in-out;
-  height: 200px; /* 높이 고정 */
+  text-align: center; /* 텍스트 중앙 정렬 */
+  min-height: 150px; /* 최소 높이를 지정하여 레이아웃 깨짐 방지 */
+  overflow: hidden; /* 내부 애니메이션을 위해 */
 }
+
+/* GSAP 애니메이션을 위한 래퍼 */
+.content-wrapper {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 .content-display h2 {
-  margin-top: 0; font-family: 'Cinzel', serif; color: var(--highlight-color);
+  margin-top: 0;
+  font-family: 'Cinzel', serif;
+  color: var(--highlight-color);
   transition: color 0.8s ease-in-out;
+  font-size: 2rem;
 }
-.content-display p { line-height: 1.6; }
+
+.content-display p {
+  line-height: 1.7;
+  font-size: 1.1rem;
+}
+
+
+/* --- 반응형 디자인을 위한 미디어 쿼리 --- */
+@media (max-width: 1024px) {
+    .carousel-viewport {
+        width: 660px; /* 아이템 3개 보이게 */
+    }
+}
+
+@media (max-width: 768px) {
+  .main-layout {
+    padding: 1rem;
+    justify-content: flex-start; /* 모바일에서는 상단부터 채우도록 */
+    padding-top: 5vh;
+  }
+  .main-visual-container {
+    max-width: 80vw;
+    margin-bottom: 1.5rem;
+  }
+  .carousel-container {
+    max-width: 100vw;
+  }
+  .carousel-viewport {
+    width: 100vw; /* 화면 꽉 채우기 */
+  }
+  .carousel-viewport::before,
+  .carousel-viewport::after {
+      width: 50px;
+  }
+  .menu-item {
+    width: 160px; /* JS에서 설정한 모바일 너비(160px)와 일치 */
+    height: 70px; /* 두 줄 텍스트를 위한 높이 확보 */
+    font-size: 1rem; /* 가독성을 위한 폰트 크기 조정 */
+    line-height: 1.3; /* 줄 간격 조정 */
+    
+    /* 텍스트가 정상적으로 줄바꿈되도록 설정 */
+    white-space: normal;
+    text-align: center; /* 두 줄일 경우 보기 좋게 중앙 정렬 */
+  }
+  .nav-button {
+      font-size: 1.5rem;
+  }
+  .carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+  .carousel-nav.left {
+    left: 10px; /* 화면 왼쪽 끝에서의 거리 */
+    margin-right: 0;
+  }
+  .carousel-nav.right {
+    right: 10px; /* 화면 오른쪽 끝에서의 거리 */
+    margin-left: 0;
+  }
+  .content-display {
+    width: 90%;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    min-height: 180px;
+  }
+  .content-display h2 {
+    font-size: 1.5rem;
+  }
+  .content-display p {
+    font-size: 1rem;
+  }
+}
 
 
 /* --- Pilots Page Styles --- */
@@ -202,7 +304,7 @@ body, html {
 .back-button:hover { background: #fff; color: #000; }
 .pilots-content {
   flex-grow: 1; display: flex; align-items: center; justify-content: center;
-  position: relative; padding: 2rem; overflow: hidden;
+  position: relative; padding: 2rem;
 }
 .pilots-image-group {
   position: relative; width: 600px; height: 600px;
@@ -247,7 +349,7 @@ body, html {
   opacity: 0.5;
 }
 
-/* --- 파일럿 ID 카드 스타일 --- */
+/* --- 파일럿 ID 카드 스타일 (수정 및 추가) --- */
 .pilot-id-card {
   position: absolute; right: 10%; top: 46%; transform: translateY(-50%);
   width: 550px;
@@ -382,11 +484,13 @@ body, html {
     height: 100px; /* 스크롤을 위해 높이 증가 */
     overflow-y: auto; /* 스크롤 가능하게 설정 */
     padding-right: 15px; /* 스크롤바 공간 확보 (선택사항) */
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    
+    /* 스크롤바 숨기기 */
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
 .description-text::-webkit-scrollbar {
-    display: none;
+    display: none; /* Chrome, Safari, and Opera */
 }
 .typing-cursor {
     animation: blink-cursor 1s infinite;
@@ -414,24 +518,124 @@ body, html {
 
 
 .pilots-nav-bar {
-  position: absolute; bottom: 0; left: 0; width: 100%; height: 100px;
+  position: absolute; bottom: 0; left: 0; width: 100%; height: 100px; /* 높이 증가 */
   background: linear-gradient(to top, rgba(0,0,0,0.9) 30%, transparent);
   display: flex; justify-content: center; align-items: center; gap: 3rem;
   z-index: 120;
 }
 .nav-item {
-  font-family: 'Cinzel', serif; font-size: 1.3rem;
+  font-family: 'Cinzel', serif; font-size: 1.3rem; /* 폰트 크기 증가 */
   color: #888;
-  cursor: pointer; padding: 10px 20px;
+  cursor: pointer; padding: 10px 20px; /* 패딩 증가 */
   transition: color 0.3s, text-shadow 0.3s;
-  border-bottom: 3px solid transparent;
+  border-bottom: 3px solid transparent; /* 밑줄 효과를 위한 초기화 */
 }
 .nav-item:hover { color: #fff; }
 .nav-item.selected {
     color: var(--highlight-color);
     text-shadow: 0 0 10px var(--highlight-shadow);
-    border-bottom-color: var(--highlight-color);
+    border-bottom-color: var(--highlight-color); /* 선택 시 밑줄 */
 }
+
+@media (max-width: 768px) {
+  .pilots-page-layout {
+    padding: 60px 0 80px; /* 상단(60px), 하단(80px) 패딩 확보 */
+    box-sizing: border-box; /* 패딩이 높이에 포함되도록 설정 */
+  }
+
+  .back-button {
+    top: 15px;
+    left: 15px;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+
+  .pilots-content {
+    flex-direction: column; /* 콘텐츠 수직 정렬 */
+    justify-content: flex-start;
+    padding-top: 2rem;
+  }
+
+  /* 캐릭터 이미지 그룹 축소 및 중앙 배치 */
+  .pilots-image-group {
+    width: 90vw;
+    height: 90vw;
+    max-width: 400px;
+    max-height: 400px;
+    transform-origin: center top; /* 스케일 기준점 변경 */
+  }
+
+  /* --- ID 카드 모바일 스타일 (핵심) --- */
+  .pilot-id-card {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 85vh;
+    transform: translateY(100%); /* 기본 상태: 화면 아래에 숨김 */
+    
+    padding: 1rem;
+    padding-top: 2rem;
+    border-radius: 20px 20px 0 0;
+    overflow-y: auto;
+    z-index: 1000;
+  }
+
+  .id-card-body {
+    flex-direction: column; /* 사진과 정보를 수직으로 쌓음 */
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .id-info-section {
+    width: 100%; /* 너비 100% 사용 */
+  }
+
+  /* 설명 텍스트 영역 높이 조절 */
+  .description-text {
+    height: auto;
+    max-height: 150px; /* 최대 높이 지정 */
+  }
+
+  /* 닫기 버튼 위치 및 스타일 변경 */
+  .close-desc-button {
+    position: sticky; /* 스크롤 하단에 고정 */
+    bottom: 0;
+    width: calc(100% + 2rem); /* 부모 패딩 고려하여 꽉 채움 */
+    margin: 1.5rem -1rem -1rem -1rem; /* 원래 패딩만큼 확장 */
+    border: none;
+    border-top: 1px solid var(--highlight-color);
+    background: #111;
+    padding: 18px;
+    font-size: 1.1rem;
+    border-radius: 0;
+  }
+
+  /* 하단 네비게이션 바 스타일 조정 */
+  .pilots-nav-bar {
+    height: 80px;
+    gap: 0.5rem; /* 아이템 간격 축소 */
+    padding: 0 1rem;
+    justify-content: space-around; /* 공간을 균등하게 분배 */
+  }
+
+  .nav-item {
+    font-size: 1rem;
+    padding: 10px;
+  }
+}
+
+/* 400px 이하의 매우 작은 화면을 위한 추가 미세 조정 */
+@media (max-width: 400px) {
+    .nav-item {
+        font-size: 0.9rem;
+        padding: 8px 5px;
+    }
+    .id-card-body {
+        text-align: center;
+    }
+}
+
 
 /* --- Evangelion Page Styles --- */
 .evangelion-page-layout {
@@ -442,8 +646,6 @@ body, html {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 1rem;
-  box-sizing: border-box;
 }
 .eva-card-container {
   display: flex;
@@ -532,7 +734,7 @@ body, html {
     color: #000;
 }
 
-/* --- EVA 분석 GUI 스타일 --- */
+/* --- EVA 분석 GUI 스타일 (수정됨) --- */
 .eva-analysis-gui {
     position: absolute;
     top: 50%;
@@ -558,7 +760,7 @@ body, html {
 .eva-analysis-gui.unit01 { --eva-highlight: #9400d3; --eva-highlight-2: #32cd32; }
 .eva-analysis-gui.unit02 { --eva-highlight: #ff2d00; --eva-highlight-2: #ffcc00; }
 
-/* 광폭 모드 스타일 */
+/* 광폭 모드 스타일 수정 */
 .eva-analysis-gui.berserk {
     --eva-highlight: #ff0000;
     --eva-highlight-2: #ff4500;
@@ -575,13 +777,14 @@ body, html {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: repeating-linear-gradient(rgba(255,0,0,0.2), rgba(255,0,0,0.2) 1px, transparent 1px, transparent 5px);
     animation: flicker-animation 0.1s infinite;
-    z-index: 1005; 
+    z-index: 1005; /* GUI 위에 표시 */
     pointer-events: none;
 }
 @keyframes flicker-animation {
   from { opacity: 0; }
   to { opacity: 0.3; }
 }
+
 
 .analysis-header {
     display: flex;
@@ -615,7 +818,7 @@ body, html {
 .analysis-content {
     flex-grow: 1;
     display: grid;
-    grid-template-columns: 1.2fr 1.5fr 1.5fr;
+    grid-template-columns: 1.2fr 1.5fr 1.5fr; /* 패널 비율 조정 */
     gap: 1rem;
     padding-top: 1rem;
     overflow: hidden;
@@ -624,10 +827,9 @@ body, html {
 .analysis-left-panel, .analysis-right-panel {
     display: flex; flex-direction: column; gap: 1rem;
     overflow-y: auto; padding: 10px;
-    -ms-overflow-style: none; scrollbar-width: none;
 }
 .analysis-left-panel::-webkit-scrollbar, .analysis-right-panel::-webkit-scrollbar { display: none; }
-
+.analysis-left-panel, .analysis-right-panel { -ms-overflow-style: none; scrollbar-width: none; }
 
 .analysis-center-panel {
     display: flex; justify-content: center; align-items: center;
@@ -694,8 +896,9 @@ body, html {
     box-shadow: 0 0 20px #f00;
 }
 
-/* --- Angels Page Styles --- */
+/* --- Angels Page Styles (수정됨) --- */
 .angels-page-layout {
+  /* 하이라이트 색상 변수 직접 정의 */
   --highlight-color: #ff6a00;
   --highlight-shadow: rgba(255, 106, 0, 0.7);
 
@@ -769,7 +972,6 @@ body, html {
   gap: 8px;
   overflow-y: auto;
   -ms-overflow-style: none;
-  scrollbar-width: none;
 }
 .angel-selector-list .selector-content::-webkit-scrollbar {
   display:none;
@@ -894,7 +1096,7 @@ body, html {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  padding-right: 15px;
+  padding-right: 15px; /* 스크롤바 공간 확보 */
 }
 .angel-text-info::-webkit-scrollbar {
     width: 4px;
@@ -925,11 +1127,11 @@ body, html {
   line-height: 1.8;
   font-size: 1rem;
   color: #e0e0e0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem; /* 단락 간격 추가 */
   flex-shrink: 0;
 }
 
-/* 능력치 및 특수능력 UI */
+/* --- 능력치 및 특수능력 UI 스타일 --- */
 .stats-header, .abilities-header {
     font-family: 'Orbitron', sans-serif;
     color: #ccc;
@@ -998,7 +1200,7 @@ body, html {
 }
 
 
-/* --- NERV Page Styles --- */
+/* --- NERV Page Styles (수정 및 추가) --- */
 .nerv-page-layout {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background-color: #000;
@@ -1009,8 +1211,11 @@ body, html {
     padding: 4rem;
     box-sizing: border-box;
     overflow: hidden;
+    /* 텍스트 드래그 방지 */
     user-select: none;
     -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 .nerv-main-content {
     display: flex;
@@ -1148,7 +1353,7 @@ body, html {
     position: absolute;
     top: 30px;
     right: 40px;
-    z-index: 1100;
+    z-index: 1100; /* z-index 수정 */
     background: #111;
     color: #f00;
     border: 1px solid #f00;
@@ -1225,7 +1430,7 @@ body, html {
     height: 100%;
     overflow: hidden;
     pointer-events: none;
-    z-index: 600;
+    z-index: 600; /* z-index 수정 */
 }
 .personnel-profile-window {
     position: absolute;
@@ -1330,7 +1535,7 @@ body, html {
     background: rgba(0,0,0,0.95);
     border: 1px solid #f00;
     padding: 5px;
-    z-index: 1000;
+    z-index: 1000; /* z-index 수정 */
     pointer-events: auto;
 }
 .personnel-submenu button {
@@ -1383,50 +1588,77 @@ body, html {
     background-color: #1a0a00;
     padding: 5px 15px;
     border: 2px solid #ff6a00;
-    min-width: 250px;
-    text-align: center;
+    min-width: 250px; /* 고정 너비 추가 */
+    text-align: center; /* 텍스트 중앙 정렬 */
 }
-
-/* --- Seele Page Styles --- */
+/*seele page*/
 .seele-page-layout {
   position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-color: #000;
   background-image: radial-gradient(circle at center, rgba(100, 0, 0, 0.3), #000 70%);
   z-index: 100;
   overflow: hidden;
 }
+
+/* 메인 콘텐츠를 감싸는 래퍼 */
 .seele-content-wrapper {
-  position: relative; width: 100%; height: 100%;
-  display: flex; justify-content: center; align-items: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   transition: filter 0.5s ease-in-out;
 }
+
+/* 오버레이가 활성화될 때 메인 콘텐츠에 블러 효과 적용 */
 .seele-content-wrapper.blurred {
   filter: blur(8px);
-  pointer-events: none;
+  pointer-events: none; /* 블러 처리된 배경과의 상호작용 방지 */
 }
+
 .seele-container {
-  width: 1000px; height: 1000px;
-  position: absolute; top: 50%; left: 50%;
+  width: 1000px;
+  height: 1000px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   perspective: 1200px;
 }
+
 .monolith-circle {
-  width: 100%; height: 100%;
-  position: relative; transform-style: preserve-3d;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
   animation: rotate-circle 120s linear infinite;
 }
+
 @keyframes rotate-circle {
   from { transform: rotateY(0deg); }
   to { transform: rotateY(360deg); }
 }
+
 .monolith {
-  position: absolute; top: 50%; left: 50%;
-  width: 120px; height: 250px;
-  margin-left: -60px; margin-top: -125px;
-  background: #080808; border: 1px solid #222;
-  border-bottom: none; opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 250px;
+  margin-left: -60px;
+  margin-top: -125px;
+  background: #080808;
+  border: 1px solid #222;
+  border-bottom: none;
+  opacity: 0; /* 초기 등장은 GSAP가 처리 */
 }
+
+/* ... 모노리스 콘텐츠 및 로고 스타일 (기존과 동일) ... */
 .monolith-content {
     width: 100%; height: 100%; transform: translateZ(0); display: flex; flex-direction: column;
     justify-content: flex-start; padding-top: 15px; align-items: center; font-family: 'Orbitron', sans-serif;
@@ -1468,327 +1700,78 @@ body, html {
     padding: 10px 25px; font-size: 1rem; cursor: pointer; transition: all 0.3s; opacity: 0;
 }
 .seele-toggle-info:hover { background: #f00; color: #000; }
+
+
+/* 범용 오버레이 스타일 (수정) */
 .seele-overlay-view {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    display: flex; justify-content: center; align-items: center;
-    opacity: 0; visibility: hidden; z-index: 200;
-    background: rgba(0, 0, 0, 0.5); padding: 2rem;
-    box-sizing: border-box; transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 200; /* 콘텐츠 위에 표시되도록 z-index 값을 높임 */
+    background: rgba(0, 0, 0, 0.5); /* 오버레이 뒷배경 */
+    padding: 2rem;
+    box-sizing: border-box;
+    transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
 }
+
 .seele-overlay-view.visible {
-    opacity: 1; visibility: visible;
+    opacity: 1;
+    visibility: visible;
 }
+
+/* 오버레이 내부 콘텐츠 박스 */
 .overlay-content-box {
-    display: flex; flex-direction: column; align-items: center;
-    max-width: 800px; width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 800px;
+    width: 100%;
 }
+
 .overlay-image {
-    max-width: 90%; max-height: 55vh; object-fit: contain;
+    max-width: 90%;
+    max-height: 55vh; /* 화면 크기에 반응하도록 vh 단위 사용 */
+    object-fit: contain;
     filter: drop-shadow(0 0 30px #fff);
 }
 .overlay-description {
-    width: 100%; margin-top: 2rem; padding: 1.5rem; text-align: center;
-    background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(255, 255, 255, 0.3); border-radius: 8px;
+    width: 100%;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px; /* 부드러운 모서리 */
 }
 .overlay-description h2 {
-    font-family: 'Cinzel', serif; color: #fff; margin: 0 0 1rem 0;
+    font-family: 'Cinzel', serif;
+    color: #fff;
+    margin: 0 0 1rem 0;
 }
-.overlay-description p { color: #ccc; line-height: 1.7; }
+.overlay-description p {
+    color: #ccc;
+    line-height: 1.7;
+}
 .overlay-description button {
-    margin-top: 1.5rem; background: none; border: 1px solid #fff;
-    color: #fff; padding: 10px 25px; cursor: pointer;
-    font-family: 'Orbitron', sans-serif; transition: all 0.3s;
+    margin-top: 1.5rem;
+    background: none;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 10px 25px;
+    cursor: pointer;
+    font-family: 'Orbitron', sans-serif;
+    transition: all 0.3s;
 }
-.overlay-description button:hover { background: #fff; color: #000; }
-
-
-/* --- 반응형 디자인 (모바일) --- */
-@media (max-width: 768px) {
-    /* --- 공용 --- */
-    .back-button {
-        top: 15px;
-        left: 15px;
-        padding: 8px 12px;
-        font-size: 0.9rem;
-    }
-
-    /* --- 메인 페이지 --- */
-    .main-layout {
-        padding: 1rem;
-        justify-content: flex-start; /* 상단부터 시작 */
-        overflow-y: auto; /* 내용 많을 시 스크롤 */
-    }
-    .main-image-container {
-        margin-top: 2rem;
-        margin-bottom: 1rem;
-    }
-    .main-image {
-        max-height: 35vh;
-    }
-    .bottom-menu-section {
-        flex-direction: column; /* 메뉴와 설명 수직 배치 */
-        gap: 1.5rem;
-    }
-    .carousel-container-horizontal {
-        width: 100%;
-    }
-    .carousel-viewport {
-        width: 100%;
-        height: 60px; /* 모바일 높이 조정 */
-    }
-    .menu-item { font-size: 1.2rem; width: 150px; }
-    .nav-button-horizontal { font-size: 2rem; }
-    
-    .content-display {
-        width: 90%;
-        flex-basis: auto;
-        padding: 1.5rem;
-        height: auto;
-        min-height: 150px;
-    }
-    .content-display h2 { font-size: 1.5rem; }
-    .content-display p { font-size: 0.9rem; }
-
-    /* --- 파일럿 페이지 --- */
-    .pilots-page-layout {
-        overflow-y: auto;
-    }
-    .pilots-content {
-        flex-direction: column; /* 상하 배치 */
-        justify-content: flex-start;
-        padding-top: 80px;
-    }
-    .pilots-image-group {
-        width: 80vw; /* 너비를 유연하게 */
-        max-width: 300px;
-        height: auto; /* 높이를 자동으로 변경하여 비율 유지 */
-        aspect-ratio: 1 / 1; /* 가로세로 비율 1:1 유지 */
-        transform: none !important; /* JS transform 무시 */
-        margin-bottom: -50px;
-    }
-    .pilot-id-card {
-        position: static; /* 절대 위치 해제 */
-        transform: none;
-        width: 90vw;
-        margin-top: 2rem;
-        right: auto;
-        top: auto;
-        opacity: 0; /* JS에서 제어하므로 유지 */
-    }
-    .id-card-body {
-        flex-direction: column;
-        align-items: center;
-    }
-    .close-desc-button {
-        position: relative;
-        bottom: auto;
-        right: auto;
-        margin-top: 1.5rem;
-        width: 100%;
-    }
-    .pilots-nav-bar {
-        gap: 0.5rem;
-        height: 80px;
-        padding: 0 1rem;
-        justify-content: space-around;
-    }
-    .nav-item {
-        font-size: 1rem;
-        padding: 8px;
-    }
-    
-    /* --- 에반게리온 페이지 --- */
-    .evangelion-page-layout {
-        padding: 80px 1rem 1rem;
-        overflow-y: auto;
-    }
-    .eva-card-container {
-        flex-direction: column; /* 카드 수직 배치 */
-        gap: 2rem;
-        align-items: center;
-        perspective: none;
-    }
-    .eva-card {
-        width: 80vw;
-        max-width: 300px;
-        height: auto;
-        aspect-ratio: 350 / 500;
-        transform: none !important; /* JS transform 무시 */
-    }
-    .eva-analysis-gui {
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        transform: none;
-        padding: 0.5rem;
-        border: none;
-        overflow-y: auto;
-    }
-    .analysis-content {
-        grid-template-columns: 1fr; /* 그리드 1열로 변경 */
-        height: auto;
-    }
-    .analysis-header .header-title { font-size: 1rem; }
-    .performance-item { grid-template-columns: 70px 1fr 40px; font-size: 0.8rem; }
-    .spec-item { font-size: 0.9rem; }
-    .berserk-mode-btn {
-        bottom: 10px;
-        left: 10px;
-        padding: 8px 15px;
-        font-size: 0.9rem;
-    }
-
-    /* --- 사도 페이지 --- */
-    .angels-page-layout {
-        padding: 80px 1rem 1rem;
-    }
-    .angels-content-grid {
-        display: flex; /* grid 대신 flex 사용 */
-        flex-direction: column-reverse; /* 리스트를 아래로 보냄 */
-        gap: 1.5rem;
-    }
-    .angel-display-panel {
-        flex: 3; /* 패널이 더 많은 공간(높이)을 차지하도록 설정 */
-        min-height: 300px; /* 최소 높이 보장 */
-    }
-    .angel-selector-list {
-        flex: 1; /* 리스트는 상대적으로 적은 공간 차지 */
-        min-height: 150px;
-    }
-    .gui-element {
-        padding: 1rem;
-    }
-    .angel-info-box {
-        flex-direction: column; /* 이미지, 텍스트 수직 배치 */
-    }
-    .angel-image-container {
-        min-height: 200px;
-    }
-    .angel-text-info {
-        padding-right: 5px;
-    }
-    .angel-text-info h3 { font-size: 1.5rem; }
-    
-    /* --- NERV 페이지 --- */
-    .nerv-page-layout {
-        padding: 1rem;
-        overflow-y: auto;
-    }
-    .nerv-main-content {
-        flex-direction: column; /* 수직 배치 */
-        gap: 2rem;
-        padding-top: 60px;
-    }
-    .nerv-image-container {
-        width: 80vw;
-        max-width: 300px;
-        height: auto;
-    }
-    .gendo-image {
-        height: auto; /* 이미지 비율 유지 */
-        max-height: 40vh;
-    }
-    .nerv-description-box { padding: 1.5rem; }
-    .nerv-title { font-size: 2rem; }
-    .nerv-text { font-size: 1rem; }
-
-    .nerv-gui-container {
-        overflow-y: auto;
-    }
-    /* 복잡한 육각 그리드 대신 간단한 리스트로 변경 */
-    .hex-grid-container {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        padding: 80px 1rem 1rem;
-        height: auto;
-    }
-    .hex-button {
-        position: static !important; /* JS의 절대 위치 무시 */
-        transform: none !important; /* JS의 transform 무시 */
-        width: 100%;
-        height: auto;
-        clip-path: none;
-        margin: 0;
-    }
-    .hex-button.active {
-        display: flex; /* 활성화된 버튼만 flex로 표시 */
-        padding: 15px;
-        box-sizing: border-box;
-        border: 1px solid #f00;
-        background: rgba(255,0,0,0.2);
-    }
-    .hex-button.inactive {
-        display: none; /* 비활성 버튼은 완전히 숨김 */
-    }
-    .hex-button .hex-inner { display: none; }
-    .hex-content { 
-        color: #f00; 
-        text-shadow: none; 
-        flex-direction: row; 
-        justify-content: space-between;
-        width: 100%;
-    }
-    .windows-area {
-        position: fixed; /* 윈도우는 화면에 고정 */
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none; /* 영역 자체는 클릭 안되게 */
-    }
-    .personnel-profile-window {
-        width: 95vw;
-        top: 50% !important; /* JS 스타일 오버라이드 */
-        left: 50% !important; /* JS 스타일 오버라이드 */
-        transform: translate(-50%, -50%) !important;
-    }
-    /* 시계 UI 모바일용으로 수정 */
-    .nerv-digital-clock {
-        display: flex;
-        position: fixed;
-        top: auto;
-        bottom: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        right: auto;
-        gap: 0.5rem;
-        align-items: center;
-        background: #000;
-        padding: 5px;
-        border-radius: 5px;
-    }
-    .clock-info-panel { display: none; } /* 정보 패널 숨김 */
-    .clock-time-display {
-        font-size: 1.5rem; /* 폰트 크기 축소 */
-        padding: 5px 10px;
-        min-width: auto;
-    }
-    .nerv-gui-logo {
-        display: none; /* 모바일에서 로고 숨김 */
-    }
-
-
-    /* --- Seele 페이지 --- */
-    .seele-container {
-        width: 100%;
-        transform: translate(-50%, -50%) scale(0.6); /* 전체 크기 축소 */
-        perspective: 800px;
-    }
-    .seele-main-content {
-        width: 90vw;
-        bottom: 10%;
-    }
-    .seele-title { font-size: 2rem; }
-    .seele-description { font-size: 1rem; }
-    .overlay-content-box {
-        justify-content: center;
-        height: 100%;
-    }
-    .overlay-description {
-        margin-top: 1rem;
-    }
+.overlay-description button:hover {
+    background: #fff;
+    color: #000;
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-// 이미지 import (프로필 이미지 추가)
+// 이미지 import (기존과 동일)
 import groupImage from '../img/group1.png';
 import shinjiImage from '../img/sinji1.png';
 import reiImage from '../img/lay1.png';
@@ -11,8 +11,7 @@ import reiProfileImage from '../img/Rei_profile.jpg';
 import asukaProfileImage from '../img/asuka_profile.jpg';
 
 
-// --- 캐릭터 데이터 확장 ---
-// profileImage 속성 추가
+// --- 캐릭터 데이터 (기존과 동일) ---
 const characterData = {
     shinji: { 
         name: "Shinji Ikari", 
@@ -56,7 +55,7 @@ const characterData = {
 };
 const characters = ['rei', 'shinji', 'asuka'];
 
-// --- 타이핑 효과를 위한 커스텀 훅 ---
+// --- 타이핑 효과를 위한 커스텀 훅 (기존과 동일) ---
 const useTypingEffect = (text, speed = 50) => {
     const [typedText, setTypedText] = useState('');
     const [isDone, setIsDone] = useState(false);
@@ -80,7 +79,7 @@ const useTypingEffect = (text, speed = 50) => {
             }, speed);
 
             return () => clearInterval(typingInterval);
-        }, 500); // 카드가 나타난 후 0.5초 뒤에 타이핑 시작
+        }, 500);
 
         return () => clearTimeout(timer);
 
@@ -98,34 +97,65 @@ const PilotsPage = ({ onBack }) => {
     const descriptionRef = useRef(null);
     const gsap = window.gsap;
 
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const content = selectedChar ? characterData[selectedChar] : null;
     const { typedText, isDone } = useTypingEffect(content?.description, 25);
 
     const highlightedChar = selectedChar || hoveredChar;
 
     useEffect(() => {
-        // 페이지가 오른쪽에서 왼쪽으로 나타나는 애니메이션
         gsap.fromTo(pageRef.current, { autoAlpha: 0, x: '100%' }, { autoAlpha: 1, x: '0%', duration: 0.8, ease: 'power3.out' });
     }, [gsap]);
 
+    // ▼▼▼ [핵심 수정] useEffect를 하나로 통합하여 경합 상태(Race Condition) 해결 ▼▼▼
     useEffect(() => {
-        if (selectedChar) {
-            gsap.to(descriptionRef.current, { autoAlpha: 1, duration: 0.5, delay: 0.2 });
-            gsap.to(imageGroupRef.current, { x: '-25%', scale: 0.9, duration: 0.8, ease: 'power3.inOut' });
-        } else {
-            gsap.to(descriptionRef.current, { autoAlpha: 0, duration: 0.4 });
-            gsap.to(imageGroupRef.current, { x: '0%', scale: 1, duration: 0.8, ease: 'power3.inOut' });
-        }
-    }, [selectedChar, gsap]);
+        // 1. 상태 변경 시 항상 스타일을 먼저 초기화 (리사이즈 문제 해결)
+        gsap.set([imageGroupRef.current, descriptionRef.current], { clearProps: 'all' });
 
-    // onBack 함수를 호출하기 전에 퇴장 애니메이션 추가
+        // 2. 현재 상태에 맞는 애니메이션 적용
+        if (selectedChar) {
+            gsap.set(descriptionRef.current, { visibility: 'visible', pointerEvents: 'auto' });
+            if (isMobile) {
+                // 모바일: 화면 아래에서 위로 슬라이드 (가장 안정적인 방식)
+                gsap.to(descriptionRef.current, { y: '0%', duration: 0.6, ease: 'power3.out' });
+            } else {
+                // 데스크톱: 기존 로직
+                gsap.to(descriptionRef.current, { autoAlpha: 1, duration: 0.5, delay: 0.2 });
+                gsap.to(imageGroupRef.current, { x: '-25%', scale: 0.9, duration: 0.8, ease: 'power3.inOut' });
+            }
+        } else {
+            const onHideComplete = () => {
+                gsap.set(descriptionRef.current, { visibility: 'hidden', pointerEvents: 'none' });
+            };
+
+            if (isMobile) {
+                // 모바일: 다시 화면 아래로 사라짐
+                gsap.to(descriptionRef.current, { y: '100%', duration: 0.5, ease: 'power3.in', onComplete: onHideComplete });
+            } else {
+                // 데스크톱: 기존 로직
+                gsap.to(descriptionRef.current, { autoAlpha: 0, duration: 0.4, onComplete: onHideComplete });
+                gsap.to(imageGroupRef.current, { x: '0%', scale: 1, duration: 0.8, ease: 'power3.inOut' });
+            }
+        }
+    }, [selectedChar, isMobile, gsap]);
+    // ▲▲▲ [핵심 수정] 여기까지 ▲▲▲
+
     const handleBackClick = () => {
         gsap.to(pageRef.current, {
             autoAlpha: 0,
-            x: '100%', // 오른쪽으로 사라지는 애니메이션
+            x: '100%',
             duration: 0.8,
             ease: 'power3.inOut',
-            onComplete: onBack // 애니메이션 완료 후 onBack 호출
+            onComplete: onBack
         });
     };
 
@@ -143,72 +173,72 @@ const PilotsPage = ({ onBack }) => {
                          <img key={key} src={characterData[key].image} alt={characterData[key].name} className={`pilot-image character ${key}`} />
                     ))}
                 </div>
-                
-                {/* --- 캐릭터 정보 UI 수정 --- */}
-                <div className="pilot-id-card" ref={descriptionRef}>
-                    {content && (
-                        <>
-                            <div className="id-card-header">
-                                NERV PERSONNEL ID CARD
-                            </div>
-                            <div className="id-card-body">
-                                <div className="id-photo-section">
-                                    {/* 프로필 이미지로 변경 */}
-                                    <img src={content.profileImage} alt={content.name} className="id-photo" />
-                                </div>
-                                <div className="id-info-section">
-                                    <div className="info-field name">
-                                        <span className="field-label">NAME</span>
-                                        <span className="field-value">{content.name}</span>
-                                    </div>
-                                    <div className="info-field jp-name">
-                                        <span className="field-label">JP_NAME</span>
-                                        <span className="field-value">{content.jp_name}</span>
-                                    </div>
-                                    <div className="info-grid">
-                                        <div className="info-field">
-                                            <span className="field-label">ID</span>
-                                            <span className="field-value">{content.id}</span>
-                                        </div>
-                                        <div className="info-field">
-                                            <span className="field-label">DESIGNATION</span>
-                                            <span className="field-value">{content.designation}</span>
-                                        </div>
-                                        <div className="info-field">
-                                            <span className="field-label">D.O.B</span>
-                                            <span className="field-value">{content.birth}</span>
-                                        </div>
-                                        <div className="info-field">
-                                            <span className="field-label">BLOOD TYPE</span>
-                                            <span className="field-value">{content.bloodType}</span>
-                                        </div>
-                                    </div>
-                                     <div className="info-field sync">
-                                        <span className="field-label">SYNC. RATE</span>
-                                        <span className="field-value">{content.syncRate}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="id-card-footer">
-                                <div className="description-header">SEARCH RESULTS: PERSONAL DATA</div>
-                                <p className="description-text">
-                                    {typedText}
-                                    {!isDone && <span className="typing-cursor">|</span>}
-                                </p>
-                            </div>
-                            <button className="close-desc-button" onClick={() => setSelectedChar(null)}>CLOSE</button>
-                        </>
-                    )}
-                </div>
             </div>
 
+            <div className="pilot-id-card" ref={descriptionRef}>
+                {content && (
+                    <>
+                        <div className="id-card-header">
+                            NERV PERSONNEL ID CARD
+                        </div>
+                        <div className="id-card-body">
+                            <div className="id-photo-section">
+                                <img src={content.profileImage} alt={content.name} className="id-photo" />
+                            </div>
+                            <div className="id-info-section">
+                                <div className="info-field name">
+                                    <span className="field-label">NAME</span>
+                                    <span className="field-value">{content.name}</span>
+                                </div>
+                                <div className="info-field jp-name">
+                                    <span className="field-label">JP_NAME</span>
+                                    <span className="field-value">{content.jp_name}</span>
+                                </div>
+                                <div className="info-grid">
+                                    <div className="info-field">
+                                        <span className="field-label">ID</span>
+                                        <span className="field-value">{content.id}</span>
+                                    </div>
+                                    <div className="info-field">
+                                        <span className="field-label">DESIGNATION</span>
+                                        <span className="field-value">{content.designation}</span>
+                                    </div>
+                                    <div className="info-field">
+                                        <span className="field-label">D.O.B</span>
+                                        <span className="field-value">{content.birth}</span>
+                                    </div>
+                                    <div className="info-field">
+                                        <span className="field-label">BLOOD TYPE</span>
+                                        <span className="field-value">{content.bloodType}</span>
+                                    </div>
+
+                                </div>
+                                 <div className="info-field sync">
+                                    <span className="field-label">SYNC. RATE</span>
+                                    <span className="field-value">{content.syncRate}</span>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div className="id-card-footer">
+                            <div className="description-header">SEARCH RESULTS: PERSONAL DATA</div>
+                            <p className="description-text">
+                                {typedText}
+                                {!isDone && <span className="typing-cursor">|</span>}
+                            </p>
+                        </div>
+                        <button className="close-desc-button" onClick={() => setSelectedChar(null)}>CLOSE</button>
+                    </>
+                )}
+            </div>
+            
             <div className="pilots-nav-bar">
                 {characters.map(charKey => (
                     <div 
                         key={charKey}
                         className={`nav-item ${selectedChar === charKey ? 'selected' : ''}`}
-                        onMouseEnter={() => setHoveredChar(charKey)}
-                        onMouseLeave={() => setHoveredChar(null)}
+                        onMouseEnter={() => !isMobile && setHoveredChar(charKey)}
+                        onMouseLeave={() => !isMobile && setHoveredChar(null)}
                         onClick={() => setSelectedChar(charKey)}
                     >
                         {characterData[charKey].name}

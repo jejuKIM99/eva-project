@@ -8,34 +8,25 @@ import SeelePage from './SeelePage';
 import mainImageEva from '../img/mainimg.png';
 
 const MainContent = () => {
-  const [selectedContent, setSelectedContent] = useState(null);
   const [page, setPage] = useState('main'); // 'main', 'pilots', 'evangelion', 'angels', 'nerv', 'seele'
   
   const mainContentRef = useRef(null);
   const mainLayoutRef = useRef(null);
   const gsap = window.gsap;
-
-  const handleMenuSelect = (menuItem) => {
-    setSelectedContent(menuItem);
-  };
   
-  // 페이지 전환 로직
   const handleActiveMenuClick = (menuItem) => {
-    // title 매핑을 통해 targetPage 결정
-    const pageMapping = {
-        'PILOTS': 'pilots',
-        'EVANGELION': 'evangelion',
-        'ANGELS': 'angels',
-        'NERV': 'nerv',
-        'SEELE': 'seele',
-        // 추가된 메뉴는 상세 페이지가 없으므로 전환하지 않음
-    };
-    const targetPage = pageMapping[menuItem.title];
+    let targetPage = null;
+    // 페이지 전환이 필요한 메뉴 항목들
+    if (menuItem.title === 'PILOTS') targetPage = 'pilots';
+    if (menuItem.title === 'EVANGELION') targetPage = 'evangelion';
+    if (menuItem.title === 'ANGELS') targetPage = 'angels';
+    if (menuItem.title === 'NERV') targetPage = 'nerv';
+    if (menuItem.title === 'SEELE') targetPage = 'seele';
 
     if (targetPage) {
       gsap.to(mainLayoutRef.current, {
         autoAlpha: 0,
-        x: '-100%', // y에서 x로 변경: 왼쪽으로 사라지는 효과
+        y: '-50%', // 수직 방향으로 사라지는 애니메이션
         duration: 0.8,
         ease: 'power3.inOut',
         onComplete: () => setPage(targetPage)
@@ -45,50 +36,41 @@ const MainContent = () => {
 
   const handleBack = () => {
     setPage('main');
-    // x축으로 다시 나타나는 애니메이션으로 변경
     gsap.fromTo(mainLayoutRef.current, 
-        { autoAlpha: 0, x: '-100%' }, 
-        { autoAlpha: 1, x: '0%', duration: 0.8, ease: 'power3.out', delay: 0.5 }
+        { autoAlpha: 0, y: '-50%' }, 
+        { autoAlpha: 1, y: '0%', duration: 0.8, ease: 'power3.out', delay: 0.5 }
     );
   };
 
   useEffect(() => {
+    // 컴포넌트 첫 로딩 시 나타나는 애니메이션
     gsap.to(mainContentRef.current, { autoAlpha: 1, duration: 0.5 });
-  }, []);
+  }, [page, gsap]);
+
 
   return (
     <div className="page-container">
+      {/* data-theme 속성은 eva로 고정 */}
       <div 
         className="main-content" 
         ref={mainContentRef} 
-        // 테마는 'eva'로 고정
-        data-theme='eva' 
+        data-theme="eva"
       >
+        {/* 새로운 수직 중앙 정렬 레이아웃 */}
         <div className="main-layout" ref={mainLayoutRef}>
-          {/* 중앙 이미지 */}
-          <div className="main-image-container">
+          <div className="main-visual-container">
             <img src={mainImageEva} alt="Main Visual" className="main-image" />
           </div>
+          
+          <MenuCarousel 
+            onActiveItemClick={handleActiveMenuClick}
+            initialDelay={0.5} 
+          />
 
-          {/* 하단 메뉴 섹션 */}
-          <div className="bottom-menu-section">
-            <MenuCarousel 
-              onMenuSelect={handleMenuSelect}
-              onActiveItemClick={handleActiveMenuClick}
-              initialDelay={0.5} 
-            />
-            <div className="content-display">
-              {selectedContent && (
-                <>
-                  <h2>{selectedContent.title}</h2>
-                  <p>{selectedContent.content}</p>
-                </>
-              )}
-            </div>
-          </div>
+          {/* content-display div 완전 제거 */}
         </div>
       </div>
-      {/* 각 상세 페이지 컴포넌트 */}
+      {/* 다른 페이지 컴포넌트들은 그대로 유지 */}
       {page === 'pilots' && <PilotsPage onBack={handleBack} />}
       {page === 'evangelion' && <EvangelionPage onBack={handleBack} />}
       {page === 'angels' && <AngelsPage onBack={handleBack} />}
