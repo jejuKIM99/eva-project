@@ -1468,12 +1468,9 @@ body, html {
     align-items: center;
     padding: 4rem;
     box-sizing: border-box;
-    overflow: hidden;
-    /* 텍스트 드래그 방지 */
+    overflow: hidden; 
     user-select: none;
     -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
 }
 .nerv-main-content {
     display: flex;
@@ -1489,105 +1486,57 @@ body, html {
     height: 600px;
 }
 .nerv-image-container::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 200px;
+    content: ''; position: absolute; bottom: 0; left: 0;
+    width: 100%; height: 200px;
     background: linear-gradient(to top, rgba(0,0,0,1) 56%, rgba(0,0,0,0));
-    z-index: 2;
-    pointer-events: none;
+    z-index: 2; pointer-events: none;
 }
 .nerv-logo-background {
-    position: absolute;
-    top: 50%;
-    left: 50%;
+    position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 120%;
-    opacity: 0.2;
-    filter: invert(1);
-    z-index: 0;
+    width: 120%; opacity: 0.2; filter: invert(1); z-index: 0;
 }
 .gendo-image {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    filter: drop-shadow(0 0 20px rgba(255,0,0,0.5));
+    position: relative; z-index: 1; width: 100%; height: 100%;
+    object-fit: contain; filter: drop-shadow(0 0 20px rgba(255,0,0,0.5));
 }
 .nerv-description-box {
-    flex-grow: 1;
-    padding: 2rem;
-    border: 1px solid #555;
+    flex-grow: 1; padding: 2rem; border: 1px solid #555;
     background: rgba(10,10,10,0.5);
 }
 .nerv-header {
-    font-family: 'Orbitron', sans-serif;
-    color: #f00;
-    text-align: center;
-    font-size: 1.2rem;
-    letter-spacing: 4px;
-    border: 2px solid #f00;
-    padding: 10px;
-    margin-bottom: 2rem;
+    font-family: 'Orbitron', sans-serif; color: #f00;
+    text-align: center; font-size: 1.2rem; letter-spacing: 4px;
+    border: 2px solid #f00; padding: 10px; margin-bottom: 2rem;
     animation: blink 1.5s infinite;
 }
-@keyframes blink {
-    50% { opacity: 0.5; }
-}
+@keyframes blink { 50% { opacity: 0.5; } }
 .nerv-title {
-    font-family: 'Cinzel', serif;
-    font-size: 2.5rem;
-    color: #eee;
-    margin: 0 0 1.5rem 0;
-    text-align: center;
+    font-family: 'Cinzel', serif; font-size: 2.5rem; color: #eee;
+    margin: 0 0 1.5rem 0; text-align: center;
 }
 .nerv-text {
-    font-family: 'EB Garamond', serif;
-    font-size: 1.1rem;
-    line-height: 1.8;
-    color: #ccc;
-    text-align: justify;
+    font-family: 'EB Garamond', serif; font-size: 1.1rem;
+    line-height: 1.8; color: #ccc; text-align: justify;
 }
-.nerv-text:not(:last-child) {
-    margin-bottom: 1rem;
-}
+.nerv-text:not(:last-child) { margin-bottom: 1rem; }
 .enter-nerv-button {
-    background: transparent;
-    border: 2px solid #f00;
-    color: #f00;
-    font-family: 'Orbitron', sans-serif;
-    padding: 15px 30px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    margin-top: 2rem;
-    display: block;
-    width: 100%;
-    letter-spacing: 3px;
+    background: transparent; border: 2px solid #f00; color: #f00;
+    font-family: 'Orbitron', sans-serif; padding: 15px 30px;
+    font-size: 1.2rem; cursor: pointer; transition: all 0.3s;
+    margin-top: 2rem; display: block; width: 100%; letter-spacing: 3px;
 }
 .enter-nerv-button:hover {
-    background: #f00;
-    color: #000;
-    box-shadow: 0 0 20px #f00;
+    background: #f00; color: #000; box-shadow: 0 0 20px #f00;
 }
 
 /* --- NERV 조직도 GUI 스타일 --- */
 .nerv-gui-container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 110;
+    position: absolute; width: 100%; height: 100%;
+    top: 0; left: 0; z-index: 101; /* back-button보다만 높으면 됨 */
 }
 .nerv-gui-hex-background {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: #080000;
+    position: absolute; width: 100%; height: 100%; background-color: #080000;
     background-image: 
         linear-gradient(rgba(255,0,0,0.07) 1px, transparent 1px),
         linear-gradient(60deg, rgba(255,0,0,0.07) 1px, transparent 1px),
@@ -1595,260 +1544,292 @@ body, html {
     background-size: 40px 69px;
 }
 .nerv-gui-logo {
-    position: absolute;
-    top: 50%;
-    left: 50%;
+    position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 300px;
-    opacity: 0.3;
+    width: 300px; opacity: 0.3;
     animation: slow-pulse 5s infinite ease-in-out;
     filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.7));
 }
-@keyframes slow-pulse {
-    50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.05); }
-}
+@keyframes slow-pulse { 50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.05); } }
 .nerv-gui-exit {
-    position: absolute;
-    top: 30px;
-    right: 40px;
-    z-index: 1100; /* z-index 수정 */
-    background: #111;
-    color: #f00;
-    border: 1px solid #f00;
-    padding: 10px 20px;
-    font-family: 'Orbitron', sans-serif;
-    cursor: pointer;
+    position: absolute; top: 30px; right: 40px; z-index: 10;
+    background: #111; color: #f00; border: 1px solid #f00;
+    padding: 10px 20px; font-family: 'Orbitron', sans-serif; cursor: pointer;
 }
-.hex-grid-container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
+.hex-grid-container { /* ... 데스크탑 스타일은 기존과 동일 ... */
+    position: absolute; width: 100%; height: 100%; top: 0; left: 0;
 }
 .hex-button {
-    position: absolute;
-    width: 140px;
-    height: 161.6px;
-    font-family: 'Share Tech Mono', monospace;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-    transform: translate(-50%, -50%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
+    position: absolute; width: 140px; height: 161.6px;
+    font-family: 'Share Tech Mono', monospace; transition: all 0.3s ease;
+    font-size: 0.9rem; transform: translate(-50%, -50%); display: flex;
+    justify-content: center; align-items: center; text-align: center;
 }
 .hex-button .hex-inner {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+    position: absolute; width: 100%; height: 100%;
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     transition: all 0.3s ease;
 }
-.hex-button.inactive .hex-inner {
-    background: rgba(255, 0, 0, 0.05);
-    border: 1px solid rgba(255, 0, 0, 0.1);
-}
-.hex-button.inactive .hex-content {
-    color: rgba(255, 0, 0, 0.3);
-}
-.hex-button.active .hex-inner {
-    background: rgba(255, 0, 0, 0.2);
-    border: 1px solid #f00;
-}
-.hex-button.active {
-    cursor: pointer;
-}
-.hex-button.active:hover .hex-inner {
-    background: rgba(255, 0, 0, 0.4);
-}
-.hex-button.active:hover .hex-content {
-    color: #fff;
-}
+.hex-button.inactive .hex-inner { background: rgba(255, 0, 0, 0.05); border: 1px solid rgba(255, 0, 0, 0.1); }
+.hex-button.inactive .hex-content { color: rgba(255, 0, 0, 0.3); }
+.hex-button.active .hex-inner { background: rgba(255, 0, 0, 0.2); border: 1px solid #f00; }
+.hex-button.active { cursor: pointer; }
+.hex-button.active:hover .hex-inner { background: rgba(255, 0, 0, 0.4); }
+.hex-button.active:hover .hex-content { color: #fff; }
 .hex-content {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    color: #f00;
-    text-shadow: 0 0 5px #f00;
-    padding: 10px;
+    position: relative; z-index: 1; display: flex; flex-direction: column;
+    color: #f00; text-shadow: 0 0 5px #f00; padding: 10px;
 }
 .hex-label { text-transform: uppercase; }
-.hex-sublabel {
-    margin-top: 5px;
-    font-size: 0.8em;
-    color: #ff8c8c;
-    font-weight: bold;
-}
-.windows-area {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: 600; /* z-index 수정 */
-}
+.hex-sublabel { margin-top: 5px; font-size: 0.8em; color: #ff8c8c; font-weight: bold; }
+
+/* 팝업창, 서브메뉴는 Portal로 렌더링되므로 이 컨테이너는 이제 필요 없습니다. */
+/* .windows-area { ... } */
+
 .personnel-profile-window {
-    position: absolute;
-    width: 500px;
-    background: rgba(20, 0, 0, 0.9);
-    border: 1px solid #f55;
-    box-shadow: 0 0 20px rgba(255,0,0,0.5);
-    pointer-events: auto;
-    backdrop-filter: blur(5px);
+    position: absolute; width: 500px; background: rgba(20, 0, 0, 0.9);
+    border: 1px solid #f55; box-shadow: 0 0 20px rgba(255,0,0,0.5);
+    pointer-events: auto; backdrop-filter: blur(5px);
 }
 .profile-header {
-    background: #f00;
-    color: #000;
-    padding: 8px;
-    font-weight: bold;
-    font-family: 'Orbitron', sans-serif;
-    cursor: grab;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    text-transform: uppercase;
+    background: #f00; color: #000; padding: 8px; font-weight: bold;
+    font-family: 'Orbitron', sans-serif; cursor: grab; display: flex;
+    justify-content: space-between; align-items: center; text-transform: uppercase;
 }
 .profile-header:active { cursor: grabbing; }
-.profile-close-btn {
-    background: none; border: none; color: #000; font-weight: bold; cursor: pointer;
-}
-.profile-content { 
-    padding: 1.5rem; 
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-.profile-main-info {
-    display: flex;
-    gap: 1.5rem;
-    align-items: center;
-}
-.profile-image {
-    width: 120px;
-    height: 120px;
-    border: 2px solid #f55;
-    object-fit: cover;
-    flex-shrink: 0;
-}
-.profile-title-section {
-    flex-grow: 1;
-}
-.profile-name {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.8rem;
-    color: #fff;
-}
-.profile-title {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 1.1rem;
-    color: #f55;
-}
-.profile-details {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-.profile-section {
-    background: rgba(0,0,0,0.3);
-    border: 1px solid #333;
-    padding: 1rem;
-}
+.profile-close-btn { background: none; border: none; color: #000; font-weight: bold; cursor: pointer; }
+.profile-content { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+.profile-main-info { display: flex; gap: 1.5rem; align-items: center; }
+.profile-image { width: 120px; height: 120px; border: 2px solid #f55; object-fit: cover; flex-shrink: 0; }
+.profile-title-section { flex-grow: 1; }
+.profile-name { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; color: #fff; }
+.profile-title { font-family: 'Share Tech Mono', monospace; font-size: 1.1rem; color: #f55; }
+.profile-details { display: flex; flex-direction: column; gap: 1.5rem; }
+.profile-section { background: rgba(0,0,0,0.3); border: 1px solid #333; padding: 1rem; }
 .profile-section h4 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    color: #f55;
-    border-bottom: 1px solid #f55;
-    padding-bottom: 0.5rem;
-    font-family: 'Orbitron', sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+    margin-top: 0; margin-bottom: 1rem; color: #f55;
+    border-bottom: 1px solid #f55; padding-bottom: 0.5rem;
+    font-family: 'Orbitron', sans-serif; text-transform: uppercase; letter-spacing: 2px;
 }
-.profile-section p {
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: #ccc;
-    margin: 0;
-}
-.profile-stats {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-.stat-graph-item {
-    display: grid;
-    grid-template-columns: 150px 1fr 40px;
-    align-items: center;
-    gap: 10px;
-}
+.profile-section p { font-size: 0.9rem; line-height: 1.6; color: #ccc; margin: 0; }
+.profile-stats { display: flex; flex-direction: column; gap: 0.75rem; }
+.stat-graph-item { display: grid; grid-template-columns: 150px 1fr 40px; align-items: center; gap: 10px; }
 .stat-graph-label { font-size: 0.9rem; color: #ccc; }
 .stat-graph-bar-bg { background: #333; height: 12px; border: 1px solid #555; }
 .stat-graph-bar-fill { background: #f55; height: 100%; box-shadow: 0 0 5px #f55; }
 .stat-graph-value { font-family: 'Share Tech Mono', monospace; font-weight: bold; color: #fff; text-align: right;}
-
 .personnel-submenu {
-    position: absolute;
-    background: rgba(0,0,0,0.95);
-    border: 1px solid #f00;
-    padding: 5px;
-    z-index: 1000; /* z-index 수정 */
+    position: fixed; /* Portal로 렌더링되므로 fixed 또는 absolute 사용 */
+    background: rgba(0,0,0,0.95); border: 1px solid #f00;
+    padding: 5px; z-index: 1200; /* 정보창보다 높게 */
     pointer-events: auto;
 }
 .personnel-submenu button {
-    display: block;
-    width: 100%;
-    background: none;
-    border: none;
-    color: #f00;
-    padding: 10px 15px;
-    text-align: left;
-    cursor: pointer;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 1rem;
+    display: block; width: 100%; background: none; border: none;
+    color: #f00; padding: 10px 15px; text-align: left; cursor: pointer;
+    font-family: 'Share Tech Mono', monospace; font-size: 1rem;
 }
-.personnel-submenu button:hover {
-    background: #f00;
-    color: #000;
+.personnel-submenu button:hover { background: #f00; color: #000; }
+.nerv-digital-clock {
+    position: absolute; top: 30px; right: 180px; display: flex;
+    align-items: flex-end; gap: 1.5rem; z-index: 5;
+}
+.clock-info-panel { text-align: right; font-family: 'Orbitron', sans-serif; color: #ff6a00; }
+.info-line-1 { font-size: 1.5rem; font-weight: bold; letter-spacing: 2px; border-bottom: 2px solid #ff6a00; padding-bottom: 2px; }
+.info-line-2 { font-size: 0.8rem; letter-spacing: 1px; }
+.clock-time-display {
+    font-family: 'Orbitron', sans-serif; font-size: 3.2rem; font-weight: 700;
+    color: #ff6a00; text-shadow: 0 0 15px rgba(255, 106, 0, 0.8);
+    background-color: #1a0a00; padding: 5px 15px; border: 2px solid #ff6a00;
+    min-width: 250px; text-align: center;
+}
+
+/* === NERV PAGE 반응형 스타일 시작 === */
+@media (max-width: 1159px) {
+    .nerv-page-layout:not(.gui-active) {
+        overflow-y: auto;
+    }
+    .nerv-main-content {
+        flex-direction: column; gap: 2rem; text-align: center;
+        max-width: 90vw; padding: 5vh 0;
+    }
+    .nerv-image-container {
+        width: 100%; max-width: 400px;  margin-bottom: -200px;
+    }
+    .nerv-image-container::after{bottom: 64px;}
+    .nerv-description-box { width: 100%; }
+}
+
+@media (max-width: 918px) {
+    .nerv-page-layout { padding: 1rem; }
+    .nerv-page-layout.gui-active { overflow: hidden; }
+    .nerv-header { font-size: 1rem; padding: 8px; letter-spacing: 2px; }
+    .nerv-title { font-size: 1.8rem; }
+    .nerv-text { font-size: 0.95rem; text-align: left; }
+    .enter-nerv-button { padding: 12px; font-size: 1rem; }
+    
+    /* --- GUI 모바일 스타일 --- */
+    /* [문제점 1 해결] GUI 컨테이너를 flex로 만들어 내부 아이템 높이 관리 */
+  /* --- GUI 모바일 스타일 --- */
+.nerv-gui-container.mobile {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.nerv-gui-exit {
+    /* Portal로 분리된 ProfileWindow와의 z-index 충돌을 피하기 위해 GUI 내부에 고정 */
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    z-index: 10;
 }
 .nerv-digital-clock {
+    /* [문제점 1 해결] 중앙 배치를 위해 absolute 포지션으로 변경 */
     position: absolute;
-    top: 30px;
-    right: 180px;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    z-index: 5;
+    /* flex 관련 속성 유지 */
     display: flex;
-    align-items: flex-end;
-    gap: 1.5rem;
-    z-index: 500;
-}
-.clock-info-panel {
-    text-align: right;
-    font-family: 'Orbitron', sans-serif;
-    color: #ff6a00;
-}
-.info-line-1 {
-    font-size: 1.5rem;
-    font-weight: bold;
-    letter-spacing: 2px;
-    border-bottom: 2px solid #ff6a00;
-    padding-bottom: 2px;
-}
-.info-line-2 {
-    font-size: 0.8rem;
-    letter-spacing: 1px;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.4;
 }
 .clock-time-display {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 3.2rem;
-    font-weight: 700;
-    color: #ff6a00;
-    text-shadow: 0 0 15px rgba(255, 106, 0, 0.8);
-    background-color: #1a0a00;
-    padding: 5px 15px;
-    border: 2px solid #ff6a00;
-    min-width: 250px; /* 고정 너비 추가 */
-    text-align: center; /* 텍스트 중앙 정렬 */
+    /* [문제점 1 해결] min()을 사용한 반응형 폰트 크기 */
+    font-size: min(2rem, 6vw);
+    min-width: auto;
+    padding: 2px 10px;
 }
+.clock-info-panel {
+    /* [문제점 1 해결] 숨김 처리 제거 및 폰트 크기 조정 */
+    display: block;
+    font-size: min(0.7rem, 2.5vw);
+    text-align: center;
+}
+.nerv-gui-logo {
+    width: 150px;
+    opacity: 0.2;
+    left: 50%; /* 로고는 중앙에 유지 */
+}
+.hex-grid-container {
+    display: none;
+}
+.hex-list-container-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    width: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
+    flex-grow: 1;
+    height: auto;
+    /* 시계와 버튼이 차지하는 공간 확보 */
+    padding-top: 85px;
+}
+.hex-button-mobile {
+    width: 100%;
+    max-width: 400px;
+    padding: 1.2rem;
+    background: rgba(255, 0, 0, 0.2);
+    border: 1px solid #f00;
+    color: #f00;
+    text-shadow: 0 0 5px #f00;
+    font-family: 'Share Tech Mono', monospace;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+.hex-button-mobile:hover {
+    background: rgba(255, 0, 0, 0.4);
+    color: #fff;
+}
+.hex-button-mobile .hex-content {
+    flex-direction: column;
+    gap: 5px;
+}
+.hex-button-mobile .hex-label {
+    font-size: 1.1rem;
+}
+.hex-button-mobile .hex-sublabel {
+    font-size: 0.8rem;
+    color: #ff8c8c;
+}
+
+/* --- 프로필 창 모바일 스타일 (기존과 동일) --- */
+.personnel-profile-window.mobile {
+    background: rgba(15, 0, 0, 0.98);
+    border: none;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+}
+.personnel-profile-window.mobile .profile-header {
+    flex-shrink: 0;
+}
+.personnel-profile-window.mobile .profile-content {
+    overflow-y: auto;
+    padding: 1rem;
+    gap: 1rem;
+}
+.personnel-profile-window.mobile .profile-main-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+}
+.personnel-profile-window.mobile .profile-image {
+    width: 100px;
+    height: 100px;
+}
+.personnel-profile-window.mobile .profile-name {
+    font-size: 1.5rem;
+}
+.personnel-profile-window.mobile .profile-title {
+    font-size: 1rem;
+}
+.personnel-profile-window.mobile .stat-graph-item {
+    grid-template-columns: minmax(80px, 110px) 1fr 35px;
+    gap: 8px;
+}
+.personnel-profile-window.mobile .stat-graph-label {
+    font-size: 0.8rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* [문제점 2 해결] 모바일용 하단 메뉴 스타일 */
+.personnel-submenu.mobile-bottom {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 450px;
+    border-radius: 8px;
+    background: rgba(20, 0, 0, 0.95);
+    backdrop-filter: blur(5px);
+    padding: 10px;
+    box-sizing: border-box;
+    z-index: 1200; /* 정보창보다 위에 오도록 */
+}
+
+.personnel-submenu.mobile-bottom button {
+    text-align: center;
+    border-radius: 4px;
+    margin: 5px 0;
+}
+}
+
+/* === NERV PAGE 반응형 스타일 끝 === */
+
 /*seele page*/
 .seele-page-layout {
   position: absolute;

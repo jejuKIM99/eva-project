@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom'; // ReactDOM을 import 합니다.
 
-// 이미지 import
+// 이미지 import (기존과 동일)
 import gendoImage from '../img/gendo.png';
 import nervLogo from '../img/nervLogo.png';
 import gendoProfile from '../img/gendo_profile.jpg';
-import fuyutsukiProfile from '../img/fuyutsuki.jpg'; 
+import fuyutsukiProfile from '../img/fuyutsuki.jpg';
 import misatoProfile from '../img/misato_profile.jpg';
 import ritsukoProfile from '../img/ritsuko_profile.jpg';
 import mayaProfile from '../img/maya_profile.jpg';
@@ -12,7 +13,18 @@ import kajiProfile from '../img/kaji_profile.jpg';
 import makotoProfile from '../img/makoto_profile.jpg';
 import shigeruProfile from '../img/shigeru_profile.jpg';
 
-// --- 인물 데이터 ---
+// --- 화면 크기 감지 커스텀 훅 (기존과 동일) ---
+const useWindowSize = () => {
+    const [width, setWidth] = useState(window.innerWidth);
+    useEffect(() => {
+        const handleResize = () => setWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    return width;
+};
+
+// --- 데이터 (기존과 동일) ---
 const personnelData = {
     gendo: { name: "Gendo Ikari", title: "Commander", image: gendoProfile, stats: { 'Loyalty (SEELE)': 25, 'Decision Making': 98, 'Ruthlessness': 99, 'Paternal Instinct': 5 } },
     fuyutsuki: { name: "Kozo Fuyutsuki", title: "Sub-Commander", image: fuyutsukiProfile, stats: { 'Loyalty (Gendo)': 95, 'Caution': 90, 'Stress Level': 75, 'Regret': 85 } },
@@ -23,8 +35,6 @@ const personnelData = {
     makoto: { name: "Makoto Hyuga", title: "1st Lieutenant", image: makotoProfile, stats: { 'Data Analysis': 88, 'Discretion': 70, 'Unrequited Love': 99, 'Overtime Hours': 92 } },
     shigeru: { name: "Shigeru Aoba", title: "1st Lieutenant", image: shigeruProfile, stats: { 'Communication': 85, 'Cynicism': 90, 'Guitar Skill': 78, 'Existential Dread': 85 } },
 };
-
-// --- 조직도 데이터 (부서 설명 추가) ---
 const nervStructure = {
     command: { title: "Command Staff", members: ['gendo', 'fuyutsuki'], description: "The central nervous system of NERV, responsible for all high-level strategic decisions and the secret execution of Project Instrumentality." },
     tactical: { title: "Tactical Dept.", members: ['misato'], description: "Directs all combat scenarios involving the Evangelion units. This department lives and dies by seconds and centimeters." },
@@ -33,35 +43,60 @@ const nervStructure = {
     bridge: { title: "Bridge Operations", members: ['makoto', 'shigeru'], description: "The frontline of data warfare. These operators process vast amounts of combat data in real-time from the safety of the Central Dogma." },
 };
 
-// --- 프로필 윈도우 컴포넌트 ---
-const ProfileWindow = ({ personKey, deptDescription, onClose, onFocus, zIndex }) => {
+// --- 컴포넌트 (수정됨) ---
+const ProfileWindow = ({ personKey, deptDescription, onClose, onFocus, zIndex, isMobile }) => {
     const person = personnelData[personKey];
-    const [position, setPosition] = useState({ x: window.innerWidth / 2 - 200 + Math.random() * 100, y: window.innerHeight / 2 - 250 + Math.random() * 100 });
+    const [position, setPosition] = useState({ x: window.innerWidth / 2 - 250, y: window.innerHeight / 2 - 300 });
     const windowRef = useRef(null);
     const gsap = window.gsap;
 
     useEffect(() => {
-        gsap.fromTo(windowRef.current, {scale: 0.5, autoAlpha: 0}, {scale: 1, autoAlpha: 1, duration: 0.4, ease: 'power2.out'});
-    }, [gsap]);
+        if (isMobile) {
+            gsap.fromTo(windowRef.current, { autoAlpha: 0, y: '100vh' }, { autoAlpha: 1, y: '0%', duration: 0.5, ease: 'power3.out' });
+        } else {
+            gsap.fromTo(windowRef.current, { scale: 0.5, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.4, ease: 'power2.out' });
+        }
+    }, [gsap, isMobile]);
 
     const handleMouseDown = (e) => {
+        if (isMobile) return;
         if (e.target.className.includes('profile-header')) {
             onFocus();
             const dragStartPos = { x: e.clientX - position.x, y: e.clientY - position.y };
-            const handleMouseMove = (moveE) => { setPosition({ x: moveE.clientX - dragStartPos.x, y: moveE.clientY - dragStartPos.y }); };
+            const handleMouseMove = (moveE) => setPosition({ x: moveE.clientX - dragStartPos.x, y: moveE.clientY - dragStartPos.y });
             const handleMouseUp = () => { window.removeEventListener('mousemove', handleMouseMove); window.removeEventListener('mouseup', handleMouseUp); };
             window.addEventListener('mousemove', handleMouseMove);
             window.addEventListener('mouseup', handleMouseUp);
         }
     };
+    const handleClose = () => {
+        const closeAction = () => onClose(personKey);
+        if (isMobile) {
+            gsap.to(windowRef.current, { y: '100vh', autoAlpha: 0, duration: 0.5, ease: 'power3.in', onComplete: closeAction });
+        } else {
+            gsap.to(windowRef.current, { scale: 0.5, autoAlpha: 0, duration: 0.3, ease: 'power2.in', onComplete: closeAction });
+        }
+    };
+    
+    const windowStyle = isMobile ? {
+        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1100,
+    } : {
+        top: `${position.y}px`, left: `${position.x}px`, zIndex,
+    };
 
     return (
-        <div className="personnel-profile-window" ref={windowRef} style={{ top: `${position.y}px`, left: `${position.x}px`, zIndex }} onMouseDown={handleMouseDown}>
-            <div className="profile-header"><span>PERSONNEL FILE: {person.name}</span><button onClick={() => onClose(personKey)} className="profile-close-btn">[X]</button></div>
+        <div className={`personnel-profile-window ${isMobile ? 'mobile' : ''}`} ref={windowRef} style={windowStyle} onMouseDown={handleMouseDown}>
+             <div className="profile-header">
+                <span>PERSONNEL FILE: {person.name}</span>
+                <button onClick={handleClose} className="profile-close-btn">[X]</button>
+            </div>
             <div className="profile-content">
                 <div className="profile-main-info">
                     <img src={person.image} alt={person.name} className="profile-image" />
-                    <div className="profile-title-section"><div className="profile-name">{person.name}</div><div className="profile-title">{person.title}</div></div>
+                    <div className="profile-title-section">
+                        <div className="profile-name">{person.name}</div>
+                        <div className="profile-title">{person.title}</div>
+                    </div>
                 </div>
                 <div className="profile-details">
                     <div className="profile-section"><h4>Department Briefing</h4><p>{deptDescription}</p></div>
@@ -70,7 +105,7 @@ const ProfileWindow = ({ personKey, deptDescription, onClose, onFocus, zIndex })
                             {Object.entries(person.stats).map(([key, value]) => (
                                 <div className="stat-graph-item" key={key}>
                                     <div className="stat-graph-label">{key}</div>
-                                    <div className="stat-graph-bar-bg"><div className="stat-graph-bar-fill" style={{width: `${value}%`}}></div></div>
+                                    <div className="stat-graph-bar-bg"><div className="stat-graph-bar-fill" style={{ width: `${value}%` }}></div></div>
                                     <div className="stat-graph-value">{value}</div>
                                 </div>
                             ))}
@@ -82,24 +117,34 @@ const ProfileWindow = ({ personKey, deptDescription, onClose, onFocus, zIndex })
     );
 };
 
-// --- 서브 메뉴 컴포넌트 ---
-const SubMenu = ({ members, position, onSelect, onClose }) => {
+const SubMenu = ({ members, position, onSelect, onClose, isMobile }) => {
     const menuRef = useRef(null);
     useEffect(() => {
-        window.gsap.fromTo(menuRef.current, {autoAlpha: 0, scale: 0.8}, {autoAlpha: 1, scale: 1, duration: 0.2});
-        const handleClickOutside = (event) => { if (menuRef.current && !menuRef.current.contains(event.target)) { onClose(); } };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        window.gsap.fromTo(menuRef.current, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.2 });
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                onClose();
+            }
+        };
+        const timerId = setTimeout(() => {
+            document.addEventListener("mousedown", handleClickOutside);
+        }, 0);
+        return () => {
+            clearTimeout(timerId);
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
     }, [onClose]);
 
+    // 모바일이 아닐 때만 top, left 스타일을 적용
+    const style = !isMobile && position ? { top: position.y, left: position.x } : {};
+
     return (
-        <div className="personnel-submenu" ref={menuRef} style={{ top: position.y, left: position.x }}>
+        <div className={`personnel-submenu ${isMobile ? 'mobile-bottom' : ''}`} ref={menuRef} style={style}>
             {members.map(personKey => <button key={personKey} onClick={() => onSelect(personKey)}>{personnelData[personKey].name}</button>)}
         </div>
     );
 };
 
-// --- 디지털 시계 컴포넌트 ---
 const DigitalClock = () => {
     const [time, setTime] = useState(new Date());
     useEffect(() => {
@@ -123,13 +168,14 @@ const DigitalClock = () => {
     );
 };
 
-// --- 조직도 GUI 컴포넌트 ---
 const NervOrganizationGUI = ({ onExit }) => {
     const [openProfiles, setOpenProfiles] = useState({});
     const [profileFocusOrder, setProfileFocusOrder] = useState([]);
     const [activeSubMenu, setActiveSubMenu] = useState(null);
     const guiRef = useRef(null);
     const gsap = window.gsap;
+    const width = useWindowSize();
+    const isMobile = width <= 918;
 
     const hexLayout = [
         { top: '20%', left: '25%', label: nervStructure.command.title, deptKey: 'command', isActive: true }, { top: '35%', left: '15%', label: nervStructure.tactical.title, deptKey: 'tactical', isActive: true },
@@ -140,37 +186,58 @@ const NervOrganizationGUI = ({ onExit }) => {
         { top: '5%', left: '28%', label: 'PANEL', isActive: false }, { top: '22%', left: '70%', label: 'TEMP', isActive: false }, { top: '38%', left: '78%', label: 'STATUS', isActive: false },
         { top: '55%', left: '80%', label: 'ACCESS', isActive: false }, { top: '70%', left: '75%', label: 'SECURITY', isActive: false }, { top: '85%', left: '65%', label: 'DATA', isActive: false },
     ];
-
+    
     useEffect(() => { gsap.fromTo(guiRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 }); }, [gsap]);
 
     const handleHexClick = (deptKey, e) => {
         const members = nervStructure[deptKey].members;
-        if (members.length === 1) { handleOpenProfile(members[0], deptKey); } 
-        else { const rect = e.currentTarget.getBoundingClientRect(); setActiveSubMenu({ members, deptKey, position: { y: rect.top, x: rect.right + 10 } }); }
+        if (members.length === 1) {
+            handleOpenProfile(members[0], deptKey);
+        } else {
+            // 모바일에서는 위치 정보 없이, 데스크탑에서는 위치 정보를 포함하여 SubMenu를 엽니다.
+            if (isMobile) {
+                setActiveSubMenu({ members, deptKey });
+            } else {
+                const rect = e.currentTarget.getBoundingClientRect();
+                setActiveSubMenu({ members, deptKey, position: { y: rect.top, x: rect.right + 10 } });
+            }
+        }
     };
-
+    
+    const mobileHexLayout = hexLayout.filter(hex => hex.isActive);
     const handleOpenProfile = (personKey, deptKey) => { setOpenProfiles(prev => ({ ...prev, [personKey]: deptKey })); handleFocus(personKey); setActiveSubMenu(null); };
     const handleCloseProfile = (personKey) => { setOpenProfiles(prev => { const newProfiles = { ...prev }; delete newProfiles[personKey]; return newProfiles; }); setProfileFocusOrder(prev => prev.filter(p => p !== personKey)); };
     const handleFocus = (personKey) => { setProfileFocusOrder(prev => [personKey, ...prev.filter(p => p !== personKey)]); };
 
     return (
-        <div className="nerv-gui-container" ref={guiRef}>
-            <button className="nerv-gui-exit" onClick={onExit}>[ EXIT ]</button>
+        <div className={`nerv-gui-container ${isMobile ? 'mobile' : ''}`} ref={guiRef}>
             <DigitalClock />
+            <button className="nerv-gui-exit" onClick={onExit}>[ EXIT ]</button>
             <div className="nerv-gui-hex-background"></div>
             <img src={nervLogo} alt="NERV Logo" className="nerv-gui-logo" />
-            <div className="hex-grid-container">
-                 {hexLayout.map((hex, index) => <div key={index} className={`hex-button ${hex.isActive ? 'active' : 'inactive'}`} style={{ top: hex.top, left: hex.left }} onClick={hex.isActive ? (e) => handleHexClick(hex.deptKey, e) : null}>
-                    <div className="hex-inner"></div><div className="hex-content"><span className="hex-label">{hex.label}</span>{hex.isActive && <span className="hex-sublabel">OPEN</span>}</div></div>)}
+
+            <div className={isMobile ? "hex-list-container-mobile" : "hex-grid-container"}>
+                {isMobile ? (
+                    mobileHexLayout.map((hex) => (
+                        <div key={hex.deptKey} className="hex-button-mobile active" onClick={(e) => handleHexClick(hex.deptKey, e)}>
+                            <div className="hex-content"><span className="hex-label">{hex.label}</span><span className="hex-sublabel">OPEN</span></div>
+                        </div>
+                    ))
+                ) : (
+                    hexLayout.map((hex, index) => <div key={index} className={`hex-button ${hex.isActive ? 'active' : 'inactive'}`} style={{ top: hex.top, left: hex.left }} onClick={hex.isActive ? (e) => handleHexClick(hex.deptKey, e) : null}><div className="hex-inner"></div><div className="hex-content"><span className="hex-label">{hex.label}</span>{hex.isActive && <span className="hex-sublabel">OPEN</span>}</div></div>)
+                )}
             </div>
-            <div className="windows-area">
-                {Object.entries(openProfiles).map(([key, deptKey]) => <ProfileWindow key={key} personKey={key} deptDescription={nervStructure[deptKey].description} onClose={handleCloseProfile} onFocus={() => handleFocus(key)} zIndex={profileFocusOrder.indexOf(key) * -1 + 100} />)}
-                {activeSubMenu && <SubMenu {...activeSubMenu} onSelect={(personKey) => handleOpenProfile(personKey, activeSubMenu.deptKey)} onClose={() => setActiveSubMenu(null)} />}
-            </div>
+            
+            {ReactDOM.createPortal(
+                <>
+                    {Object.entries(openProfiles).map(([key, deptKey]) => <ProfileWindow key={key} personKey={key} deptDescription={nervStructure[deptKey].description} onClose={handleCloseProfile} onFocus={() => handleFocus(key)} zIndex={profileFocusOrder.indexOf(key) * -1 + 100} isMobile={isMobile} />)}
+                    {activeSubMenu && <SubMenu {...activeSubMenu} onSelect={(personKey) => handleOpenProfile(personKey, activeSubMenu.deptKey)} onClose={() => setActiveSubMenu(null)} isMobile={isMobile} />}
+                </>,
+                document.body
+            )}
         </div>
     );
 };
-
 
 const NervPage = ({ onBack }) => {
     const [showGui, setShowGui] = useState(false);
@@ -186,7 +253,7 @@ const NervPage = ({ onBack }) => {
     const handleExitGui = () => { setShowGui(false); };
 
     return (
-        <div className="nerv-page-layout" ref={pageRef}>
+        <div className={`nerv-page-layout ${showGui ? 'gui-active' : ''}`} ref={pageRef}>
             <button className="back-button" onClick={onBack}>← MENU</button>
             {!showGui ? (
                 <div className="nerv-main-content">
