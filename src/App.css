@@ -949,11 +949,21 @@ body, html {
   }
 
   .eva-card {
-    width: 80vw;
+    width: 56vw;
     max-width: 300px;
     height: auto;
     aspect-ratio: 350 / 500; /* 비율 유지 */
     transform: none !important; /* JS로 제어되는 transform 무효화 */
+  }
+  .card-unit.unit01{
+    width: 250%;
+    left: 2%;
+    top: 2%;
+  }
+  .card-unit.unit02{
+    width: 252%;
+    left: 2%;
+    top: 1%;
   }
 
   .card-unit {
