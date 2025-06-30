@@ -12,14 +12,13 @@ import unit02FullImage from '../img/unit02_full.png';
 import unit01BerserkImage from '../img/unit01_berserk.png'; // 광폭화 이미지 추가
 
 // --- 유닛 데이터 확장 ---
-// 광폭 모드 데이터 추가
 const evaData = {
-    unit01: { 
-        name: "UNIT-01", 
+    unit01: {
+        name: "UNIT-01",
         id: "unit01",
-        image: unit01Image, 
-        backImage: unit01BackImage, 
-        cardBackImage: unit01CardBackImage, 
+        image: unit01Image,
+        backImage: unit01BackImage,
+        cardBackImage: unit01CardBackImage,
         fullImage: unit01FullImage,
         specs: { "Model Type": "Test Type", "Pilot": "Shinji Ikari", "Height": "75m", "Weight": "700t", "Power Source": "External Umbilical Cable, Internal Battery (5 min)", "Core Unit": "Yui Ikari", "Primary Armaments": "Progressive Knife, Pallet Rifle", "Special Abilities": "Berserk Mode, A.T. Field Generation, Regeneration", "Operational History": "First operational EVA unit. Extensive combat record against multiple Angel threats. Known for unpredictable, autonomous actions under extreme duress." },
         performance: { "Power": 95, "Defense": 88, "Mobility": 85, "Accuracy": 82, "A.T. Field": 98 },
@@ -29,12 +28,12 @@ const evaData = {
             performance: { "Power": 500, "Defense": 300, "Mobility": 400, "Accuracy": 150, "A.T. Field": 500 }
         }
     },
-    unit02: { 
-        name: "UNIT-02", 
+    unit02: {
+        name: "UNIT-02",
         id: "unit02",
-        image: unit02Image, 
-        backImage: unit02BackImage, 
-        cardBackImage: unit02CardBackImage, 
+        image: unit02Image,
+        backImage: unit02BackImage,
+        cardBackImage: unit02CardBackImage,
         fullImage: unit02FullImage,
         specs: { "Model Type": "Production Model", "Pilot": "Asuka Langley Soryu", "Height": "75m", "Weight": "650t", "Power Source": "External Umbilical Cable, Internal Battery (5 min)", "Core Unit": "Kyoko Zeppelin Soryu", "Primary Armaments": "Progressive Knife, Pallet Rifle, Sonic Glaive", "Special Abilities": "First production-model with stable operational capabilities. Designed for specialized combat roles.", "Operational History": "First deployed in aquatic combat against Gaghiel. Showcased high performance under its designated pilot but exhibited synchronization issues later on." },
         performance: { "Power": 90, "Defense": 92, "Mobility": 94, "Accuracy": 96, "A.T. Field": 91 }
@@ -47,9 +46,9 @@ const PerformanceGraph = ({ label, value, isBerserk }) => {
     const barRef = useRef(null);
     const gsap = window.gsap;
     useEffect(() => {
-        if(barRef.current) {
+        if (barRef.current) {
             const displayValue = Math.min(value, 100); // 시각적 표시는 100%를 최대로
-            gsap.fromTo(barRef.current, { width: 0 }, { width: `${displayValue}%`, duration: 1.5, ease: 'power3.out', delay: 0.5 });
+            gsap.fromTo(barRef.current, { width: '0%' }, { width: `${displayValue}%`, duration: 1.5, ease: 'power3.out', delay: 0.5 });
         }
     }, [value, gsap]);
 
@@ -71,12 +70,15 @@ const SyncGraph = ({ color, isBerserk }) => {
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         let animationFrameId;
-        const resizeCanvas = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
+        const resizeCanvas = () => {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        };
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
         let t = 0;
         const draw = () => {
-            t += isBerserk ? 0.3 : 0.1; // 광폭화 시 더 빠르게
+            t += isBerserk ? 0.3 : 0.1;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.strokeStyle = color;
             ctx.lineWidth = 2;
@@ -93,23 +95,41 @@ const SyncGraph = ({ color, isBerserk }) => {
             animationFrameId = requestAnimationFrame(draw);
         };
         draw();
-        return () => { cancelAnimationFrame(animationFrameId); window.removeEventListener('resize', resizeCanvas); };
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+            window.removeEventListener('resize', resizeCanvas);
+        };
     }, [color, isBerserk]);
     return <div className="sync-graph-container"><canvas ref={canvasRef}></canvas></div>;
 };
 
 
 // --- 분석 GUI 컴포넌트 ---
-const EvaAnalysisGUI = ({ eva, onClose, isBerserk, onToggleBerserk }) => {
+const EvaAnalysisGUI = ({ eva, onClose, isBerserk, onToggleBerserk, isMobile }) => {
     const guiRef = useRef(null);
     const gsap = window.gsap;
-    
+
     const currentData = isBerserk && eva.berserk ? eva.berserk : eva;
     const currentPerformance = isBerserk && eva.berserk ? eva.berserk.performance : eva.performance;
 
-    useEffect(() => {
-        gsap.fromTo(guiRef.current, { autoAlpha: 0, scale: 1.1 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: 'power3.out' });
-    }, [gsap]);
+    // GUI 등장 애니메이션
+    useLayoutEffect(() => {
+        if (isMobile) {
+            gsap.fromTo(guiRef.current, { y: '100vh' }, { y: '0vh', duration: 0.7, ease: 'power3.out' });
+        } else {
+            gsap.fromTo(guiRef.current, { autoAlpha: 0, scale: 1.1 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: 'power3.out' });
+        }
+    }, [gsap, isMobile]);
+
+    // GUI 닫기 애니메이션
+    const handleClose = () => {
+        const tl = gsap.timeline({ onComplete: onClose });
+        if (isMobile) {
+            tl.to(guiRef.current, { y: '100vh', duration: 0.7, ease: 'power3.in' });
+        } else {
+            tl.to(guiRef.current, { autoAlpha: 0, scale: 1.1, duration: 0.5, ease: 'power3.in' });
+        }
+    };
 
     return (
         <div className={`eva-analysis-gui ${eva.id} ${isBerserk ? 'berserk' : ''}`} ref={guiRef}>
@@ -118,7 +138,7 @@ const EvaAnalysisGUI = ({ eva, onClose, isBerserk, onToggleBerserk }) => {
                 <span className="header-title">
                     {isBerserk ? "WARNING: BERSERK MODE" : `EVANGELION ${eva.name} // ANALYSIS`}
                 </span>
-                <button className="analysis-close-btn" onClick={onClose}>[X]</button>
+                <button className="analysis-close-btn" onClick={handleClose}>[X]</button>
             </div>
             <div className="analysis-content">
                 <div className="analysis-left-panel">
@@ -136,7 +156,7 @@ const EvaAnalysisGUI = ({ eva, onClose, isBerserk, onToggleBerserk }) => {
                         <h4 className="data-title">SYSTEM LOG</h4>
                         <p className="log-text">
                             {isBerserk ? "[ERROR] SYNC RATE > 400%\n[ERROR] CONNECTION TO PILOT LOST\n[ERROR] MANUAL CONTROL OVERRIDDEN\n[WARNING] BEAST MODE DETECTED"
-                                      : "[LOG] BOOT SEQUENCE INITIATED...\n[LOG] LCL DENSITY NORMAL...\n[LOG] SYNC RATIO STABLE...\n[LOG] UMBILICAL CABLE CONNECTED...\n[LOG] ALL SYSTEMS NOMINAL."}
+                                : "[LOG] BOOT SEQUENCE INITIATED...\n[LOG] LCL DENSITY NORMAL...\n[LOG] SYNC RATIO STABLE...\n[LOG] UMBILICAL CABLE CONNECTED...\n[LOG] ALL SYSTEMS NOMINAL."}
                         </p>
                     </div>
                 </div>
@@ -162,53 +182,154 @@ const EvaAnalysisGUI = ({ eva, onClose, isBerserk, onToggleBerserk }) => {
 const EvangelionPage = ({ onBack }) => {
     const [selectedEva, setSelectedEva] = useState(null);
     const [showDescription, setShowDescription] = useState(false);
-    const [isBerserk, setIsBerserk] = useState(false); // 광폭 모드 상태 추가
+    const [isBerserk, setIsBerserk] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
+
     const pageRef = useRef(null);
     const cardContainerRef = useRef(null);
     const fullscreenViewRef = useRef(null);
     const actionButtonsRef = useRef(null);
     const cardRefs = { unit01: useRef(null), unit02: useRef(null) };
     const gsap = window.gsap;
-    const prevSelectedEva = useRef(null);
 
-    const handleMouseMove = (e, key) => { if (selectedEva) return; const card = cardRefs[key].current; const { left, top, width, height } = card.getBoundingClientRect(); const x = e.clientX - left - width / 2; const y = e.clientY - top - height / 2; const rotateY = (x / width) * 30; const rotateX = -(y / height) * 30; gsap.to(card, { rotationY: rotateY, rotationX: rotateX, ease: 'power1.out', duration: 0.8 }); };
-    const handleMouseLeave = (key) => { if (selectedEva) return; gsap.to(cardRefs[key].current, { rotationY: 0, rotationX: 0, ease: 'power2.out', duration: 1 }); };
-    const handleSelectEva = (key) => { if (selectedEva) return; setSelectedEva(key); };
-    const handleCloseFullscreen = () => { if (showDescription) return; setSelectedEva(null); setIsBerserk(false); };
-    const handleDownload = () => { if (!selectedEva) return; const link = document.createElement('a'); link.href = evaData[selectedEva].backImage; link.download = `${selectedEva}-background.png`; document.body.appendChild(link); link.click(); document.body.removeChild(link); };
+    useEffect(() => {
+        const mediaQuery = window.matchMedia("(max-width: 768px)");
+        const handleResize = () => setIsMobile(mediaQuery.matches);
+        handleResize();
+        mediaQuery.addEventListener('change', handleResize);
+        return () => mediaQuery.removeEventListener('change', handleResize);
+    }, []);
+
+    const handleMouseMove = (e, key) => {
+        if (selectedEva || isMobile) return;
+        const card = cardRefs[key].current;
+        const { left, top, width, height } = card.getBoundingClientRect();
+        const x = e.clientX - left - width / 2;
+        const y = e.clientY - top - height / 2;
+        const rotateY = (x / width) * 30;
+        const rotateX = -(y / height) * 30;
+        gsap.to(card, { rotationY: rotateY, rotationX: rotateX, ease: 'power1.out', duration: 0.8 });
+    };
+
+    const handleMouseLeave = (key) => {
+        if (selectedEva || isMobile) return;
+        gsap.to(cardRefs[key].current, { rotationY: 0, rotationX: 0, ease: 'power2.out', duration: 1 });
+    };
+
+    const handleSelectEva = (key) => {
+        if (selectedEva) return;
+        setSelectedEva(key);
+    };
+
+    const handleCloseFullscreen = () => {
+        if (showDescription) return;
+        setSelectedEva(null);
+    };
+
+    const handleShowDescription = () => {
+        if (!showDescription) {
+            setShowDescription(true);
+        }
+    };
     
+    const handleCloseDescription = () => {
+        setShowDescription(false);
+    }
+    
+    const handleDownload = () => {
+        if (!selectedEva) return;
+        const link = document.createElement('a');
+        link.href = evaData[selectedEva].backImage;
+        link.download = `${selectedEva}-background.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     useLayoutEffect(() => {
         gsap.set(pageRef.current, { autoAlpha: 0 });
         gsap.set(cardContainerRef.current, { autoAlpha: 0, y: 50 });
-        Object.values(cardRefs).forEach(ref => { if(ref.current) { gsap.set(ref.current, { rotationX: 0, rotationY: 0, transformPerspective: 1000 }); } });
-    }, [gsap]);
+        Object.values(cardRefs).forEach(ref => {
+            if (ref.current) {
+                gsap.set(ref.current, { rotationX: 0, rotationY: 0, transformPerspective: 1000 });
+            }
+        });
 
-    useEffect(() => {
         gsap.to(pageRef.current, { autoAlpha: 1, duration: 0.5 });
         gsap.to(cardContainerRef.current, { autoAlpha: 1, y: 0, duration: 0.8, delay: 0.3 });
     }, [gsap]);
 
     useEffect(() => {
-        const wasSelected = prevSelectedEva.current;
-        prevSelectedEva.current = selectedEva;
-        if (!selectedEva) { setShowDescription(false); setIsBerserk(false); }
-        if (selectedEva && !wasSelected) { gsap.timeline().to(cardContainerRef.current, { autoAlpha: 0, scale: 0.9, duration: 0.5, ease: 'power2.in' }).fromTo(fullscreenViewRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.7, ease: 'power2.out' }).fromTo(actionButtonsRef.current, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.5 }, "-=0.3"); } 
-        else if (!selectedEva && wasSelected) { gsap.timeline().to(fullscreenViewRef.current, { autoAlpha: 0, duration: 0.5, ease: 'power2.in' }).to(cardContainerRef.current, { autoAlpha: 1, scale: 1, duration: 0.7, ease: 'power2.out' }); }
+        if (selectedEva) {
+            const tl = gsap.timeline();
+            tl.to(cardContainerRef.current, { autoAlpha: 0, scale: 0.9, duration: 0.5, ease: 'power2.in' })
+              .to(fullscreenViewRef.current, { autoAlpha: 1, duration: 0.7, ease: 'power2.out' }, "-=0.2")
+              .fromTo(actionButtonsRef.current, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.5 }, "-=0.3");
+        } else {
+            // Reset berserk state when closing
+            setIsBerserk(false);
+            const tl = gsap.timeline();
+            tl.to(fullscreenViewRef.current, { autoAlpha: 0, duration: 0.5, ease: 'power2.in' })
+              .to(cardContainerRef.current, { autoAlpha: 1, scale: 1, duration: 0.7, ease: 'power2.out' });
+        }
     }, [selectedEva, gsap]);
+    
+    // Toggle action buttons visibility based on description GUI state
+    useEffect(() => {
+        gsap.to(actionButtonsRef.current, {
+            autoAlpha: showDescription ? 0 : 1,
+            pointerEvents: showDescription ? 'none' : 'auto',
+            duration: 0.3
+        });
+    }, [showDescription, gsap]);
+
 
     return (
         <div className="evangelion-page-layout" ref={pageRef}>
             <button className="back-button" onClick={onBack}>← MENU</button>
+
             <div className="eva-card-container" ref={cardContainerRef}>
-                {evas.map(key => <div key={key} ref={cardRefs[key]} className="eva-card" onMouseMove={(e) => handleMouseMove(e, key)} onMouseLeave={() => handleMouseLeave(key)} onClick={() => handleSelectEva(key)}>
-                    <div className="card-bg" style={{ backgroundImage: `url(${evaData[key].cardBackImage})` }}></div><img src={evaData[key].image} alt={evaData[key].name} className={`card-unit ${key}`} /><h2 className="card-title">{evaData[key].name}</h2></div>)}
+                {evas.map(key => (
+                    <div
+                        key={key}
+                        ref={cardRefs[key]}
+                        className="eva-card"
+                        onMouseMove={(e) => handleMouseMove(e, key)}
+                        onMouseLeave={() => handleMouseLeave(key)}
+                        onClick={() => handleSelectEva(key)}
+                    >
+                        <div className="card-bg" style={{ backgroundImage: `url(${evaData[key].cardBackImage})` }}></div>
+                        <img src={evaData[key].image} alt={evaData[key].name} className={`card-unit ${key}`} />
+                        <h2 className="card-title">{evaData[key].name}</h2>
+                    </div>
+                ))}
             </div>
+
             <div className="eva-fullscreen-view" ref={fullscreenViewRef}>
-                {selectedEva && (<>
-                    <div className="fullscreen-bg" style={{ backgroundImage: `url(${evaData[selectedEva].backImage})` }} onClick={() => !showDescription && setShowDescription(true)}></div>
-                    {showDescription && <EvaAnalysisGUI eva={evaData[selectedEva]} onClose={() => setShowDescription(false)} isBerserk={isBerserk} onToggleBerserk={() => setIsBerserk(!isBerserk)}/>}
-                    <div className="eva-action-buttons" ref={actionButtonsRef} style={{opacity: showDescription ? 0 : 1}}><button onClick={handleCloseFullscreen}>CLOSE</button><button onClick={handleDownload}>DOWNLOAD</button></div>
-                </>)}
+                {selectedEva && (
+                    <>
+                        <div
+                            className="fullscreen-bg"
+                            style={{ backgroundImage: `url(${evaData[selectedEva].backImage})` }}
+                            onClick={handleShowDescription}
+                        ></div>
+
+                        {showDescription && (
+                            <EvaAnalysisGUI
+                                eva={evaData[selectedEva]}
+                                onClose={handleCloseDescription}
+                                isBerserk={isBerserk}
+                                onToggleBerserk={() => setIsBerserk(!isBerserk)}
+                                isMobile={isMobile}
+                            />
+                        )}
+
+                        <div className="eva-action-buttons" ref={actionButtonsRef}>
+                            <button onClick={handleCloseFullscreen}>CLOSE</button>
+                            <button onClick={handleDownload}>DOWNLOAD</button>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

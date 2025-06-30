@@ -247,7 +247,7 @@ body, html {
       width: 50px;
   }
   .menu-item {
-    width: 160px; /* JS에서 설정한 모바일 너비(160px)와 일치 */
+    width: 159px; /* JS에서 설정한 모바일 너비(159px)와 일치 */
     height: 70px; /* 두 줄 텍스트를 위한 높이 확보 */
     font-size: 1rem; /* 가독성을 위한 폰트 크기 조정 */
     line-height: 1.3; /* 줄 간격 조정 */
@@ -639,7 +639,11 @@ body, html {
 
 /* --- Evangelion Page Styles --- */
 .evangelion-page-layout {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-color: #0c0a14;
   z-index: 100;
   overflow: hidden;
@@ -647,11 +651,15 @@ body, html {
   justify-content: center;
   align-items: center;
 }
+
 .eva-card-container {
   display: flex;
   gap: 5rem;
   perspective: 2000px;
+  /* 모바일 화면을 위한 flex-direction 추가 */
+  flex-direction: row;
 }
+
 .eva-card {
   width: 350px;
   height: 500px;
@@ -659,33 +667,39 @@ body, html {
   transform-style: preserve-3d;
   cursor: pointer;
   border-radius: 15px;
+  transition: transform 0.3s ease-out;
 }
+
 .card-bg {
-  position: absolute; width: 100%; height: 100%;
+  position: absolute;
+  width: 100%;
+  height: 100%;
   background-size: cover;
   border-radius: 15px;
   transform: translateZ(0);
   border-left: inset 4px #fff;
   border-bottom: inset 4px #fff;
 }
+
 .card-unit {
   position: absolute;
   transform: translateZ(80px);
   pointer-events: none;
-  filter: drop-shadow(5px 15px 15px rgba(0,0,0,0.5));
+  filter: drop-shadow(5px 15px 15px rgba(0, 0, 0, 0.5));
 }
-
 
 .card-unit.unit01 {
   width: 225%;
   top: 6%;
   left: 9%;
 }
+
 .card-unit.unit02 {
   width: 226%;
   top: 5%;
   left: 3.4%;
 }
+
 .card-title {
   position: absolute;
   bottom: 20px;
@@ -696,67 +710,94 @@ body, html {
   color: #fff;
   text-shadow: 0 2px 10px #000;
 }
+
 .eva-fullscreen-view {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  opacity: 0; visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  /* 자식 요소(GUI)를 중앙에 배치하기 위함 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
 .fullscreen-bg {
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-  background-size: cover; background-position: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
   animation: bg-pan 20s linear infinite alternate;
   cursor: pointer;
 }
+
 @keyframes bg-pan {
-  from { background-position: 0% 50%; }
-  to { background-position: 100% 50%; }
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
+  }
 }
 
 .eva-action-buttons {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 2rem;
-    z-index: 1001;
-    transition: opacity 0.3s;
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2rem;
+  z-index: 1001;
 }
+
 .eva-action-buttons button {
-    background: rgba(0,0,0,0.5);
-    border: 1px solid #fff;
-    color: #fff;
-    font-family: 'Cinzel', serif;
-    font-size: 1rem;
-    padding: 12px 25px;
-    cursor: pointer;
-    transition: all 0.3s;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid #fff;
+  color: #fff;
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  padding: 12px 25px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
+
 .eva-action-buttons button:hover {
-    background: #fff;
-    color: #000;
+  background: #fff;
+  color: #000;
 }
 
 /* --- EVA 분석 GUI 스타일 (수정됨) --- */
 .eva-analysis-gui {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90vw;
-    height: 90vh;
-    max-width: 1600px;
-    background: rgba(0,0,0,0.85);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.2);
-    z-index: 1002;
-    color: #ddd;
-    font-family: 'Share Tech Mono', monospace;
-    display: flex;
-    flex-direction: column;
-    padding: 1rem;
-    box-sizing: border-box;
-    transition: border-color 0.5s, box-shadow 0.5s;
+  position: absolute;
+  /* 데스크탑 기본 크기 */
+  width: 90vw;
+  height: 90vh;
+  max-width: 1600px;
+  /* top, left, transform은 JS에서 제어하므로 삭제하거나 주석 처리 */
+  /* top: 50%; */
+  /* left: 50%; */
+  /* transform: translate(-50%, -50%); */
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 1002;
+  color: #ddd;
+  font-family: 'Share Tech Mono', monospace;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.5s, box-shadow 0.5s;
+  overflow: hidden; /* 내부 스크롤을 위해 중요 */
 }
+
+/* (이하 .eva-analysis-gui 내부 스타일은 기존과 거의 동일하게 유지) */
 
 /* 유닛별 하이라이트 색상 정의 */
 .eva-analysis-gui.unit01 { --eva-highlight: #9400d3; --eva-highlight-2: #32cd32; }
@@ -820,7 +861,7 @@ body, html {
 .analysis-content {
     flex-grow: 1;
     display: grid;
-    grid-template-columns: 1.2fr 1.5fr 1.5fr; /* 패널 비율 조정 */
+    grid-template-columns: 1.2fr 1.5fr 1.5fr;
     gap: 1rem;
     padding-top: 1rem;
     overflow: hidden;
@@ -896,6 +937,87 @@ body, html {
     background: #f00;
     color: #000;
     box-shadow: 0 0 20px #f00;
+}
+
+
+/* --- 반응형 미디어 쿼리 (핵심 추가 사항) --- */
+@media (max-width: 768px) {
+  .eva-card-container {
+    flex-direction: column;
+    gap: 2rem;
+    perspective: none; /* 모바일에서는 3D 효과 제거 */
+  }
+
+  .eva-card {
+    width: 80vw;
+    max-width: 300px;
+    height: auto;
+    aspect-ratio: 350 / 500; /* 비율 유지 */
+    transform: none !important; /* JS로 제어되는 transform 무효화 */
+  }
+
+  .card-unit {
+    transform: translateZ(40px); /* Z축 깊이 감소 */
+  }
+
+  .eva-action-buttons {
+    bottom: 20px;
+    gap: 1rem;
+  }
+  
+  .eva-action-buttons button {
+    font-size: 0.9rem;
+    padding: 10px 20px;
+  }
+
+  /* 모바일용 GUI 스타일 */
+  .eva-analysis-gui {
+    width: 100%;
+    height: 100%;
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+    border: none;
+    padding: 1rem;
+    padding-top: 4rem; /* 헤더 공간 확보 */
+  }
+
+  .analysis-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    padding: 1rem;
+    box-sizing: border-box;
+  }
+  
+  .header-title {
+      font-size: 1rem;
+  }
+
+  .analysis-content {
+    grid-template-columns: 1fr; /* 1열 레이아웃으로 변경 */
+    grid-template-rows: auto auto auto; /* 컨텐츠에 따라 높이 조절 */
+    height: 100%;
+    overflow-y: auto; /* 전체 컨텐츠 스크롤 */
+    padding-bottom: 80px; /* 하단 버튼 공간 확보 */
+  }
+
+  /* 패널 순서 변경 */
+  .analysis-center-panel { order: 1; min-height: 300px; }
+  .analysis-right-panel { order: 2; }
+  .analysis-left-panel { order: 3; }
+  
+  .analysis-left-panel, .analysis-right-panel {
+      overflow-y: visible; /* 내부 스크롤 제거 */
+  }
+  
+  .berserk-mode-btn {
+      width: calc(100% - 40px);
+      left: 20px;
+      bottom: 20px;
+  }
 }
 
 
@@ -1202,7 +1324,139 @@ body, html {
     background-color: rgba(255, 106, 0, 0.3);
     color: #fff;
 }
+/* 사이드바 토글 버튼 (모바일에서만 보임) */
+.sidebar-toggle-button {
+  display: none; /* 데스크탑에서는 숨김 */
+  position: fixed;
+  top: 85px;
+  left: 15px;
+  z-index: 1100;
+  background: rgba(255, 106, 0, 0.8);
+  border: 1px solid var(--highlight-color);
+  color: #fff;
+  font-family: 'Orbitron', sans-serif;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  transition: background 0.3s;
+}
 
+.sidebar-toggle-button:hover {
+  background: var(--highlight-color);
+}
+
+/* 사이드바가 열렸을 때의 뒷배경 */
+.sidebar-backdrop {
+  display: none; /* 기본 숨김 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1050; /* 사이드바보다 아래에 위치 */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* --- Angels Page 반응형 스타일 추가 --- */
+@media (max-width: 1188px) {
+  .angels-page-layout {
+    /* 모바일 환경에 맞게 상하단 여백 조정 */
+    padding: 70px 15px 15px;
+    box-sizing: border-box;
+  }
+
+  .angels-content-grid {
+    /* 기존 grid 레이아웃을 flex column으로 변경 */
+    display: flex;
+    flex-direction: column; /* 자식 요소들을 수직으로 정렬 */
+    gap: 1.5rem;
+    height: 100%;
+  }
+
+  /* 정보 패널 (상단) */
+  .angel-display-panel {
+    order: 1; /* flex 아이템 순서를 1번으로 지정 (상단 배치) */
+    flex: 1 1 80%; /* 전체 높이의 약 80%를 차지하도록 설정 */
+    min-height: 0; /* flex 아이템의 크기가 유연하게 조절되도록 설정 */
+    padding: 1rem; /* 내부 여백 조정 */
+  }
+
+  /* 사도 선택 리스트 (하단) */
+  .angel-selector-list {
+    order: 2; /* flex 아이템 순서를 2번으로 지정 (하단 배치) */
+    flex: 1 1 35%; /* 전체 높이의 약 35%를 차지하도록 설정 */
+    min-height: 0;
+    padding: 1rem;
+  }
+  
+  .gui-header {
+      font-size: min(0.9rem, 3.5vw); /* 화면 너비에 따라 글자 크기 조절 */
+      margin-bottom: 1rem;
+      word-break: break-word;
+  }
+
+  /* 정보 패널 내부의 이미지와 텍스트도 수직으로 정렬 */
+  .angel-info-box {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    height: 100%;
+  }
+
+  .angel-image-container {
+    flex-basis: auto;
+    width: 100%;
+    height: min(180px, 35vw); /* 이미지 컨테이너 높이 소폭 조정 */
+  }
+  
+  .angel-image-container img {
+    max-height: 100%;
+  }
+
+  .angel-text-info {
+    flex-basis: auto;
+    width: 100%;
+    padding: 5px; /* 스크롤바 공간 확보 */
+  }
+  
+  .angel-text-info h3 {
+    font-size: min(1.2rem, 5vw); /* 화면 너비에 따라 글자 크기 조절 */
+    word-break: break-word; /* 긴 단어 강제 줄바꿈 처리 */
+  }
+  
+  .angel-text-info p {
+    font-size: min(0.85rem, 3vw); /* 화면 너비에 따라 글자 크기 조절 */
+    line-height: 1.7;
+  }
+
+  .selector-item {
+    font-size: min(0.9rem, 4vw); /* 화면 너비에 따라 글자 크기 조절 */
+    padding: 10px 12px;
+  }
+
+  .standby-text {
+    font-size: min(1.2rem, 5vw); /* 화면 너비에 따라 글자 크기 조절 */
+  }
+
+  .stats-header, .abilities-header {
+      font-size: min(0.8rem, 3vw); /* 화면 너비에 따라 글자 크기 조절 */
+      padding: 6px 12px;
+  }
+
+  .stat-item {
+      font-size: min(0.85rem, 3.2vw); /* 화면 너비에 따라 글자 크기 조절 */
+  }
+
+  .ability-tag {
+      font-size: min(0.8rem, 3vw); /* 화면 너비에 따라 글자 크기 조절 */
+      padding: 4px 8px;
+  }
+}
 
 /* --- NERV Page Styles (수정 및 추가) --- */
 .nerv-page-layout {
