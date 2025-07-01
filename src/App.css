@@ -1841,7 +1841,7 @@ body, html {
     position: fixed;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 90vw; height: 90vh;
+    width: 100vw; height: 88vh;
     max-width: 1000px; max-height: 934px;
     background-color: #0A0A0A;
     border: 2px solid #f00;
