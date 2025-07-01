@@ -336,6 +336,12 @@ body, html {
     transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
+.bgm-player-container.hidden {
+    opacity: 0;
+    transform: translateX(-150%); /* 화면 밖으로 밀어내기 */
+    pointer-events: none; /* 숨겨졌을 때 클릭 방지 */
+}
+
 .bgm-toggle-button {
     background: none;
     border: none;
