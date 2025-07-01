@@ -3,140 +3,120 @@ import secondImpactImage from '../img/second_impact.png';
 
 const SecondImpactPage = ({ onBack }) => {
     const pageRef = useRef(null);
+    const reportContainerRef = useRef(null);
     const textRef = useRef(null);
-    const folderWrapperRef = useRef(null);
-    const reportRef = useRef(null);
-    const gsap = window.gsap;
-    const { SplitText } = window;
 
     useEffect(() => {
-        // GSAP 및 SplitText 플러그인 존재 여부 확인
-        if (!gsap || !SplitText) {
-            console.error("GSAP or SplitText is not loaded.");
-            if(pageRef.current) {
-                pageRef.current.style.opacity = 1;
-            }
-            return;
-        }
+        // 애니메이션을 실행하는 함수
+        const runAnimations = () => {
+            const gsap = window.gsap;
+            const SplitText = window.SplitText;
 
-        // --- 페이지 등장 애니메이션 ---
-        const tl = gsap.timeline({
-            onComplete: () => {
-                // --- 텍스트 타이핑 애니메이션 ---
-                const reportText = textRef.current;
-                if (reportText) {
-                    // 텍스트를 글자 단위로 분할
-                    const split = new SplitText(reportText, { type: "chars" });
-                    const chars = split.chars;
-                    
-                    // 글자들이 보이지 않도록 초기 설정
-                    gsap.set(chars, { autoAlpha: 0 });
+            // GSAP 플러그인을 등록합니다.
+            gsap.registerPlugin(SplitText);
 
-                    // 각 글자가 순차적으로 나타나는 애니메이션
-                    gsap.to(chars, {
-                        autoAlpha: 1,
-                        duration: 0.02,
-                        stagger: 0.02, // 글자 사이의 시간 간격
-                        ease: 'none',
-                    });
+            // --- 페이지 전체 페이드 인 ---
+            gsap.to(pageRef.current, { autoAlpha: 1, duration: 0.5 });
+
+            // --- 리포트 컨테이너 펼쳐지는 애니메이션 ---
+            gsap.fromTo(reportContainerRef.current,
+                { clipPath: 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)', autoAlpha: 1 },
+                { 
+                    clipPath: 'polygon(0% 0, 100% 0, 100% 100%, 0% 100%)', 
+                    duration: 1.2, 
+                    ease: 'power3.inOut',
+                    delay: 0.3
                 }
+            );
+
+            // --- 텍스트 타이핑 애니메이션 ---
+            const reportText = textRef.current;
+            if (reportText) {
+                const split = new SplitText(reportText, { type: "chars, words" });
+                const chars = split.chars;
+                
+                gsap.set(chars, { autoAlpha: 0 });
+
+                gsap.to(chars, {
+                    autoAlpha: 1,
+                    duration: 0.02,
+                    stagger: 0.02,
+                    ease: 'none',
+                    delay: 1.5
+                });
             }
-        });
+        };
 
-        // 애니메이션을 위한 초기 상태 설정
-        gsap.set(pageRef.current, { autoAlpha: 1 }); // 페이지 전체 컨테이너를 보이게 함
-        gsap.set(folderWrapperRef.current, { autoAlpha: 0 }); // 폴더 래퍼는 초기에 숨김
-        gsap.set(reportRef.current, { transformOrigin: 'top center', rotationX: 70 }); // 문서를 '닫힌' 상태로 설정
+        // GSAP 라이브러리가 로드될 때까지 주기적으로 확인하는 함수
+        const checkGSAP = () => {
+            if (window.gsap && window.SplitText) {
+                // 라이브러리가 로드되면 인터벌을 중지하고 애니메이션 실행
+                clearInterval(gsapCheckInterval);
+                runAnimations();
+            }
+        };
 
-        // 애니메이션 시퀀스
-        tl.to(folderWrapperRef.current, {
-            autoAlpha: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            ease: 'power2.out'
-        }, "+=0.2") // 폴더 등장
-        .to(reportRef.current, {
-            rotationX: 0, // 문서를 '펼침'
-            duration: 1.2,
-            ease: 'power4.out'
-        }, "-=0.3"); // 문서 펼치기
+        // 100ms 마다 GSAP 라이브러리 로드 여부 확인
+        const gsapCheckInterval = setInterval(checkGSAP, 100);
 
-    }, [gsap, SplitText]);
-
-    // 영어 및 일본어 텍스트 콘텐츠
-    const textContent = `A.D. 2000.09.13 — An unprecedented catastrophe, later designated the "Second Impact."
-The event, originating in Antarctica, caused the melting of polar ice caps, a subsequent rise in sea levels, and a significant tilt in the Earth's axis. The resulting climatic and geopolitical turmoil triggered global conflicts, ultimately halving the world's population.
-
-西暦2000年9月13日 — 後に「セカンドインパクト」と呼称される未曾有の大災害が発生。
-南極大陸で発生したこの事件は、極地の氷解による海水位の上昇と、地球の自転軸の傾斜を引き起こした。その結果生じた気候変動と地政学的混乱は世界規模の紛争を誘発し、最終的に世界人口の半数が失われた。
-
-[OFFICIAL STATEMENT]
-Cause attributed to a high-mass, low-velocity meteorite impact.
-
-[CLASSIFIED TRUTH]
-The incident was the result of a contact experiment with the First Angel, "Adam," conducted by the Katsuragi Expedition in Antarctica. This information is designated Top Secret, accessible only to the highest echelons of SEELE and NERV.`;
+        // 컴포넌트가 언마운트될 때 인터벌 정리
+        return () => {
+            clearInterval(gsapCheckInterval);
+        };
+    }, []); // 빈 배열을 전달하여 컴포넌트가 마운트될 때 한 번만 실행
 
     return (
         <div className="second-impact-page-layout" ref={pageRef}>
-            {/* 뒤로가기 버튼 */}
             <button className="back-button" onClick={onBack}>
                 ← MENU
             </button>
 
-            {/* 폴더/문서 애니메이션을 위한 래퍼 */}
-            <div className="folder-wrapper" ref={folderWrapperRef}>
-                {/* 메인 리포트 컨테이너 */}
-                <div className="report-container" ref={reportRef}>
-                    {/* 리포트 헤더 */}
-                    <div className="report-header">
-                        <div className="header-left">
-                            <span className="header-tag red">TOP SECRET</span>
-                            <span className="header-tag">CLASSIFIED</span>
-                        </div>
-                        <div className="header-title">
-                            INTERIM REPORT / 第1次中間報告
-                        </div>
-                        <div className="header-right">
-                            <span className="header-tag">CODE: SI-09132000</span>
+            <div className="report-container" ref={reportContainerRef}>
+                <div className="report-header">
+                    <div className="header-left">
+                        <span className="header-tag red">TOP SECRET</span>
+                        <span className="header-tag">CLASSIFIED</span>
+                    </div>
+                    <div className="header-title">
+                        INTERIM REPORT / 第1次中間報告
+                    </div>
+                    <div className="header-right">
+                        <span className="header-tag">CODE: SI-09132000</span>
+                    </div>
+                </div>
+
+                <div className="report-body">
+                    <div className="report-left-panel">
+                        <div className="image-frame">
+                            <img src={secondImpactImage} alt="Satellite Photo of Second Impact" />
+                            <div className="image-overlay-grid"></div>
+                            <div className="scanline-effect"></div>
+                            <div className="image-caption">
+                                <p>SATELLITE PHOTO</p>
+                                <p>A.D. 2000.09.13</p>
+                                <p>FROM: JSSDF-INFO</p>
+                            </div>
+                            <div className="corner-bracket top-left"></div>
+                            <div className="corner-bracket top-right"></div>
+                            <div className="corner-bracket bottom-left"></div>
+                            <div className="corner-bracket bottom-right"></div>
                         </div>
                     </div>
 
-                    {/* 리포트 본문 */}
-                    <div className="report-body">
-                        {/* 왼쪽 패널 (이미지) */}
-                        <div className="report-left-panel">
-                            <div className="image-frame">
-                                <img src={secondImpactImage} alt="Satellite Photo of Second Impact" />
-                                <div className="image-overlay-grid"></div>
-                                <div className="scanline-effect"></div>
-                                <div className="image-caption">
-                                    <p>SATELLITE PHOTO</p>
-                                    <p>A.D. 2000.09.13</p>
-                                    <p>FROM: JSSDF-INFO</p>
-                                </div>
-                                <div className="corner-bracket top-left"></div>
-                                <div className="corner-bracket top-right"></div>
-                                <div className="corner-bracket bottom-left"></div>
-                                <div className="corner-bracket bottom-right"></div>
+                    <div className="report-right-panel">
+                        <div className="text-content-area">
+                            <h2 className="report-title">[ SECOND IMPACT ]</h2>
+                            <div className="report-text-wrapper">
+                                <p className="report-text" ref={textRef}>
+                                    A cataclysm of unprecedented scale that occurred on September 13, 2000. The event, originating in Antarctica, caused the polar ice caps to melt, leading to a rise in sea levels and a shift in the Earth's axis. The resulting climate change and geopolitical turmoil led to the death of half the world's population. While officially attributed to a 'large-scale meteorite impact,' the true cause was an accident during a contact experiment with the First Angel, 'Adam,' discovered in Antarctica. This truth is a top-secret matter known only to the highest echelons of SEELE and NERV.
+                                    <br/><br/>
+                                    西暦2000年9月13日に発生した未曾有の大災害。南極で発生したこの事件により、氷河が融解し海面が上昇、地軸が捻じれて地球の自転周期が変わり、それに伴う気象変動で世界的な紛争が勃発した。これにより世界人口の半分が死亡した。公式には「大質量隕石の衝突」が原因と発表されたが、実際には南極で発見された第1使徒「アダム」との接触実験中に発生した事故であった。この真実はゼーレ(SEELE)とネルフ(NERV)の最高幹部のみが知る極秘事項である。
+                                </p>
                             </div>
                         </div>
-
-                        {/* 오른쪽 패널 (텍스트) */}
-                        <div className="report-right-panel">
-                            <div className="text-content-area">
-                                <h2 className="report-title">[ SECOND IMPACT ]</h2>
-                                <div className="report-text-wrapper">
-                                    <p className="report-text" ref={textRef} style={{ whiteSpace: 'pre-wrap' }}>
-                                        {textContent}
-                                    </p>
-                                    <span className="typing-cursor">|</span>
-                                </div>
-                            </div>
-                            <div className="report-footer">
-                                <span>// END OF REPORT</span>
-                                <span>CONFIDENTIAL</span>
-                            </div>
+                        <div className="report-footer">
+                            <span>// END OF REPORT</span>
+                            <span>CONFIDENTIAL</span>
                         </div>
                     </div>
                 </div>
