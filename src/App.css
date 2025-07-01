@@ -292,7 +292,7 @@ body, html {
   }
   .carousel-nav {
     position: absolute;
-    top: 100%;
+    top: 120%;
     transform: translateY(-50%);
     z-index: 10;
   }
