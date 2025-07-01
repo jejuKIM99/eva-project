@@ -1,41 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import seeleLogoImage from '../img/seele.png';
 import unitMassImage from '../img/unitMass.png';
-import keelLorenzImage from '../img/KeelLorenz.png'; // 킬 로렌츠 이미지 import
+import KeelLorenzProfile from '../img/KeelLorenz_profile.jpg';
 
 const SeelePage = ({ onBack }) => {
-    // 'mainInfo'는 하단 정보창, 'activeOverlay'는 현재 활성화된 오버레이를 관리합니다 ('mpEva', 'keel')
     const [view, setView] = useState('monolith');
-    const [activeOverlay, setActiveOverlay] = useState(null);
+    const [activeGui, setActiveGui] = useState(null);
+    const [isClosing, setIsClosing] = useState(false);
 
-    // DOM 요소에 접근하기 위한 Ref들
     const pageRef = useRef(null);
     const mainContentRef = useRef(null);
-    const overlayRef = useRef(null); // 오버레이 컨테이너 Ref
     const toggleButtonRef = useRef(null);
     const seeleLogoRef = useRef(null);
-    const mainWrapperRef = useRef(null); // 블러 효과를 적용할 메인 콘텐츠 래퍼
+    const mainWrapperRef = useRef(null);
+    const keelGuiRef = useRef(null);
+    const mpEvaGuiRef = useRef(null);
+    const keelProfileRef = useRef(null);
 
     const gsap = window.gsap;
     const monolithCount = 7;
 
-    // 오버레이에 표시될 데이터
-    const overlayData = {
-        mpEva: {
-            title: 'Mass Production Evangelion',
-            image: unitMassImage,
-            alt: 'Mass Production Evangelion',
-            description: 'The final series of Evangelions produced by Seele. These nine units are autonomous, equipped with S² Engines, and wield large, double-bladed weapons. Their most unsettling feature is their vulture-like appearance and grinning visage.'
-        },
-        keel: {
-            title: 'Keel Lorenz',
-            image: keelLorenzImage,
-            alt: 'Keel Lorenz',
-            description: 'Keel Lorenz is the enigmatic chairman of Seele and the main antagonist behind the Human Instrumentality Project. Often appearing only as a monolith labeled "SEELE 01," he orchestrates events from the shadows, his true motives and history shrouded in mystery.'
-        }
-    };
-
-    // 페이지 및 모노리스 초기 등장 애니메이션
     useEffect(() => {
         const monoliths = gsap.utils.toArray('.monolith');
         const monolithContents = gsap.utils.toArray('.monolith-content');
@@ -52,12 +36,10 @@ const SeelePage = ({ onBack }) => {
 
     }, [gsap]);
 
-    // 하단 INFO 창을 열고 닫는 함수
     const toggleMainInfo = () => {
         setView(prev => prev === 'mainInfo' ? 'monolith' : 'mainInfo');
     };
 
-    // 'view' 상태에 따라 INFO 창 애니메이션 처리
     useEffect(() => {
         if (view === 'mainInfo') {
             gsap.fromTo(mainContentRef.current, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out' });
@@ -66,27 +48,54 @@ const SeelePage = ({ onBack }) => {
         }
     }, [view, gsap]);
 
-    // 'activeOverlay' 상태에 따라 배경 블러 및 오버레이 표시 처리
+    const openGui = (guiType) => {
+        setIsClosing(false);
+        setActiveGui(guiType);
+    };
+
+    const closeGui = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            setActiveGui(null);
+            setIsClosing(false);
+        }, 500);
+    };
+    
     useEffect(() => {
         const mainWrapper = mainWrapperRef.current;
-        const overlay = overlayRef.current;
-        
-        if (mainWrapper && overlay) {
-            if (activeOverlay) {
+        if (mainWrapper) {
+            if (activeGui) {
                 mainWrapper.classList.add('blurred');
-                overlay.classList.add('visible');
             } else {
                 mainWrapper.classList.remove('blurred');
-                overlay.classList.remove('visible');
             }
         }
-    }, [activeOverlay]);
+    }, [activeGui]);
 
-    const currentOverlayData = activeOverlay ? overlayData[activeOverlay] : null;
+    useEffect(() => {
+        let glitchInterval;
+        if (activeGui === 'keel' && keelProfileRef.current) {
+            const setRandomGlitch = () => {
+                const isOn = Math.random() > 0.3;
+                keelProfileRef.current.classList.toggle('glitching', isOn);
+                
+                const nextInterval = isOn 
+                    ? Math.random() * 180 + 50 // 글리치가 켜져있는 시간
+                    : Math.random() * 800 + 200; // 글리치가 꺼져있는 시간
+
+                glitchInterval = setTimeout(setRandomGlitch, nextInterval);
+            };
+            setRandomGlitch();
+        }
+
+        return () => {
+            clearTimeout(glitchInterval);
+        };
+    }, [activeGui]);
+
 
     return (
         <div className="seele-page-layout" ref={pageRef}>
-            {/* --- 메인 콘텐츠 래퍼 (블러 효과 대상) --- */}
             <div className="seele-content-wrapper" ref={mainWrapperRef}>
                 <button className="back-button" onClick={onBack}>← MENU</button>
 
@@ -120,30 +129,106 @@ const SeelePage = ({ onBack }) => {
                     {view === 'mainInfo' ? 'CLOSE' : 'OPEN'} INFO
                 </button>
 
-                {/* 제레 기본 정보창 */}
                 <div className="seele-main-content" ref={mainContentRef}>
                     <h2 className="seele-title">SEELE</h2>
                     <p className="seele-description">The secret and ancient organization manipulating global events from the shadows...</p>
                     <div className="seele-sub-menu">
-                        <div className="seele-menu-item" onClick={() => setActiveOverlay('keel')}>Keel Lorenz</div>
-                        <div className="seele-menu-item" onClick={() => setActiveOverlay('mpEva')}>Mass Production Evangelions</div>
+                        <div className="seele-menu-item" onClick={() => openGui('keel')}>Keel Lorenz</div>
+                        <div className="seele-menu-item" onClick={() => openGui('mpEva')}>Mass Production Evangelions</div>
                     </div>
                 </div>
             </div>
 
-            {/* --- 정보 오버레이 (공용) --- */}
-            <div className="seele-overlay-view" ref={overlayRef}>
-                {currentOverlayData && (
-                    <div className="overlay-content-box">
-                        <img src={currentOverlayData.image} alt={currentOverlayData.alt} className="overlay-image" />
-                        <div className="overlay-description">
-                            <h2>{currentOverlayData.title}</h2>
-                            <p>{currentOverlayData.description}</p>
-                            <button onClick={() => setActiveOverlay(null)}>CLOSE</button>
+            {/* --- 킬 로렌츠 정보 GUI --- */}
+            {activeGui === 'keel' && (
+                <div className={`seele-gui-overlay ${isClosing ? 'closing' : ''}`} >
+                    <div className="keel-gui-container" ref={keelGuiRef}>
+                        <div className="gui-header keel-header">
+                            <span>MEMBER PROFILE: 01</span>
+                            <button onClick={closeGui} className="gui-close-btn">×</button>
+                        </div>
+                        <div className="gui-content-grid">
+                            <div className="gui-left-panel">
+                                <div 
+                                    className="profile-image-container" 
+                                    ref={keelProfileRef}
+                                    style={{ '--profile-image-url': `url(${KeelLorenzProfile})` }}
+                                >
+                                    <img src={KeelLorenzProfile} alt="Keel Lorenz" />
+                                    <div className="scan-line"></div>
+                                </div>
+                                <div className="data-block">
+                                    <div className="data-title">IDENTIFICATION</div>
+                                    <p><strong>NAME:</strong> LORENZ, KEEL</p>
+                                    <p><strong>AFFILIATION:</strong> SEELE (CHAIRMAN)</p>
+                                    <p><strong>STATUS:</strong> <span className="text-red">ACTIVE</span></p>
+                                </div>
+                            </div>
+                            <div className="gui-right-panel">
+                                <div className="data-block">
+                                    <div className="data-title">BIOGRAPHICAL DATA</div>
+                                    <p className="description-text">
+                                        Keel Lorenz is the enigmatic chairman of Seele and the main antagonist behind the Human Instrumentality Project. Often appearing only as a monolith labeled "SEELE 01," he orchestrates events from the shadows, his true motives and history shrouded in mystery.
+                                    </p>
+                                </div>
+                                <div className="data-block">
+                                    <div className="data-title">VOICE ANALYSIS</div>
+                                    <div className="waveform-container">
+                                        <div className="waveform"><div className="waveform-visual"></div></div>
+                                        <div className="waveform"><div className="waveform-visual"></div></div>
+                                        <div className="waveform"><div className="waveform-visual"></div></div>
+                                    </div>
+                                    <div className="analysis-footer">
+                                        <span>{/* STATUS: SOUND ONLY */}</span>
+                                        <span>{/* DECODING... */}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
+
+            {/* --- 양산형 에반게리온 정보 GUI --- */}
+            {activeGui === 'mpEva' && (
+                <div className={`seele-gui-overlay ${isClosing ? 'closing' : ''}`} >
+                    <div className="mpeva-gui-container" ref={mpEvaGuiRef}>
+                        <div className="gui-header mpeva-header">
+                            <span>UNIT ANALYSIS: MP-EVA SERIES</span>
+                             <button onClick={closeGui} className="gui-close-btn">×</button>
+                        </div>
+                        <div className="gui-content-grid mpeva-grid">
+                            <div className="gui-left-panel">
+                               <div className="unit-image-container">
+                                    <img src={unitMassImage} alt="Mass Production Evangelion"/>
+                               </div>
+                                <div className="data-block status-grid">
+                                    <div><span className="data-label">S² ENGINE:</span> <span className="text-green">ACTIVE</span></div>
+                                    <div><span className="data-label">DUMMY PLUG:</span> <span className="text-green">SYNCHED</span></div>
+                                    <div><span className="data-label">A.T. FIELD:</span> <span className="text-orange">FLUCTUATING</span></div>
+                                    <div><span className="data-label">POWER:</span> <span className="text-green">INTERNAL</span></div>
+                                </div>
+                            </div>
+                             <div className="gui-right-panel">
+                                <div className="data-block">
+                                    <div className="data-title">WEAPONRY & FEATURES</div>
+                                     <p className="description-text">
+                                        The final series of Evangelions produced by Seele. These nine units are autonomous, equipped with S² Engines, and wield large, double-bladed weapons based on the Lance of Longinus. Their most unsettling feature is their vulture-like appearance and grinning visage.
+                                    </p>
+                                </div>
+                                <div className="data-block">
+                                    <div className="data-title">BIOMETRIC DATA</div>
+                                    <div className="biograph-container">
+                                        <div className="bioline"></div>
+                                        <span className="graph-label top">SYNC RATIO</span>
+                                        <span className="graph-label bottom">BEAST MODE</span>
+                                    </div>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

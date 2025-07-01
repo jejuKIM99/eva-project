@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ReactDOM from 'react-dom'; // ReactDOM을 import 합니다.
+import ReactDOM from 'react-dom';
 
-// 이미지 import (기존과 동일)
+// 이미지 import
 import gendoImage from '../img/gendo.png';
 import nervLogo from '../img/nervLogo.png';
 import gendoProfile from '../img/gendo_profile.jpg';
@@ -13,7 +13,7 @@ import kajiProfile from '../img/kaji_profile.jpg';
 import makotoProfile from '../img/makoto_profile.jpg';
 import shigeruProfile from '../img/shigeru_profile.jpg';
 
-// --- 화면 크기 감지 커스텀 훅 (기존과 동일) ---
+// --- 화면 크기 감지 커스텀 훅 ---
 const useWindowSize = () => {
     const [width, setWidth] = useState(window.innerWidth);
     useEffect(() => {
@@ -24,7 +24,7 @@ const useWindowSize = () => {
     return width;
 };
 
-// --- 데이터 (기존과 동일) ---
+// --- 데이터 ---
 const personnelData = {
     gendo: { name: "Gendo Ikari", title: "Commander", image: gendoProfile, stats: { 'Loyalty (SEELE)': 25, 'Decision Making': 98, 'Ruthlessness': 99, 'Paternal Instinct': 5 } },
     fuyutsuki: { name: "Kozo Fuyutsuki", title: "Sub-Commander", image: fuyutsukiProfile, stats: { 'Loyalty (Gendo)': 95, 'Caution': 90, 'Stress Level': 75, 'Regret': 85 } },
@@ -43,10 +43,14 @@ const nervStructure = {
     bridge: { title: "Bridge Operations", members: ['makoto', 'shigeru'], description: "The frontline of data warfare. These operators process vast amounts of combat data in real-time from the safety of the Central Dogma." },
 };
 
-// --- 컴포넌트 (수정됨) ---
-const ProfileWindow = ({ personKey, deptDescription, onClose, onFocus, zIndex, isMobile }) => {
+// --- 컴포넌트 ---
+
+/**
+ * 개별 프로필 정보 창 컴포넌트
+ */
+const ProfileWindow = ({ personKey, deptDescription, onClose, onFocus, zIndex, isMobile, initialPos }) => {
     const person = personnelData[personKey];
-    const [position, setPosition] = useState({ x: window.innerWidth / 2 - 250, y: window.innerHeight / 2 - 300 });
+    const [position, setPosition] = useState(initialPos);
     const windowRef = useRef(null);
     const gsap = window.gsap;
 
@@ -59,16 +63,18 @@ const ProfileWindow = ({ personKey, deptDescription, onClose, onFocus, zIndex, i
     }, [gsap, isMobile]);
 
     const handleMouseDown = (e) => {
-        if (isMobile) return;
-        if (e.target.className.includes('profile-header')) {
-            onFocus();
-            const dragStartPos = { x: e.clientX - position.x, y: e.clientY - position.y };
-            const handleMouseMove = (moveE) => setPosition({ x: moveE.clientX - dragStartPos.x, y: moveE.clientY - dragStartPos.y });
-            const handleMouseUp = () => { window.removeEventListener('mousemove', handleMouseMove); window.removeEventListener('mouseup', handleMouseUp); };
-            window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('mouseup', handleMouseUp);
-        }
+        if (isMobile || !e.target.className.includes('profile-header')) return;
+        onFocus();
+        const dragStartPos = { x: e.clientX - position.x, y: e.clientY - position.y };
+        const handleMouseMove = (moveE) => setPosition({ x: moveE.clientX - dragStartPos.x, y: moveE.clientY - dragStartPos.y });
+        const handleMouseUp = () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
     };
+
     const handleClose = () => {
         const closeAction = () => onClose(personKey);
         if (isMobile) {
@@ -86,7 +92,7 @@ const ProfileWindow = ({ personKey, deptDescription, onClose, onFocus, zIndex, i
 
     return (
         <div className={`personnel-profile-window ${isMobile ? 'mobile' : ''}`} ref={windowRef} style={windowStyle} onMouseDown={handleMouseDown}>
-             <div className="profile-header">
+            <div className="profile-header">
                 <span>PERSONNEL FILE: {person.name}</span>
                 <button onClick={handleClose} className="profile-close-btn">[X]</button>
             </div>
@@ -122,22 +128,13 @@ const SubMenu = ({ members, position, onSelect, onClose, isMobile }) => {
     useEffect(() => {
         window.gsap.fromTo(menuRef.current, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.2 });
         const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
-                onClose();
-            }
+            if (menuRef.current && !menuRef.current.contains(event.target)) onClose();
         };
-        const timerId = setTimeout(() => {
-            document.addEventListener("mousedown", handleClickOutside);
-        }, 0);
-        return () => {
-            clearTimeout(timerId);
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
+        const timerId = setTimeout(() => document.addEventListener("mousedown", handleClickOutside), 0);
+        return () => { clearTimeout(timerId); document.removeEventListener("mousedown", handleClickOutside); };
     }, [onClose]);
 
-    // 모바일이 아닐 때만 top, left 스타일을 적용
     const style = !isMobile && position ? { top: position.y, left: position.x } : {};
-
     return (
         <div className={`personnel-submenu ${isMobile ? 'mobile-bottom' : ''}`} ref={menuRef} style={style}>
             {members.map(personKey => <button key={personKey} onClick={() => onSelect(personKey)}>{personnelData[personKey].name}</button>)}
@@ -145,18 +142,13 @@ const SubMenu = ({ members, position, onSelect, onClose, isMobile }) => {
     );
 };
 
-const DigitalClock = () => {
+const DigitalClock = ({ isMobile }) => {
     const [time, setTime] = useState(new Date());
     useEffect(() => {
         const timerId = setInterval(() => setTime(new Date()), 1000);
         return () => clearInterval(timerId);
     }, []);
-    const formatTime = (date) => {
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        const seconds = String(date.getSeconds()).padStart(2, '0');
-        return `${hours}:${minutes}:${seconds}`;
-    };
+    const formatTime = (date) => `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
     return (
         <div className="nerv-digital-clock">
             <div className="clock-info-panel">
@@ -169,8 +161,8 @@ const DigitalClock = () => {
 };
 
 const NervOrganizationGUI = ({ onExit }) => {
-    const [openProfiles, setOpenProfiles] = useState({});
-    const [profileFocusOrder, setProfileFocusOrder] = useState([]);
+    // ✨ [수정] 열린 프로필과 순서를 배열 하나로 관리
+    const [openProfiles, setOpenProfiles] = useState([]);
     const [activeSubMenu, setActiveSubMenu] = useState(null);
     const guiRef = useRef(null);
     const gsap = window.gsap;
@@ -192,9 +184,8 @@ const NervOrganizationGUI = ({ onExit }) => {
     const handleHexClick = (deptKey, e) => {
         const members = nervStructure[deptKey].members;
         if (members.length === 1) {
-            handleOpenProfile(members[0], deptKey);
+            handleOpenOrFocusProfile(members[0], deptKey);
         } else {
-            // 모바일에서는 위치 정보 없이, 데스크탑에서는 위치 정보를 포함하여 SubMenu를 엽니다.
             if (isMobile) {
                 setActiveSubMenu({ members, deptKey });
             } else {
@@ -205,17 +196,49 @@ const NervOrganizationGUI = ({ onExit }) => {
     };
     
     const mobileHexLayout = hexLayout.filter(hex => hex.isActive);
-    const handleOpenProfile = (personKey, deptKey) => { setOpenProfiles(prev => ({ ...prev, [personKey]: deptKey })); handleFocus(personKey); setActiveSubMenu(null); };
-    const handleCloseProfile = (personKey) => { setOpenProfiles(prev => { const newProfiles = { ...prev }; delete newProfiles[personKey]; return newProfiles; }); setProfileFocusOrder(prev => prev.filter(p => p !== personKey)); };
-    const handleFocus = (personKey) => { setProfileFocusOrder(prev => [personKey, ...prev.filter(p => p !== personKey)]); };
+    
+    // ✨ [수정] 프로필을 열거나, 이미 열려있으면 맨 위로 가져오는 함수
+    const handleOpenOrFocusProfile = (personKey, deptKey) => {
+        setActiveSubMenu(null);
+
+        setOpenProfiles(prevProfiles => {
+            const existingProfileIndex = prevProfiles.findIndex(p => p.personKey === personKey);
+
+            // 이미 창이 열려있는 경우
+            if (existingProfileIndex > -1) {
+                // 해당 창을 배열의 맨 뒤로 보내서 z-index를 가장 높게 만듦
+                const profileToFocus = prevProfiles[existingProfileIndex];
+                const otherProfiles = prevProfiles.filter(p => p.personKey !== personKey);
+                return [...otherProfiles, profileToFocus];
+            } 
+            // 새 창을 여는 경우
+            else {
+                const offset = prevProfiles.length * 40;
+                const newPosition = {
+                    x: (window.innerWidth / 2 - 250) + offset,
+                    y: (window.innerHeight / 2 - 300) + offset,
+                };
+                const newProfile = {
+                    personKey,
+                    deptKey,
+                    initialPos: newPosition,
+                };
+                return [...prevProfiles, newProfile];
+            }
+        });
+    };
+
+    // ✨ [수정] 프로필 창 닫기 핸들러
+    const handleCloseProfile = (personKey) => {
+        setOpenProfiles(prevProfiles => prevProfiles.filter(p => p.personKey !== personKey));
+    };
 
     return (
         <div className={`nerv-gui-container ${isMobile ? 'mobile' : ''}`} ref={guiRef}>
-            <DigitalClock />
+            <DigitalClock isMobile={isMobile} />
             <button className="nerv-gui-exit" onClick={onExit}>[ EXIT ]</button>
             <div className="nerv-gui-hex-background"></div>
             <img src={nervLogo} alt="NERV Logo" className="nerv-gui-logo" />
-
             <div className={isMobile ? "hex-list-container-mobile" : "hex-grid-container"}>
                 {isMobile ? (
                     mobileHexLayout.map((hex) => (
@@ -230,8 +253,20 @@ const NervOrganizationGUI = ({ onExit }) => {
             
             {ReactDOM.createPortal(
                 <>
-                    {Object.entries(openProfiles).map(([key, deptKey]) => <ProfileWindow key={key} personKey={key} deptDescription={nervStructure[deptKey].description} onClose={handleCloseProfile} onFocus={() => handleFocus(key)} zIndex={profileFocusOrder.indexOf(key) * -1 + 100} isMobile={isMobile} />)}
-                    {activeSubMenu && <SubMenu {...activeSubMenu} onSelect={(personKey) => handleOpenProfile(personKey, activeSubMenu.deptKey)} onClose={() => setActiveSubMenu(null)} isMobile={isMobile} />}
+                    {/* ✨ [수정] 배열을 순회하며 프로필 창 렌더링 */}
+                    {openProfiles.map((profile, index) => (
+                        <ProfileWindow
+                            key={profile.personKey}
+                            personKey={profile.personKey}
+                            deptDescription={nervStructure[profile.deptKey].description}
+                            initialPos={profile.initialPos}
+                            onClose={handleCloseProfile}
+                            onFocus={() => handleOpenOrFocusProfile(profile.personKey, profile.deptKey)}
+                            zIndex={100 + index} // 배열 순서에 따라 z-index 계산
+                            isMobile={isMobile}
+                        />
+                    ))}
+                    {activeSubMenu && <SubMenu {...activeSubMenu} onSelect={(personKey) => handleOpenOrFocusProfile(personKey, activeSubMenu.deptKey)} onClose={() => setActiveSubMenu(null)} isMobile={isMobile} />}
                 </>,
                 document.body
             )}
