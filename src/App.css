@@ -2249,7 +2249,7 @@ body, html {
 .mpeva-gui-container {
     width: 100%;
     max-width: 900px;
-    height: 520px;
+    height: 550px;
     background: rgba(25, 10, 10, 0.9);
     backdrop-filter: blur(10px);
     border: 1px solid #ff6a00;
@@ -2369,8 +2369,8 @@ body, html {
   }
   .keel-gui-container, .mpeva-gui-container {
       height: auto;
-      max-height: 85vh;
-      margin-top: 5vh;
+      max-height: 88vh;
+      margin-top: 2vh;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
   }
