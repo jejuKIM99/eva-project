@@ -1738,7 +1738,7 @@ body, html {
     background: #111; color: #f00; border: 1px solid #f00;
     padding: 10px 20px; font-family: 'Orbitron', sans-serif; cursor: pointer;
 }
-.hex-grid-container { /* ... 데스크탑 스타일은 기존과 동일 ... */
+.hex-grid-container {
     position: absolute; width: 100%; height: 100%; top: 0; left: 0;
 }
 .hex-button {
@@ -1764,9 +1764,6 @@ body, html {
 }
 .hex-label { text-transform: uppercase; }
 .hex-sublabel { margin-top: 5px; font-size: 0.8em; color: #ff8c8c; font-weight: bold; }
-
-/* 팝업창, 서브메뉴는 Portal로 렌더링되므로 이 컨테이너는 이제 필요 없습니다. */
-/* .windows-area { ... } */
 
 .personnel-profile-window {
     position: absolute; width: 500px; background: rgba(20, 0, 0, 0.9);
@@ -1801,17 +1798,30 @@ body, html {
 .stat-graph-bar-fill { background: #f55; height: 100%; box-shadow: 0 0 5px #f55; }
 .stat-graph-value { font-family: 'Share Tech Mono', monospace; font-weight: bold; color: #fff; text-align: right;}
 .personnel-submenu {
-    position: fixed; /* Portal로 렌더링되므로 fixed 또는 absolute 사용 */
+    position: fixed;
     background: rgba(0,0,0,0.95); border: 1px solid #f00;
-    padding: 5px; z-index: 1200; /* 정보창보다 높게 */
+    padding: 5px; z-index: 1200;
     pointer-events: auto;
 }
 .personnel-submenu button {
     display: block; width: 100%; background: none; border: none;
     color: #f00; padding: 10px 15px; text-align: left; cursor: pointer;
     font-family: 'Share Tech Mono', monospace; font-size: 1rem;
+    transition: background 0.2s, color 0.2s;
 }
 .personnel-submenu button:hover { background: #f00; color: #000; }
+
+/* TOP SECRET 메뉴 아이템 특별 스타일 */
+.personnel-submenu button.top-secret-menu-item {
+    color: #ffd700;
+    font-weight: bold;
+}
+.personnel-submenu button.top-secret-menu-item:hover {
+    background: #ffd700;
+    color: #000;
+    text-shadow: none;
+}
+
 .nerv-digital-clock {
     position: absolute; top: 30px; right: 180px; display: flex;
     align-items: flex-end; gap: 1.5rem; z-index: 5;
@@ -1825,6 +1835,176 @@ body, html {
     background-color: #1a0a00; padding: 5px 15px; border: 2px solid #ff6a00;
     min-width: 250px; text-align: center;
 }
+
+/* --- [수정됨] TOP SECRET 창 스타일 --- */
+.top-secret-window {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100vw; height: 100vh;
+    max-width: 1000px; max-height: 934px;
+    background-color: #0A0A0A;
+    border: 2px solid #f00;
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.6), inset 0 0 15px rgba(255, 0, 0, 0.4);
+    z-index: 1500;
+    font-family: 'Share Tech Mono', monospace;
+    display: flex; flex-direction: column;
+    overflow: hidden; backdrop-filter: blur(8px);
+}
+.secret-window-header {
+    background: #f00; color: #000;
+    padding: 8px 15px; font-weight: bold;
+    font-family: 'Orbitron', sans-serif;
+    display: flex; justify-content: space-between; align-items: center;
+    text-transform: uppercase; font-size: 0.9rem; flex-shrink: 0;
+}
+.secret-close-btn {
+    background: none; border: none; color: #000; font-weight: bold; cursor: pointer; font-size: 1rem;
+}
+.secret-access-panel, .secret-document-content {
+    flex-grow: 1; padding: 1rem;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    gap: 1.5rem; overflow: hidden;
+    background-image: repeating-linear-gradient(0deg, rgba(255,0,0,0.05), rgba(255,0,0,0.05) 1px, transparent 1px, transparent 4px);
+}
+.warning-container-eva {
+    width: 80%; max-width: 450px;
+    border: 2px solid #f00;
+    background: #110000;
+}
+.warning-header-box { display: flex; justify-content: space-between; font-size: 0.8rem; padding: 5px 10px; color: #ff5555; background: #330000; }
+.warning-main-title { font-family: 'Orbitron', sans-serif; font-size: min(3rem,10vw); font-weight: 900; color: #f00; text-align: center; padding: 1.5rem 0; letter-spacing: 5px; text-shadow: 0 0 15px red; }
+.warning-separator-line { height: 4px; background: #f00; clip-path: polygon(0 0, 100% 0, 98% 100%, 2% 100%); }
+.warning-sub-title { font-family: 'Orbitron', sans-serif; font-size: 1.2rem; text-align: center; color: #f00; padding: 1rem 0; background: #330000; margin-top: 4px; }
+.warning-footer-box { padding: 1rem; text-align: center; color: #ff5555; text-transform: uppercase; font-size: 0.9rem; }
+.warning-footer-box p { margin: 0.2rem 0; }
+.fingerprint-section { text-align: center; }
+.fingerprint-scanner { cursor: pointer; transition: filter 0.3s, transform 0.3s; width: 70px; height: 70px; }
+.fingerprint-scanner path { fill: #ffb300; transition: fill 0.3s; }
+.fingerprint-scanner:hover { filter: drop-shadow(0 0 15px #ffb300); transform: scale(1.05); }
+.fingerprint-scanner:hover path { fill: #fff; }
+.scan-prompt { margin-top: 1rem; color: #ffb300; font-size: 1rem; text-transform: uppercase; animation: blink-cursor 1.5s infinite; }
+.auth-form-section { color: #fff; font-size: 1.2rem; width: 80%; max-width: 450px; }
+.auth-field { display: flex; margin-bottom: 1rem; background: #222; padding: 10px; border-left: 3px solid #ffb300; }
+.auth-field label { color: #ffb300; margin-right: 10px; }
+.auth-field .auth-value { flex-grow: 1; color: #fff; }
+.typing-cursor-auth { animation: blink-cursor 1s infinite; font-weight: bold; }
+@keyframes blink-cursor { 50% { opacity: 0; } }
+.auth-status { text-align: center; margin-top: 2rem; color: #ffb300; animation: blink-cursor 1.5s infinite; }
+
+.secret-document-content { overflow: hidden; padding: 0; gap: 0; }
+.document-grid { display: grid; grid-template-columns: 40% 60%; gap: 1.5rem; width: 100%; height: 100%; overflow: hidden; padding: 1.5rem; box-sizing: border-box; }
+.document-cover-panel { background: #000; border: 1px solid #555; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1rem; position: relative; }
+.document-cover-panel.clickable { cursor: pointer; transition: background-color 0.3s; }
+.document-cover-panel.clickable:hover { background-color: #1a0000; border-color: #f00; }
+.document-cover-panel img { max-width: 100%; max-height: 70%; object-fit: contain; }
+.cover-title { font-family: 'Orbitron', sans-serif; color: #f00; font-size: 1.1rem; text-align: center; margin-top: 1.5rem; text-transform: uppercase; }
+.cover-subtitle { color: #888; text-align: center; font-size: 0.8rem; }
+.cover-prompt { display: none; position: absolute; bottom: 10px; color: #fff; background: rgba(255,0,0,0.7); padding: 5px 10px; font-size: 0.8rem; letter-spacing: 1px; }
+.document-cover-panel.clickable:hover .cover-prompt { display: block; }
+
+.document-details-panel { display: flex; flex-direction: column; overflow-y: auto; padding-right: 15px; }
+.document-details-panel::-webkit-scrollbar { width: 4px; }
+.document-details-panel::-webkit-scrollbar-track { background: #222; }
+.document-details-panel::-webkit-scrollbar-thumb { background: #f00; }
+.document-details-panel h3 { font-family: 'Orbitron', sans-serif; color: #ffb300; border-bottom: 1px solid #ffb300; padding-bottom: 0.5rem; margin-top: 0; margin-bottom: 1rem; }
+.document-details-panel p { color: #ccc; line-height: 1.8; margin-bottom: 1.5rem; }
+
+/* [신규/수정] 맵 시나리오 레이아웃 */
+.map-scenario-layout {
+    width: 100%; height: 100%; display: flex; flex-direction: column; background: #000;
+}
+.map-display-panel {
+    flex: 6; position: relative; overflow: hidden; border-bottom: 2px solid #f00;
+    cursor: grab;
+}
+.map-display-panel:active {
+    cursor: grabbing;
+}
+.map-panning-wrapper {
+    position: absolute;
+    width: 140%; /* 컨테이너보다 크게 설정 */
+    height: 140%; /* 컨테이너보다 크게 설정 */
+}
+.map-image-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 이미지가 래퍼를 꽉 채우도록 */
+    pointer-events: none;
+}
+.map-grid-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+    background-image: repeating-linear-gradient(rgba(255, 0, 0, 0.3) 0, rgba(255, 0, 0, 0.3) 1px, transparent 1px, transparent 50px),
+                      repeating-linear-gradient(90deg, rgba(255, 0, 0, 0.3) 0, rgba(255, 0, 0, 0.3) 1px, transparent 1px, transparent 50px);
+}
+.map-scanline-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.3) 0, rgba(0,0,0,0.3) 1px, transparent 1px, transparent 4px);
+    animation: scan-move 10s linear infinite;
+}
+@keyframes scan-move { from { background-position-y: 0; } to { background-position-y: 100px; } }
+.map-vignette-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+    box-shadow: inset 0 0 100px 30px #000;
+}
+.map-target-lockon {
+    position: absolute;
+    /* 래퍼(140%) 기준 남극 위치 재조정 */
+    top: 87%; 
+    left: 39%;
+    width: min(100px, 14vw); height: min(100px, 14vw); transform: translate(-50%, -50%);
+    display: flex; justify-content: center; align-items: center; pointer-events: none;
+}
+.target-ring {
+    position: absolute; border-radius: 50%; border: 2px solid rgba(255, 0, 0, 0.8);
+    animation: target-pulse 1.5s infinite ease-out;
+}
+.target-ring1 { width: 100%; height: 100%; }
+.target-ring2 { width: 60%; height: 60%; animation-delay: -0.5s; }
+@keyframes target-pulse {
+    from { transform: scale(0.8); opacity: 1; }
+    to { transform: scale(1.5); opacity: 0; }
+}
+.target-crosshair { position: relative; width: 80%; height: 80%; }
+.target-crosshair::before, .target-crosshair::after {
+    content: ''; position: absolute; background: #f00; box-shadow: 0 0 5px #f00;
+}
+.target-crosshair::before { top: 0; left: 50%; width: 2px; height: 100%; transform: translateX(-50%); }
+.target-crosshair::after { left: 0; top: 50%; height: 2px; width: 100%; transform: translateY(-50%); }
+
+.scenario-details-panel {
+    flex: 4; display: flex; flex-direction: column; background: #0a0a0a; padding: 1rem; overflow-y: hidden;
+}
+.scenario-header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-shrink: 0;
+}
+.scenario-header h4 {
+    font-family: 'Orbitron', sans-serif; color: #f00; margin: 0; font-size: 1.1rem; text-transform: uppercase;
+}
+.map-return-button {
+    background: #f00; color: #000; border: none; font-family: 'Orbitron', sans-serif; padding: 8px 15px; font-size: 0.8rem; cursor: pointer; letter-spacing: 1px; transition: background 0.3s;
+}
+.map-return-button:hover { background: #fff; }
+
+.scenario-content {
+    overflow-y: auto; flex-grow: 1; padding-right: 10px;
+}
+.scenario-content::-webkit-scrollbar { width: 4px; }
+.scenario-content::-webkit-scrollbar-track { background: #222; }
+.scenario-content::-webkit-scrollbar-thumb { background: #f00; }
+.scenario-content p { font-size: 0.95rem; line-height: 1.8; margin: 0 0 1.2rem 0; color: #ccc; }
+.scenario-content .phase { font-weight: bold; color: #ffb300; text-transform: uppercase; }
+.scenario-content .highlight { color: #f55; }
+.scenario-content .highlight-strong { color: #f00; font-weight: bold; text-shadow: 0 0 5px red; }
+.scenario-content .status-line { font-style: italic; color: #888; text-align: center; margin-top: 1rem; }
+
+.top-secret-window.mobile .document-grid { grid-template-columns: 1fr; }
+.top-secret-window.mobile .document-cover-panel { height: 250px; }
+.top-secret-window.mobile .map-scenario-layout { flex-direction: column; }
+.top-secret-window.mobile .map-display-panel { flex: 5; }
+.top-secret-window.mobile .scenario-details-panel { flex: 6; }
+
 
 /* === NERV PAGE 반응형 스타일 시작 === */
 @media (max-width: 1159px) {
@@ -1850,8 +2030,6 @@ body, html {
     .nerv-text { font-size: 0.95rem; text-align: left; }
     .enter-nerv-button { padding: 12px; font-size: 1rem; }
     
-    /* --- GUI 모바일 스타일 --- */
-    /* [문제점 1 해결] GUI 컨테이너를 flex로 만들어 내부 아이템 높이 관리 */
   /* --- GUI 모바일 스타일 --- */
 .nerv-gui-container.mobile {
     display: flex;
@@ -1859,7 +2037,6 @@ body, html {
     height: 100%;
 }
 .nerv-gui-exit {
-    /* Portal로 분리된 ProfileWindow와의 z-index 충돌을 피하기 위해 GUI 내부에 고정 */
     position: absolute;
     top: 15px;
     right: 15px;
@@ -1868,14 +2045,12 @@ body, html {
     z-index: 10;
 }
 .nerv-digital-clock {
-    /* [문제점 1 해결] 중앙 배치를 위해 absolute 포지션으로 변경 */
     position: absolute;
     top: 15px;
     left: 50%;
     transform: translateX(-50%);
     width: 90%;
     z-index: 5;
-    /* flex 관련 속성 유지 */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1883,13 +2058,11 @@ body, html {
     opacity: 0.4;
 }
 .clock-time-display {
-    /* [문제점 1 해결] min()을 사용한 반응형 폰트 크기 */
     font-size: min(2rem, 6vw);
     min-width: auto;
     padding: 2px 10px;
 }
 .clock-info-panel {
-    /* [문제점 1 해결] 숨김 처리 제거 및 폰트 크기 조정 */
     display: block;
     font-size: min(0.7rem, 2.5vw);
     text-align: center;
@@ -1897,7 +2070,7 @@ body, html {
 .nerv-gui-logo {
     width: 150px;
     opacity: 0.2;
-    left: 50%; /* 로고는 중앙에 유지 */
+    left: 50%;
 }
 .hex-grid-container {
     display: none;
@@ -1913,7 +2086,6 @@ body, html {
     box-sizing: border-box;
     flex-grow: 1;
     height: auto;
-    /* 시계와 버튼이 차지하는 공간 확보 */
     padding-top: 85px;
 }
 .hex-button-mobile {
@@ -1944,7 +2116,7 @@ body, html {
     color: #ff8c8c;
 }
 
-/* --- 프로필 창 모바일 스타일 (기존과 동일) --- */
+/* --- 프로필 창 모바일 스타일 --- */
 .personnel-profile-window.mobile {
     background: rgba(15, 0, 0, 0.98);
     border: none;
@@ -1987,7 +2159,6 @@ body, html {
     text-overflow: ellipsis;
 }
 
-/* [문제점 2 해결] 모바일용 하단 메뉴 스타일 */
 .personnel-submenu.mobile-bottom {
     position: fixed;
     bottom: 20px;
@@ -2000,7 +2171,7 @@ body, html {
     backdrop-filter: blur(5px);
     padding: 10px;
     box-sizing: border-box;
-    z-index: 1200; /* 정보창보다 위에 오도록 */
+    z-index: 1200;
 }
 
 .personnel-submenu.mobile-bottom button {
@@ -2578,6 +2749,14 @@ body, html {
 }
 
 /* --- Second Impact Page Styles --- */
+/* GSAP 로드 실패 시를 위한 Fallback 애니메이션 */
+@keyframes fadeInReport {
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
 .second-impact-page-layout {
   position: absolute;
   top: 0;
@@ -2592,38 +2771,18 @@ body, html {
   padding: 80px 40px 40px; /* 상단(뒤로가기 버튼) 및 좌우 여백 */
   box-sizing: border-box;
   font-family: 'Share Tech Mono', monospace;
-  opacity: 0; /* 초기 상태 숨김 (GSAP 제어) */
-}
-
-/* 폴더/문서 애니메이션을 위한 새로운 래퍼 */
-.folder-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 1400px;
-  height: 100%;
-  max-height: 800px;
-  perspective: 2000px; /* 3D 회전 효과를 위함 */
-  transform: translateY(-5%) scale(0.95); /* GSAP를 위한 초기 상태 */
-}
-
-/* 폴더 같은 배경 요소 추가 */
-.folder-wrapper::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #382e2a; /* 서류 폴더 색상 */
-    border: 1px solid #5a4a42;
-    border-radius: 8px;
-    transform: translateZ(-20px); /* 리포트 뒤에 위치시킴 */
-    box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+  /* GSAP가 제어할 초기 상태. opacity와 visibility를 모두 사용합니다. */
+  opacity: 0; 
+  visibility: hidden;
+  /* GSAP 로드 실패 시를 위한 CSS fallback 애니메이션. GSAP가 로드되면 이 애니메이션은 JS에 의해 오버라이드됩니다. */
+  animation: fadeInReport 0.5s 0.1s ease-in forwards;
 }
 
 .report-container {
   width: 100%;
+  max-width: 1400px;
   height: 100%;
+  max-height: 800px;
   border: 1px solid #ff4500;
   background: rgba(10, 10, 10, 0.7);
   backdrop-filter: blur(5px);
@@ -2631,8 +2790,11 @@ body, html {
   box-shadow: 0 0 25px rgba(255, 69, 0, 0.4);
   display: flex;
   flex-direction: column;
-  transform-style: preserve-3d; /* 3D 변형에 중요 */
-  /* '펼치는' 애니메이션의 초기 상태는 JS에서 설정 */
+  /* GSAP가 제어할 초기 상태. JS 애니메이션이 clip-path를 사용하므로, JS가 실행되지 않을 경우를 대비합니다. */
+  opacity: 0;
+  visibility: hidden;
+  /* GSAP 로드 실패 시를 위한 Fallback 애니메이션 */
+  animation: fadeInReport 1.2s 0.5s ease-in forwards;
 }
 
 /* --- 리포트 헤더 --- */
@@ -2709,7 +2871,7 @@ body, html {
 .image-overlay-grid {
   position: absolute;
   top: 10px; left: 10px; right: 10px; bottom: 10px;
-  background-image:
+  background-image: 
     linear-gradient(rgba(255, 69, 0, 0.15) 1px, transparent 1px),
     linear-gradient(to right, rgba(255, 69, 0, 0.15) 1px, transparent 1px);
   background-size: 20px 20px;
@@ -2792,18 +2954,15 @@ body, html {
   color: #e0e0e0;
 }
 
+/* .typing-cursor는 JS에서 제거했으므로 주석 처리하거나 삭제합니다. */
+/*
 .typing-cursor {
-  position: absolute;
-  /* 동적으로 움직이게 하려면 JS가 필요합니다. */
-  /* 지금은 컨테이너 끝에서 깜빡이게 둡니다. */
-  bottom: 0;
-  right: 0;
   display: inline-block;
   color: #ff4500;
   font-weight: bold;
   animation: blink-cursor 1s infinite;
-  visibility: hidden; /* 정적 커서는 숨기고, 타이핑 애니메이션이 처리하도록 함 */
 }
+*/
 
 .report-footer {
   margin-top: 1rem;
@@ -2836,27 +2995,17 @@ body, html {
   .second-impact-page-layout {
     padding: 60px 15px 15px;
   }
-  .folder-wrapper {
-    max-height: none;
-    perspective: none; /* 모바일에서는 성능을 위해 3D 효과 비활성화 */
-  }
   .report-container {
     max-height: none;
-    transform: rotateX(0) !important; /* 필요한 경우 모바일에서 애니메이션 재정의 */
   }
   .report-header {
     flex-direction: column;
     gap: 10px;
     padding: 10px;
-    text-align: center;
-  }
-  .header-left, .header-right {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
   }
   .header-title {
     font-size: 0.9rem;
+    text-align: center;
   }
   .report-body {
     padding: 1rem;
