@@ -6,6 +6,8 @@ import AngelsPage from './AngelsPage';
 import NervPage from './NervPage';
 import SeelePage from './SeelePage';
 import mainImageEva from '../img/mainimg.png';
+// 비디오 파일 import
+import mainVideo from '../video/mainvideo.mp4'; 
 
 const MainContent = () => {
   const [page, setPage] = useState('main'); // 'main', 'pilots', 'evangelion', 'angels', 'nerv', 'seele'
@@ -50,6 +52,18 @@ const MainContent = () => {
 
   return (
     <div className="page-container">
+      {/* 배경 비디오 추가 */}
+      <div className="background-video-container">
+        <video 
+          autoPlay 
+          loop 
+          muted 
+          playsInline // iOS 자동재생을 위한 속성
+          src={mainVideo}
+        />
+        <div className="video-overlay"></div> {/* 어둡게 만드는 오버레이 */}
+      </div>
+
       {/* data-theme 속성은 eva로 고정 */}
       <div 
         className="main-content" 
