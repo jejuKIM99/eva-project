@@ -442,7 +442,6 @@ body, html {
         left: 10px;
         bottom: 10px;
         padding: 6px 10px;
-        gap: 8px;
     }
     .music-info-wrapper.playing {
         max-width: 150px;
