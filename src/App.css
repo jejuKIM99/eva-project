@@ -325,7 +325,6 @@ body, html {
     left: 20px;
     display: flex;
     align-items: center;
-    gap: 12px;
     z-index: 2000; /* 최상단에 위치하도록 z-index 설정 */
     background-color: rgba(0, 0, 0, 0.5);
     padding: 8px 8px 8px 15px;
