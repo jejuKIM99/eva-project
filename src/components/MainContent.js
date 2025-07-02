@@ -5,16 +5,16 @@ import EvangelionPage from './EvangelionPage';
 import AngelsPage from './AngelsPage';
 import NervPage from './NervPage';
 import SeelePage from './SeelePage';
-// SecondImpactPage 컴포넌트 import 추가
-import SecondImpactPage from './SecondImpactPage'; 
+import SecondImpactPage from './SecondImpactPage';
+import LCLPage from './LCLPage'; // LCLPage 컴포넌트 import 추가
 import mainImageEva from '../img/mainimg.png';
 // 비디오 및 오디오 파일 import
 import mainVideo from '../video/mainvideo.mp4';
 import mainBgm from '../video/mainbgm.mp3';
 
 const MainContent = () => {
-  // 'secondimpact' 페이지 상태 추가
-  const [page, setPage] = useState('main'); // 'main', 'pilots', 'evangelion', 'angels', 'nerv', 'seele', 'secondimpact'
+  // 'lcl' 페이지 상태 추가
+  const [page, setPage] = useState('main'); // 'main', 'pilots', 'evangelion', 'angels', 'nerv', 'seele', 'secondimpact', 'lcl'
   const [isBgmPlaying, setIsBgmPlaying] = useState(false);
 
   const mainContentRef = useRef(null);
@@ -45,8 +45,8 @@ const MainContent = () => {
     if (menuItem.title === 'ANGELS') targetPage = 'angels';
     if (menuItem.title === 'NERV') targetPage = 'nerv';
     if (menuItem.title === 'SEELE') targetPage = 'seele';
-    // SECOND IMPACT 메뉴 클릭 시 'secondimpact' 페이지로 이동하는 로직 추가
-    if (menuItem.title === 'SECOND IMPACT') targetPage = 'secondimpact';
+    if (menuItem.title === '2nd IMPACT') targetPage = 'secondimpact';
+    if (menuItem.title === 'LCL') targetPage = 'lcl'; // LCL 메뉴 클릭 시 'lcl' 페이지로 이동하는 로직 추가
 
     if (targetPage) {
       gsap.to(mainLayoutRef.current, {
@@ -136,8 +136,8 @@ const MainContent = () => {
       {page === 'angels' && <AngelsPage onBack={handleBack} />}
       {page === 'nerv' && <NervPage onBack={handleBack} />}
       {page === 'seele' && <SeelePage onBack={handleBack} />}
-      {/* SecondImpactPage 렌더링 로직 추가 */}
       {page === 'secondimpact' && <SecondImpactPage onBack={handleBack} />}
+      {page === 'lcl' && <LCLPage onBack={handleBack} />}
     </div>
   );
 };

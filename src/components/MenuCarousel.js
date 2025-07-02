@@ -7,10 +7,9 @@ const menuItemsData = [
     { id: 3, title: 'ANGELS', content: 'The mysterious, alien beings that threaten humanity, triggering the Second Impact.' },
     { id: 4, title: 'NERV', content: 'A special UN agency created to lead the defense of humanity against the Angels.' },
     { id: 5, title: 'SEELE', content: 'The secret and powerful committee that manipulates global events from the shadows, funding NERV.' },
-    { id: 6, title: 'SECOND IMPACT', content: 'A global cataclysm that occurred on September 13, 2000, caused by contact with the first Angel, Adam.'},
+    { id: 6, title: '2nd IMPACT', content: 'A global cataclysm that occurred on September 13, 2000, caused by contact with the first Angel, Adam.'},
     { id: 7, title: 'LCL', content: 'An orange, translucent liquid that fills the Evangelion entry plugs, allowing pilots to mentally link with their units.'},
     { id: 8, title: 'S² ENGINE', content: 'A perpetual power organ possessed by the Angels, providing them with a limitless energy supply.'},
-    { id: 9, title: 'HUMAN INSTRUMENTALITY', content: 'SEELE\'s clandestine goal: the forced evolution of humanity by merging all individual souls into a single entity.' }
 ];
 
 const REAL_ITEM_COUNT = menuItemsData.length;
