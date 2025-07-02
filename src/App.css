@@ -3570,3 +3570,238 @@ body, html {
     opacity: 0;
   }
 }
+
+/* --- S² Engine Page Styles --- */
+.s2-engine-page-layout {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #000;
+  /* [수정] 배경에 미세한 펄스 애니메이션 추가 */
+  background-image: radial-gradient(circle at center, rgba(50, 0, 0, 0.5), #000 80%);
+  animation: s2-bg-pulse 10s infinite alternate;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 40px 40px;
+  box-sizing: border-box;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+@keyframes s2-bg-pulse {
+  from { background-image: radial-gradient(circle at center, rgba(50, 0, 0, 0.5), #000 80%); }
+  to { background-image: radial-gradient(circle at center, rgba(80, 0, 0, 0.7), #000 80%); }
+}
+
+.s2-engine-gui-grid {
+  width: 100%;
+  height: 100%;
+  max-width: 1600px;
+  max-height: 900px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.s2-panel {
+  background: rgba(10, 0, 0, 0.6);
+  border: 1px solid rgba(255, 69, 0, 0.3);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.s2-panel-header {
+  font-family: 'Orbitron', sans-serif;
+  color: #ff4500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 69, 0, 0.5);
+  flex-shrink: 0;
+}
+
+/* 상단 좌측: 시계 및 상태 */
+.s2-clock-display {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(2rem, 8vw, 4.5rem);
+  color: #ff4500;
+  text-shadow: 0 0 15px #ff4500;
+  text-align: center;
+  margin: auto 0;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.s2-status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  padding: 0.5rem;
+  border-top: 1px solid rgba(255, 69, 0, 0.3);
+}
+.s2-status-label { color: #aaa; }
+.s2-status-value { color: #fff; font-weight: 700; text-align: right; }
+
+/* 상단 우측: 3D 모델 */
+.s2-3d-panel {
+  padding: 0;
+}
+.s2-3d-panel .s2-panel-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 2rem);
+  margin: 1rem;
+  z-index: 10;
+  border: none;
+  padding: 0;
+}
+.s2-3d-container {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+.s2-3d-container:active {
+  cursor: grabbing;
+}
+.s2-texture-toggle {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 69, 0, 0.2);
+  border: 1px solid #ff4500;
+  color: #ff4500;
+  padding: 8px 15px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  z-index: 10;
+}
+.s2-texture-toggle:hover {
+  background: #ff4500;
+  color: #000;
+}
+
+/* 하단 좌측: 그래프 */
+.s2-canvas-wrapper {
+  flex-grow: 1;
+  position: relative;
+  background: #000;
+  border: 1px solid #333;
+}
+.s2-canvas-wrapper canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* 하단 우측: 레벨 미터 */
+.s2-levels-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+  justify-content: center;
+}
+.s2-level-item {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+.s2-level-label {
+  color: #ccc;
+  font-size: 0.9rem;
+}
+.s2-level-bar-bg {
+  height: 14px;
+  background: #222;
+  border: 1px solid #444;
+  overflow: hidden; /* 자식 요소가 부모를 넘지 않도록 */
+}
+.s2-level-bar-fill {
+  height: 100%;
+  box-shadow: 0 0 8px;
+  transition: width 0.5s ease-in-out;
+}
+
+/* [추가] 레벨 바 색상 클래스 */
+.danger-bar { background-color: #ff4500; box-shadow-color: #ff4500; }
+.critical-bar { background-color: #ff0000; box-shadow-color: #ff0000; animation: critical-pulse 1s infinite; }
+.warning-bar { background-color: #ffff00; box-shadow-color: #ffff00; }
+
+.s2-description {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #bbb;
+  border-top: 1px solid rgba(255, 69, 0, 0.3);
+  padding-top: 1rem;
+}
+
+/* [추가] 텍스트 색상 및 애니메이션 */
+.text-danger {
+    color: #ff2a2a;
+    text-shadow: 0 0 8px #ff2a2a;
+}
+.flicker-anim {
+    animation: flicker-animation 0.15s infinite;
+}
+@keyframes flicker-animation {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+@keyframes critical-pulse {
+    50% { filter: brightness(2); }
+}
+
+
+/* S² Engine 반응형 */
+@media (max-width: 900px) {
+  .s2-engine-page-layout {
+    padding: 70px 15px 15px;
+    /* [추가] 모바일 스크롤 활성화 및 스크롤바 숨기기 */
+    overflow-y: auto;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .s2-engine-page-layout::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+  }
+
+  .s2-engine-gui-grid {
+    grid-template-columns: 1fr;
+    /* [수정] 모바일에서 각 패널의 높이가 유동적으로 조절되도록 */
+    grid-template-rows: repeat(4, minmax(250px, auto));
+    gap: 1rem;
+    height: auto; /* 전체 높이를 auto로 설정하여 스크롤 가능하게 함 */
+  }
+  .s2-panel-header {
+    font-size: 0.9rem;
+  }
+  .s2-texture-toggle {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+  .s2-level-item {
+    grid-template-columns: 100px 1fr;
+  }
+}
