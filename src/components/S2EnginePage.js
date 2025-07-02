@@ -222,22 +222,22 @@ const S2EngineModelView = () => {
     );
 };
 
-// --- [수정] 사이코그래프 컴포넌트 ---
 const Psychograph = () => {
     const canvasRef = useRef(null);
-    const noise = new (window.SimplexNoise)();
+    const noiseRef = useRef(new (window.SimplexNoise)());
 
     useEffect(() => {
+        const noise = noiseRef.current;
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         let animationFrameId;
         let time = 0;
-        const points = []; // 그래프 포인트를 저장할 배열
+        const points = []; 
 
         const resizeCanvas = () => {
+            if (!canvas || !canvas.parentElement) return;
             canvas.width = canvas.parentElement.offsetWidth;
             canvas.height = canvas.parentElement.offsetHeight;
-            // 배열 초기화
             points.length = 0;
             for (let i = 0; i < canvas.width; i++) {
                 points.push(canvas.height / 2);
@@ -251,14 +251,11 @@ const Psychograph = () => {
         const draw = () => {
             time += 0.02; 
             
-            // 잔상 효과를 위한 희미한 배경
             ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 포인트를 왼쪽으로 한 칸씩 이동
             points.shift();
 
-            // 마지막에 새로운 포인트 추가
             const lastX = canvas.width - 1;
             let newY;
             
@@ -279,7 +276,6 @@ const Psychograph = () => {
             }
             points.push(newY);
 
-            // 메인 노란색 그래프 라인
             ctx.beginPath();
             ctx.moveTo(0, points[0]);
             for (let i = 1; i < points.length; i++) {
@@ -291,7 +287,6 @@ const Psychograph = () => {
             ctx.shadowBlur = 5;
             ctx.stroke();
 
-            // 긴장감을 위한 붉은색 보조 라인
             ctx.beginPath();
             ctx.moveTo(0, points[0]);
             for (let i = 1; i < points.length; i++) {
@@ -309,7 +304,6 @@ const Psychograph = () => {
             ctx.shadowBlur = 10;
             ctx.stroke();
 
-            // 다음 프레임을 위해 그림자 효과 리셋
             ctx.shadowBlur = 0;
             
             animationFrameId = requestAnimationFrame(draw);
@@ -323,7 +317,7 @@ const Psychograph = () => {
             cancelAnimationFrame(animationFrameId);
             window.removeEventListener('resize', resizeCanvas);
         };
-    }, [noise]);
+    }, []);
 
     return (
         <div className="s2-panel">
@@ -376,6 +370,39 @@ const S2EnginePage = ({ onBack }) => {
 
     return (
         <div className="s2-engine-page-layout" ref={pageRef}>
+            {/* [추가] 배경 GUI 요소 */}
+            <div className="s2-bg-overlay">
+                <div className="s2-bg-grid"></div>
+                <div className="s2-bg-text s2-bg-text-top-right">
+                    PSYCHOGRAPHIC DISPLAY
+                    <div className="s2-bg-subtext-group">
+                        <span>Phase 4</span>
+                        <span>S.A.LANGLEY: EVA-02 PILOT</span>
+                    </div>
+                </div>
+                <div className="s2-bg-text s2-bg-text-top-left">
+                    ACTIVE TIME DISPLAY
+                </div>
+                <div className="s2-bg-text s2-bg-text-bottom-left">
+                    <div>CODE: 102.</div>
+                    <div className="s2-magi-grid">
+                        <div className="s2-magi-item">CASPER</div>
+                        <div className="s2-magi-item">MAGI</div>
+                        <div className="s2-magi-item">MELCHIOR</div>
+                    </div>
+                </div>
+                <div className="s2-bg-text s2-bg-text-bottom-right">
+                    01<br/>02
+                </div>
+                <div className="s2-emergency-bar">
+                    <div className="s2-emergency-text-wrapper">
+                        <span className="s2-emergency-jp">非常事態</span>
+                        <span className="s2-emergency-en">EMERGENCY</span>
+                        <span className="s2-emergency-jp">非常事態</span>
+                    </div>
+                </div>
+            </div>
+
             <button className="back-button" onClick={onBack}>← MENU</button>
             <div className="s2-engine-gui-grid">
                 

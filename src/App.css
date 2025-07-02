@@ -3579,23 +3579,137 @@ body, html {
   width: 100%;
   height: 100%;
   background-color: #000;
-  /* [수정] 배경에 미세한 펄스 애니메이션 추가 */
-  background-image: radial-gradient(circle at center, rgba(50, 0, 0, 0.5), #000 80%);
-  animation: s2-bg-pulse 10s infinite alternate;
-  z-index: 100;
+  /* [수정] z-index를 높여 다른 페이지 위에 표시되도록 함 */
+  z-index: 200; 
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 80px 40px 40px;
   box-sizing: border-box;
   font-family: 'Share Tech Mono', monospace;
+  overflow: hidden;
 }
 
-@keyframes s2-bg-pulse {
-  from { background-image: radial-gradient(circle at center, rgba(50, 0, 0, 0.5), #000 80%); }
-  to { background-image: radial-gradient(circle at center, rgba(80, 0, 0, 0.7), #000 80%); }
+/* [추가] 배경 전체를 덮는 오버레이 컨테이너 */
+.s2-bg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* 클릭 방지 */
+  z-index: 0; /* GUI 그리드 뒤에 위치 */
+  overflow: hidden;
+  /* 전체 배경에 플리커 효과 적용 */
+  animation: s2-gui-flicker 0.1s infinite alternate;
+  background: radial-gradient(ellipse at center, rgba(100, 0, 0, 0.6), #000 75%);
 }
 
+@keyframes s2-gui-flicker {
+  from { opacity: 0.8; }
+  to { opacity: 1; }
+}
+
+/* [추가] 배경 그리드 */
+.s2-bg-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    repeating-linear-gradient(to right, rgba(255, 69, 0, 0.1) 0, rgba(255, 69, 0, 0.1) 1px, transparent 1px, transparent 40px),
+    repeating-linear-gradient(to bottom, rgba(255, 69, 0, 0.1) 0, rgba(255, 69, 0, 0.1) 1px, transparent 1px, transparent 40px);
+  opacity: 0.5;
+}
+
+/* [추가] 배경 텍스트 공통 스타일 */
+.s2-bg-text {
+  position: absolute;
+  font-family: 'Share Tech Mono', monospace;
+  color: rgba(255, 69, 0, 0.7);
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
+  text-transform: uppercase;
+  line-height: 1.5;
+  text-shadow: 0 0 5px rgba(255, 69, 0, 0.5);
+}
+
+.s2-bg-text-top-left { top: 5%; left: 3%; }
+.s2-bg-text-top-right { top: 5%; right: 3%; text-align: right; }
+.s2-bg-text-bottom-left { bottom: 5%; left: 3%; }
+.s2-bg-text-bottom-right { bottom: 5%; right: 3%; text-align: right; }
+
+.s2-bg-subtext-group {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.9em;
+  color: rgba(255, 69, 0, 0.5);
+}
+
+.s2-magi-grid {
+  margin-top: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  border: 1px solid rgba(255, 69, 0, 0.4);
+  padding: 0.5rem;
+  margin-top: 1rem;
+}
+.s2-magi-item {
+  border: 1px solid rgba(255, 69, 0, 0.2);
+  text-align: center;
+  padding: 0.3rem;
+  font-size: 0.8em;
+}
+
+/* [추가] 비상 경고 바 */
+.s2-emergency-bar {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  transform: translateY(-50%);
+  padding: 0.5rem 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    #f9c00c,
+    #f9c00c 25px,
+    #111 25px,
+    #111 50px
+  );
+  box-shadow: 0 0 20px rgba(0,0,0,0.8);
+  border-top: 2px solid #f9c00c;
+  border-bottom: 2px solid #f9c00c;
+}
+
+.s2-emergency-text-wrapper {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: rgba(0,0,0,0.6);
+  padding: 0.5rem;
+}
+
+.s2-emergency-en {
+  font-family: 'Orbitron', sans-serif;
+  color: #f9c00c;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 900;
+  text-shadow: 0 0 10px #f9c00c;
+}
+
+.s2-emergency-jp {
+  font-family: sans-serif;
+  color: #fff;
+  background: #000;
+  padding: 0.2rem 1rem;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+  border: 1px solid #555;
+}
+
+/* 기존 GUI 그리드 z-index 설정 */
 .s2-engine-gui-grid {
   width: 100%;
   height: 100%;
@@ -3605,6 +3719,8 @@ body, html {
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
   gap: 1.5rem;
+  position: relative; /* z-index 적용을 위해 */
+  z-index: 1; /* 배경 오버레이 위에 위치 */
 }
 
 .s2-panel {
@@ -3743,7 +3859,6 @@ body, html {
   transition: width 0.5s ease-in-out;
 }
 
-/* [추가] 레벨 바 색상 클래스 */
 .danger-bar { background-color: #ff4500; box-shadow-color: #ff4500; }
 .critical-bar { background-color: #ff0000; box-shadow-color: #ff0000; animation: critical-pulse 1s infinite; }
 .warning-bar { background-color: #ffff00; box-shadow-color: #ffff00; }
@@ -3756,7 +3871,6 @@ body, html {
   padding-top: 1rem;
 }
 
-/* [추가] 텍스트 색상 및 애니메이션 */
 .text-danger {
     color: #ff2a2a;
     text-shadow: 0 0 8px #ff2a2a;
@@ -3778,21 +3892,20 @@ body, html {
 @media (max-width: 900px) {
   .s2-engine-page-layout {
     padding: 70px 15px 15px;
-    /* [추가] 모바일 스크롤 활성화 및 스크롤바 숨기기 */
     overflow-y: auto;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   .s2-engine-page-layout::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, and Opera */
+    display: none;
   }
 
   .s2-engine-gui-grid {
     grid-template-columns: 1fr;
-    /* [수정] 모바일에서 각 패널의 높이가 유동적으로 조절되도록 */
     grid-template-rows: repeat(4, minmax(250px, auto));
     gap: 1rem;
-    height: auto; /* 전체 높이를 auto로 설정하여 스크롤 가능하게 함 */
+    height: auto;
+    top: 80px;
   }
   .s2-panel-header {
     font-size: 0.9rem;
@@ -3803,5 +3916,19 @@ body, html {
   }
   .s2-level-item {
     grid-template-columns: 100px 1fr;
+  }
+  .s2-emergency-bar {
+      padding: 0.2rem 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .s2-engine-gui-grid{
+    top: 58px;
+  }
+}
+@media (min-height: 896px) {
+  .s2-engine-gui-grid{
+    top: 15px !important;
   }
 }
