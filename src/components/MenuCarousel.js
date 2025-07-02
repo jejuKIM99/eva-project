@@ -32,7 +32,7 @@ const MenuCarousel = ({ onActiveItemClick, initialDelay }) => {
         const calculateWidths = () => {
             const currentWidth = window.innerWidth;
             if (currentWidth <= 768) {
-                setItemWidth(156);
+                setItemWidth(155);
                 setViewportWidth(currentWidth);
             } else if (currentWidth <= 1024) {
                 setItemWidth(220);
