@@ -37,8 +37,12 @@ const EntryPlugView = ({ onBack }) => {
     const previousMousePosition = useRef({ x: 0, y: 0 });
     
     const wireframePlugRef = useRef(null);
-    const texturedPlugRef = useRef(null);
+    const texturedPlugRef = useRef(null); // 이제 Group을 참조합니다.
     const rotationGroupRef = useRef(null);
+
+    // [수정] 텍스처 재질과 캡 재질을 별도로 참조합니다.
+    const texturedMaterialRef = useRef(null);
+    const capMaterialRef = useRef(null);
 
     const rotationVelocity = useRef({ x: 0, y: 0 });
     const dampingFactor = 0.95;
@@ -58,18 +62,16 @@ const EntryPlugView = ({ onBack }) => {
         setIsTextureOn(prev => !prev);
     }, []);
 
-    // [수정] 설계도 기반 초정밀 텍스처 생성 함수
     const generatePlugTexture = useCallback(() => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        // 텍스처 해상도 증가
-        const canvasWidth = 2048; 
+        const canvasWidth = 2248; 
         const canvasHeight = 2048;
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
 
         // 1. 베이스 색상 (밝은 회색)
-        ctx.fillStyle = '#EAEAEA';
+        ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
         // 2. 중앙의 "EVA-01 TEST TYPE" 텍스트
@@ -78,7 +80,6 @@ const EntryPlugView = ({ onBack }) => {
         ctx.rotate(Math.PI / 2);
         ctx.textAlign = 'center';
         ctx.fillStyle = '#333333';
-        // 폰트 및 크기 조정
         ctx.font = 'bold 90px "Eurostile", "Orbitron", sans-serif';
         ctx.fillText('EVA-01', 0, -20);
         ctx.font = '30px "Eurostile", "Orbitron", sans-serif';
@@ -142,9 +143,11 @@ const EntryPlugView = ({ onBack }) => {
         drawPanelLine(canvasHeight - 300);
 
         const texture = new THREE.CanvasTexture(canvas);
+        texture.encoding = THREE.sRGBEncoding;
+        
+        // [수정] 텍스처가 수직으로 반복되지 않도록 설정
         texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        // 텍스처가 원통을 따라 반복되지 않도록 설정
+        texture.wrapT = THREE.ClampToEdgeWrapping; 
         texture.repeat.set(1, 1); 
         return texture;
     }, [THREE]);
@@ -167,10 +170,10 @@ const EntryPlugView = ({ onBack }) => {
         scene.add(rotationGroup);
         rotationGroupRef.current = rotationGroup;
 
-        // --- 지오메트리 생성 (외부) ---
+        // --- 지오메트리 생성 (몸통, 상단/하단 캡 분리) ---
         const radius = 2;
         const height = 8;
-        const radialSegments = 64; // 외부 표면 부드럽게
+        const radialSegments = 64;
         const heightSegments = 32;
         const bodyGeom = new THREE.CylinderGeometry(radius, radius, height, radialSegments, heightSegments, false);
         const topCapGeom = new THREE.SphereGeometry(radius, radialSegments, heightSegments, 0, Math.PI * 2, 0, Math.PI / 2);
@@ -178,68 +181,32 @@ const EntryPlugView = ({ onBack }) => {
         const bottomCapGeom = new THREE.SphereGeometry(radius, radialSegments, heightSegments, 0, Math.PI * 2, 0, Math.PI / 2);
         bottomCapGeom.rotateX(Math.PI);
         bottomCapGeom.translate(0, -height / 2, 0);
-        const plugGeometry = window.THREE.BufferGeometryUtils.mergeBufferGeometries([bodyGeom, topCapGeom, bottomCapGeom]);
-
-        // --- [수정] 내부 구조물 지오메트리 (정교화) ---
+        
+        // --- 와이어프레임용 지오메트리 (기존과 동일하게 모두 합침) ---
         const internalGeometries = [];
-
-        // 파일럿 시트
         const seatGeom = new THREE.BoxGeometry(0.8, 1, 0.8);
         seatGeom.translate(0, 0.5, 0);
         internalGeometries.push(seatGeom);
-
-        // 헤드레스트
         const headrestGeom = new THREE.BoxGeometry(0.8, 0.5, 0.2);
         headrestGeom.translate(0, 1.2, -0.3);
         internalGeometries.push(headrestGeom);
-
-        // 컨트롤 요크
-        const controlYoke1 = new THREE.CylinderGeometry(0.05, 0.05, 1, 8);
-        controlYoke1.rotateZ(Math.PI / 2);
-        controlYoke1.translate(0.5, 0.8, 0.5);
-        internalGeometries.push(controlYoke1);
-        const controlYoke2 = controlYoke1.clone().translate(-1, 0, 0);
-        internalGeometries.push(controlYoke2);
-        
-        // 내부 프레임
-        const frameBar1 = new THREE.BoxGeometry(0.1, 3.5, 0.1);
-        frameBar1.translate(0.8, 1, 0);
-        internalGeometries.push(frameBar1);
-        const frameBar2 = frameBar1.clone().translate(-1.6, 0, 0);
-        internalGeometries.push(frameBar2);
-        const frameBar3 = new THREE.BoxGeometry(1.7, 0.1, 0.1);
-        frameBar3.translate(0, 2.75, 0);
-        internalGeometries.push(frameBar3);
-
-        // 임의의 전선들 (TubeGeometry 사용)
-        const createWire = (points, color) => {
+        const createWire = (points) => {
             const curve = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p)));
-            const tubeGeom = new THREE.TubeGeometry(curve, 20, 0.03, 8, false);
-            return tubeGeom;
+            return new THREE.TubeGeometry(curve, 20, 0.03, 8, false);
         };
-        
-        internalGeometries.push(createWire([
-            [-0.7, -1, 0.5], [-0.5, 0, 0.6], [0, 1, 0.7], [0.5, 2, 0.5], [0.7, 3, 0]
-        ]));
-        internalGeometries.push(createWire([
-            [0.7, -1.5, -0.5], [0.4, -0.5, -0.6], [0, 0.5, -0.5], [-0.5, 1.5, -0.7], [-0.7, 2.5, -0.2]
-        ]));
-         internalGeometries.push(createWire([
-            [0, -2, 0], [0, -1, 0.8], [-0.8, 0, 0.8], [-0.8, 1, 0], [-0.6, 2, -0.5]
-        ]));
-
-        // 외부 쉘과 내부 구조물을 합쳐서 와이어프레임용 지오메트리 생성
-        const combinedWireframeGeom = window.THREE.BufferGeometryUtils.mergeBufferGeometries([plugGeometry, ...internalGeometries]);
-
-        // --- 재질 및 메쉬 생성 ---
-        const wireframeMaterial = new THREE.LineBasicMaterial({ color: 0xff6a00, transparent: true, opacity: 0.8 });
+        internalGeometries.push(createWire([[-0.7, -1, 0.5], [-0.5, 0, 0.6], [0, 1, 0.7], [0.5, 2, 0.5], [0.7, 3, 0]]));
+        internalGeometries.push(createWire([[0.7, -1.5, -0.5], [0.4, -0.5, -0.6], [0, 0.5, -0.5], [-0.5, 1.5, -0.7], [-0.7, 2.5, -0.2]]));
+        const combinedWireframeGeom = window.THREE.BufferGeometryUtils.mergeBufferGeometries([bodyGeom, topCapGeom, bottomCapGeom, ...internalGeometries]);
         const wireframeGeom = new THREE.EdgesGeometry(combinedWireframeGeom);
+        const wireframeMaterial = new THREE.LineBasicMaterial({ color: 0xff6a00, transparent: true, opacity: 0.8 });
         const wireframePlug = new THREE.LineSegments(wireframeGeom, wireframeMaterial);
         wireframePlugRef.current = wireframePlug;
         rotationGroup.add(wireframePlug);
-        
+
+        // --- [수정] 텍스처용 모델 (메쉬 분리 및 그룹화) ---
         const plugTexture = generatePlugTexture();
-        plugTexture.encoding = THREE.sRGBEncoding;
+        
+        // 몸통 재질
         const texturedMaterial = new THREE.MeshStandardMaterial({ 
             map: plugTexture, 
             metalness: 0.2, 
@@ -247,24 +214,42 @@ const EntryPlugView = ({ onBack }) => {
             transparent: true,
             opacity: 0
         });
-        // 텍스처 메쉬는 외부 지오메트리만 사용
-        const texturedPlug = new THREE.Mesh(plugGeometry, texturedMaterial);
+        texturedMaterialRef.current = texturedMaterial;
+
+        // 캡 재질 (단색)
+        const capMaterial = new THREE.MeshStandardMaterial({
+            color: '#fff',
+            metalness: 0.2,
+            roughness: 0.6,
+            transparent: true,
+            opacity: 0
+        });
+        capMaterialRef.current = capMaterial;
+
+        // 각 파트별 메쉬 생성
+        const bodyMesh = new THREE.Mesh(bodyGeom, texturedMaterial);
+        const topCapMesh = new THREE.Mesh(topCapGeom, capMaterial);
+        const bottomCapMesh = new THREE.Mesh(bottomCapGeom, capMaterial);
+
+        // 메쉬들을 하나의 그룹으로 묶음
+        const texturedPlug = new THREE.Group();
+        texturedPlug.add(bodyMesh, topCapMesh, bottomCapMesh);
         texturedPlug.visible = false;
         texturedPlugRef.current = texturedPlug;
         rotationGroup.add(texturedPlug);
 
+        // --- 조명 ---
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
         directionalLight.position.set(5, 10, 7.5);
         scene.add(directionalLight);
 
-        // --- 애니메이션 ---
+        // --- 애니메이션 및 이벤트 핸들러 (기존과 동일) ---
         const totalVertices = wireframeGeom.attributes.position.count;
         wireframeGeom.setDrawRange(0, 0);
         gsap.to(wireframeGeom.drawRange, { count: totalVertices, duration: 3, ease: "power2.inOut", delay: 0.5 });
-
-        gsap.fromTo(".plug-graph-bar-fill", { width: '0%' }, { width: (i) => `${80 + Math.random() * 15}%`, duration: 2, ease: 'power3.out', stagger: 0.2, delay: 1.5 });
+        gsap.fromTo(".plug-graph-bar-fill", { width: '0%' }, { width: () => `${80 + Math.random() * 15}%`, duration: 2, ease: 'power3.out', stagger: 0.2, delay: 1.5 });
 
         const onPointerDown = (e) => {
             isDragging.current = true;
@@ -325,26 +310,27 @@ const EntryPlugView = ({ onBack }) => {
         };
     }, [THREE, gsap, generatePlugTexture]);
 
+    // [수정] 텍스처/와이어프레임 전환 로직
     useEffect(() => {
         const wireMesh = wireframePlugRef.current;
-        const texMesh = texturedPlugRef.current;
+        const texGroup = texturedPlugRef.current;
+        const texMat = texturedMaterialRef.current;
+        const capMat = capMaterialRef.current;
 
-        if (!wireMesh || !texMesh) return;
+        if (!wireMesh || !texGroup || !texMat || !capMat) return;
         
-        const texMat = texMesh.material;
-
         if (isTextureOn) {
-            texMesh.visible = true;
+            texGroup.visible = true;
             wireMesh.visible = false;
-            gsap.to(texMat, { opacity: 1, duration: 0.5 });
+            gsap.to([texMat, capMat], { opacity: 1, duration: 0.5 });
         } else {
             wireMesh.visible = true;
-            gsap.to(texMat, { 
+            gsap.to([texMat, capMat], { 
                 opacity: 0, 
                 duration: 0.5,
                 onComplete: () => {
                     if (!isTextureOn) {
-                       texMesh.visible = false;
+                       texGroup.visible = false;
                     }
                 }
             });
