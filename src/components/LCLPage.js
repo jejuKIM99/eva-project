@@ -611,7 +611,7 @@ const LCLPage = ({ onBack }) => {
             <div ref={mountRef} className="lcl-3d-canvas"></div>
             {!isPlugView && 
                 <button className="back-button" onClick={onBack}>
-                    Back to Main
+                    ← MENU
                 </button>
             }
             
@@ -647,7 +647,23 @@ const LCLPage = ({ onBack }) => {
                             <div className="image-container">
                                 <img src={lclImage} alt="LCL Fluid Sample" />
                                 <div className="scanline-overlay"></div>
-                                <div className="image-tag">#SAMPLE_707</div>
+                                <div className="image-tag">#CD_A01</div>
+                                {/* --- START: Lock-on Effect --- */}
+                                <div className="lock-on-overlay">
+                                    <div className="lock-on-bracket top-left"></div>
+                                    <div className="lock-on-bracket top-right"></div>
+                                    <div className="lock-on-bracket bottom-left"></div>
+                                    <div className="lock-on-bracket bottom-right"></div>
+                                    <div className="lock-on-crosshair"></div>
+                                    <div className="lock-on-scanning-line"></div>
+                                    <div className="lock-on-text-box">
+                                        <p>TARGET: AYANAMI REI</p>
+                                        <p>SYNC-RATE: <span className="lock-on-value">41.3%</span></p>
+                                    </div>
+                                    <div className="lock-on-circle circle1"></div>
+                                    <div className="lock-on-circle circle2"></div>
+                                </div>
+                                {/* --- END: Lock-on Effect --- */}
                             </div>
                             <div className="data-block description-block">
                                 <h3 className="data-title">TACTICAL OVERVIEW</h3>
