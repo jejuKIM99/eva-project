@@ -37,12 +37,13 @@ const EntryPlugView = ({ onBack }) => {
     const previousMousePosition = useRef({ x: 0, y: 0 });
     
     const wireframePlugRef = useRef(null);
-    const texturedPlugRef = useRef(null); // 이제 Group을 참조합니다.
+    const texturedPlugRef = useRef(null);
     const rotationGroupRef = useRef(null);
 
-    // [수정] 텍스처 재질과 캡 재질을 별도로 참조합니다.
-    const texturedMaterialRef = useRef(null);
-    const capMaterialRef = useRef(null);
+    // 각 파트별 재질을 별도로 참조합니다.
+    const bodyMaterialRef = useRef(null);
+    const topCapMaterialRef = useRef(null);
+    const bottomCapMaterialRef = useRef(null);
 
     const rotationVelocity = useRef({ x: 0, y: 0 });
     const dampingFactor = 0.95;
@@ -62,93 +63,131 @@ const EntryPlugView = ({ onBack }) => {
         setIsTextureOn(prev => !prev);
     }, []);
 
-    const generatePlugTexture = useCallback(() => {
+    // 플러그 몸통 텍스처 생성 함수
+    const generatePlugBodyTexture = useCallback(() => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        const canvasWidth = 2248; 
+        const canvasWidth = 2048;
         const canvasHeight = 2048;
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
 
-        // 1. 베이스 색상 (밝은 회색)
-        ctx.fillStyle = '#fff';
+        // 베이스 색상
+        ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-        // 2. 중앙의 "EVA-01 TEST TYPE" 텍스트
+        // "EVA-01" 텍스트
         ctx.save();
         ctx.translate(canvasWidth / 2, canvasHeight / 2);
         ctx.rotate(Math.PI / 2);
         ctx.textAlign = 'center';
         ctx.fillStyle = '#333333';
-        ctx.font = 'bold 90px "Eurostile", "Orbitron", sans-serif';
-        ctx.fillText('EVA-01', 0, -20);
-        ctx.font = '30px "Eurostile", "Orbitron", sans-serif';
-        ctx.fillText('TEST TYPE', 0, 40);
+        ctx.font = 'bold 140px "Eurostile", "Orbitron", sans-serif';
+        ctx.fillText('EVA-01', 0, 0);
         ctx.restore();
 
-        // 3. 상단부 디테일 (EJECTION COVER)
-        const topSectionY = 350;
-        ctx.fillStyle = '#D0D0D0';
-        ctx.fillRect(0, topSectionY - 60, canvasWidth, 60);
-        ctx.strokeStyle = '#AEAEAE';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(0, topSectionY - 60, canvasWidth, 60);
-        
-        ctx.fillStyle = '#222';
-        ctx.font = '24px "Orbitron", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('EJECTION COVER', canvasWidth / 2, topSectionY - 22);
-        
-        // 4. 탑승구 선 (Hatch Line)
-        ctx.strokeStyle = '#A0A0A0';
+        // [수정] 패널 라인 너비 좁게
+        ctx.strokeStyle = '#555555';
+        ctx.lineWidth = 6;
+        const panelY = canvasHeight / 2 - 600;
+        const panelHeight = 1200;
+        ctx.strokeRect(canvasWidth * 0.2, panelY, canvasWidth * 0.6, panelHeight); // x 시작점과 너비 수정
+
+        // 빨간색 경고 박스
+        const warningBoxY = panelY + 50;
+        ctx.fillStyle = '#D93A3A';
+        ctx.fillRect(canvasWidth * 0.25, warningBoxY, canvasWidth * 0.5, 80);
+        ctx.strokeStyle = '#FFFFFF';
         ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(canvasWidth * 0.1, topSectionY);
-        ctx.lineTo(canvasWidth * 0.9, topSectionY);
-        ctx.stroke();
-
-        // 5. 컬러 링 (빨강 -> 금색 순서)
-        const redRingY = topSectionY + 20;
-        const goldRingY = redRingY + 40;
-        
-        ctx.fillStyle = '#B12222'; // 빨간색
-        ctx.fillRect(0, redRingY, canvasWidth, 250);
-        
-        ctx.fillStyle = '#C7A24A'; // 금색
-        ctx.fillRect(0, goldRingY, canvasWidth, 135);
-
-        // 6. 하단부 디테일 (CAUTION)
-        const bottomSectionY = canvasHeight - 450;
-        ctx.fillStyle = '#B12222';
-        ctx.font = 'bold 22px "Orbitron", sans-serif';
-        ctx.save();
-        ctx.translate(canvasWidth / 2, bottomSectionY);
-        ctx.rotate(Math.PI / 2);
+        ctx.strokeRect(canvasWidth * 0.25, warningBoxY, canvasWidth * 0.5, 80);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '38px "Share Tech Mono", monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('CAUTION', 0, 0);
-        ctx.restore();
+        ctx.fillText('HANDLE WITH EXTREME CAUTION', canvasWidth / 2, warningBoxY + 58);
+        
+        // 화살표 기호
+        const arrowY = panelY + panelHeight + 50;
+        ctx.fillStyle = '#555555';
+        ctx.beginPath();
+        ctx.moveTo(canvasWidth/2 - 20, arrowY);
+        ctx.lineTo(canvasWidth/2 + 20, arrowY);
+        ctx.lineTo(canvasWidth/2, arrowY + 30);
+        ctx.fill();
 
-        // 7. 전체적인 패널 라인 추가
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-        ctx.lineWidth = 1.5;
-        const drawPanelLine = (y) => {
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(canvasWidth, y);
-            ctx.stroke();
-        };
-        drawPanelLine(topSectionY);
-        drawPanelLine(goldRingY + 25);
-        drawPanelLine(canvasHeight - 600);
-        drawPanelLine(canvasHeight - 300);
 
         const texture = new THREE.CanvasTexture(canvas);
         texture.encoding = THREE.sRGBEncoding;
-        
-        // [수정] 텍스처가 수직으로 반복되지 않도록 설정
         texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.ClampToEdgeWrapping; 
-        texture.repeat.set(1, 1); 
+        texture.wrapT = THREE.ClampToEdgeWrapping;
+        texture.repeat.set(1, 1);
+        return texture;
+    }, [THREE]);
+
+    // [수정] 상단 캡 텍스처 생성 함수
+    const generatePlugCapTexture = useCallback(() => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const canvasWidth = 2024;
+        const canvasHeight = 2024;
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        const center = canvasWidth / 2;
+
+        // 베이스 색상
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        // 검은 띠 (가장 바깥)
+        ctx.fillStyle = '#222222';
+        ctx.beginPath();
+        ctx.arc(center, center, center, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 두꺼운 황금 띠
+        ctx.fillStyle = '#C7A24A';
+        ctx.beginPath();
+        ctx.arc(center, center, center * 0.95, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 중앙 흰색
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(center, center, center * 0.65, 0, Math.PI * 2);
+        ctx.fill();
+
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.encoding = THREE.sRGBEncoding;
+        return texture;
+    }, [THREE]);
+
+    // [신규] 하단 캡 텍스처 생성 함수
+    const generatePlugBottomCapTexture = useCallback(() => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const canvasWidth = 1024;
+        const canvasHeight = 1024;
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
+        const center = canvasWidth / 2;
+
+        // 베이스 색상
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        // 빨간 띠 (가장 바깥)
+        ctx.fillStyle = '#B12222';
+        ctx.beginPath();
+        ctx.arc(center, center, center, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // 중앙 흰색
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(center, center, center * 0.95, 0, Math.PI * 2);
+        ctx.fill();
+
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.encoding = THREE.sRGBEncoding;
         return texture;
     }, [THREE]);
 
@@ -170,68 +209,98 @@ const EntryPlugView = ({ onBack }) => {
         scene.add(rotationGroup);
         rotationGroupRef.current = rotationGroup;
 
-        // --- 지오메트리 생성 (몸통, 상단/하단 캡 분리) ---
+        // --- 지오메트리 생성 ---
         const radius = 2;
         const height = 8;
         const radialSegments = 64;
         const heightSegments = 32;
-        const bodyGeom = new THREE.CylinderGeometry(radius, radius, height, radialSegments, heightSegments, false);
+        const bodyGeom = new THREE.CylinderGeometry(radius, radius, height, radialSegments, heightSegments, true);
         const topCapGeom = new THREE.SphereGeometry(radius, radialSegments, heightSegments, 0, Math.PI * 2, 0, Math.PI / 2);
         topCapGeom.translate(0, height / 2, 0);
+
+        const topCapPositions = topCapGeom.attributes.position;
+        const topCapUvs = topCapGeom.attributes.uv;
+        for (let i = 0; i < topCapPositions.count; i++) {
+            const x = topCapPositions.getX(i);
+            const z = topCapPositions.getZ(i);
+            topCapUvs.setXY(i, (x / radius + 1) / 2, (z / radius + 1) / 2);
+        }
+        topCapUvs.needsUpdate = true;
+
         const bottomCapGeom = new THREE.SphereGeometry(radius, radialSegments, heightSegments, 0, Math.PI * 2, 0, Math.PI / 2);
         bottomCapGeom.rotateX(Math.PI);
         bottomCapGeom.translate(0, -height / 2, 0);
+
+        // [수정] 하단 캡 UV 좌표 재계산
+        const bottomCapPositions = bottomCapGeom.attributes.position;
+        const bottomCapUvs = bottomCapGeom.attributes.uv;
+        for (let i = 0; i < bottomCapPositions.count; i++) {
+            const x = bottomCapPositions.getX(i);
+            const z = bottomCapPositions.getZ(i);
+            bottomCapUvs.setXY(i, (x / radius + 1) / 2, (z / radius + 1) / 2);
+        }
+        bottomCapUvs.needsUpdate = true;
         
-        // --- 와이어프레임용 지오메트리 (기존과 동일하게 모두 합침) ---
-        const internalGeometries = [];
-        const seatGeom = new THREE.BoxGeometry(0.8, 1, 0.8);
-        seatGeom.translate(0, 0.5, 0);
-        internalGeometries.push(seatGeom);
-        const headrestGeom = new THREE.BoxGeometry(0.8, 0.5, 0.2);
-        headrestGeom.translate(0, 1.2, -0.3);
-        internalGeometries.push(headrestGeom);
-        const createWire = (points) => {
-            const curve = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(...p)));
-            return new THREE.TubeGeometry(curve, 20, 0.03, 8, false);
-        };
-        internalGeometries.push(createWire([[-0.7, -1, 0.5], [-0.5, 0, 0.6], [0, 1, 0.7], [0.5, 2, 0.5], [0.7, 3, 0]]));
-        internalGeometries.push(createWire([[0.7, -1.5, -0.5], [0.4, -0.5, -0.6], [0, 0.5, -0.5], [-0.5, 1.5, -0.7], [-0.7, 2.5, -0.2]]));
-        const combinedWireframeGeom = window.THREE.BufferGeometryUtils.mergeBufferGeometries([bodyGeom, topCapGeom, bottomCapGeom, ...internalGeometries]);
+        // --- 와이어프레임용 내부 지오메트리 (콕핏) ---
+        const internalCockpitGeometries = [];
+        
+        const mainChassisGeom = new THREE.BoxGeometry(1.2, 6, 1.5);
+        mainChassisGeom.translate(0, -1, 0);
+        internalCockpitGeometries.push(mainChassisGeom);
+
+        const headrestGeom = new THREE.BoxGeometry(1.4, 1, 0.8);
+        headrestGeom.translate(0, 2.5, -0.5);
+        internalCockpitGeometries.push(headrestGeom);
+
+        const handleGeom = new THREE.CylinderGeometry(0.1, 0.1, 1.2, 8);
+        handleGeom.rotateZ(Math.PI / 3);
+        const baseGeom = new THREE.BoxGeometry(0.4, 0.4, 0.4);
+
+        const rightHandleGeom = handleGeom.clone().translate(0.8, 1, 0);
+        const rightBaseGeom = baseGeom.clone().translate(0.9, 0.5, 0);
+        internalCockpitGeometries.push(rightHandleGeom, rightBaseGeom);
+
+        const leftHandleGeom = handleGeom.clone().translate(-0.8, 1, 0);
+        const leftBaseGeom = baseGeom.clone().translate(-0.9, 0.5, 0);
+        internalCockpitGeometries.push(leftHandleGeom, leftBaseGeom);
+
+        const leverHolderGeom = new THREE.BoxGeometry(0.2, 1.5, 2);
+        const rightHolderGeom = leverHolderGeom.clone().translate(1.1, 0.8, 0);
+        const leftHolderGeom = leverHolderGeom.clone().translate(-1.1, 0.8, 0);
+        internalCockpitGeometries.push(rightHolderGeom, leftHolderGeom);
+
+        const combinedWireframeGeom = window.THREE.BufferGeometryUtils.mergeBufferGeometries([
+            bodyGeom, 
+            topCapGeom, 
+            bottomCapGeom, 
+            ...internalCockpitGeometries
+        ]);
         const wireframeGeom = new THREE.EdgesGeometry(combinedWireframeGeom);
         const wireframeMaterial = new THREE.LineBasicMaterial({ color: 0xff6a00, transparent: true, opacity: 0.8 });
         const wireframePlug = new THREE.LineSegments(wireframeGeom, wireframeMaterial);
         wireframePlugRef.current = wireframePlug;
         rotationGroup.add(wireframePlug);
 
-        // --- [수정] 텍스처용 모델 (메쉬 분리 및 그룹화) ---
-        const plugTexture = generatePlugTexture();
+
+        // --- 텍스처용 모델 (재질 분리) ---
+        const bodyTexture = generatePlugBodyTexture();
+        const topCapTexture = generatePlugCapTexture();
+        const bottomCapTexture = generatePlugBottomCapTexture(); // 신규 텍스처
         
-        // 몸통 재질
-        const texturedMaterial = new THREE.MeshStandardMaterial({ 
-            map: plugTexture, 
-            metalness: 0.2, 
-            roughness: 0.6,
-            transparent: true,
-            opacity: 0
-        });
-        texturedMaterialRef.current = texturedMaterial;
+        const bodyMaterial = new THREE.MeshStandardMaterial({ map: bodyTexture, metalness: 0.2, roughness: 0.6, transparent: true, opacity: 0 });
+        bodyMaterialRef.current = bodyMaterial;
 
-        // 캡 재질 (단색)
-        const capMaterial = new THREE.MeshStandardMaterial({
-            color: '#fff',
-            metalness: 0.2,
-            roughness: 0.6,
-            transparent: true,
-            opacity: 0
-        });
-        capMaterialRef.current = capMaterial;
+        const topCapMaterial = new THREE.MeshStandardMaterial({ map: topCapTexture, metalness: 0.2, roughness: 0.6, transparent: true, opacity: 0 });
+        topCapMaterialRef.current = topCapMaterial;
 
-        // 각 파트별 메쉬 생성
-        const bodyMesh = new THREE.Mesh(bodyGeom, texturedMaterial);
-        const topCapMesh = new THREE.Mesh(topCapGeom, capMaterial);
-        const bottomCapMesh = new THREE.Mesh(bottomCapGeom, capMaterial);
+        // [수정] 하단 캡 재질
+        const bottomCapMaterial = new THREE.MeshStandardMaterial({ map: bottomCapTexture, metalness: 0.2, roughness: 0.6, transparent: true, opacity: 0 });
+        bottomCapMaterialRef.current = bottomCapMaterial;
 
-        // 메쉬들을 하나의 그룹으로 묶음
+        const bodyMesh = new THREE.Mesh(bodyGeom, bodyMaterial);
+        const topCapMesh = new THREE.Mesh(topCapGeom, topCapMaterial);
+        const bottomCapMesh = new THREE.Mesh(bottomCapGeom, bottomCapMaterial);
+
         const texturedPlug = new THREE.Group();
         texturedPlug.add(bodyMesh, topCapMesh, bottomCapMesh);
         texturedPlug.visible = false;
@@ -245,7 +314,7 @@ const EntryPlugView = ({ onBack }) => {
         directionalLight.position.set(5, 10, 7.5);
         scene.add(directionalLight);
 
-        // --- 애니메이션 및 이벤트 핸들러 (기존과 동일) ---
+        // --- 애니메이션 및 이벤트 핸들러 ---
         const totalVertices = wireframeGeom.attributes.position.count;
         wireframeGeom.setDrawRange(0, 0);
         gsap.to(wireframeGeom.drawRange, { count: totalVertices, duration: 3, ease: "power2.inOut", delay: 0.5 });
@@ -308,24 +377,27 @@ const EntryPlugView = ({ onBack }) => {
                 mount.removeChild(renderer.domElement);
             }
         };
-    }, [THREE, gsap, generatePlugTexture]);
+    }, [THREE, gsap, generatePlugBodyTexture, generatePlugCapTexture, generatePlugBottomCapTexture]);
 
-    // [수정] 텍스처/와이어프레임 전환 로직
+    // 텍스처/와이어프레임 전환 로직
     useEffect(() => {
         const wireMesh = wireframePlugRef.current;
         const texGroup = texturedPlugRef.current;
-        const texMat = texturedMaterialRef.current;
-        const capMat = capMaterialRef.current;
+        const bodyMat = bodyMaterialRef.current;
+        const topCapMat = topCapMaterialRef.current;
+        const bottomCapMat = bottomCapMaterialRef.current;
 
-        if (!wireMesh || !texGroup || !texMat || !capMat) return;
+        if (!wireMesh || !texGroup || !bodyMat || !topCapMat || !bottomCapMat) return;
         
+        const allMaterials = [bodyMat, topCapMat, bottomCapMat];
+
         if (isTextureOn) {
             texGroup.visible = true;
             wireMesh.visible = false;
-            gsap.to([texMat, capMat], { opacity: 1, duration: 0.5 });
+            gsap.to(allMaterials, { opacity: 1, duration: 0.5 });
         } else {
             wireMesh.visible = true;
-            gsap.to([texMat, capMat], { 
+            gsap.to(allMaterials, { 
                 opacity: 0, 
                 duration: 0.5,
                 onComplete: () => {
