@@ -279,7 +279,7 @@ body, html {
       width: 50px;
   }
   .menu-item {
-    width: 155px; /* JS에서 설정한 모바일 너비(155px)와 일치 */
+    width: 154px; /* JS에서 설정한 모바일 너비(155px)와 일치 */
     height: 80px; /* 두 줄 텍스트를 위한 높이 확보 */
     font-size: 1rem; /* 가독성을 위한 폰트 크기 조정 */
     line-height: 1.3; /* 줄 간격 조정 */
