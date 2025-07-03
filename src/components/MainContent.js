@@ -7,26 +7,25 @@ import NervPage from './NervPage';
 import SeelePage from './SeelePage';
 import SecondImpactPage from './SecondImpactPage';
 import LCLPage from './LCLPage';
-import S2EnginePage from './S2EnginePage'; // S2EnginePage 컴포넌트 import 추가
+import S2EnginePage from './S2EnginePage';
+import CreditsPage from './CreditsPage'; // CreditsPage 컴포넌트 import 추가
 import mainImageEva from '../img/mainimg.png';
 // 비디오 및 오디오 파일 import
 import mainVideo from '../video/mainvideo.mp4';
 import mainBgm from '../video/mainbgm.mp3';
 
 const MainContent = () => {
-  // 's2engine' 페이지 상태 추가
-  const [page, setPage] = useState('main'); // 'main', 'pilots', 'evangelion', 'angels', 'nerv', 'seele', 'secondimpact', 'lcl', 's2engine'
+  // 'credits' 페이지 상태 추가
+  const [page, setPage] = useState('main'); // 'main', 'pilots', ..., 's2engine', 'credits'
   const [isBgmPlaying, setIsBgmPlaying] = useState(false);
 
   const mainContentRef = useRef(null);
   const mainLayoutRef = useRef(null);
   const gsap = window.gsap;
 
-  // useMemo를 사용하여 Audio 객체를 한 번만 생성하도록 최적화
   const bgmAudio = useMemo(() => new Audio(mainBgm), []);
 
   useEffect(() => {
-    // BGM 오디오 설정
     bgmAudio.loop = true;
   }, [bgmAudio]);
 
@@ -48,7 +47,8 @@ const MainContent = () => {
     if (menuItem.title === 'SEELE') targetPage = 'seele';
     if (menuItem.title === '2nd IMPACT') targetPage = 'secondimpact';
     if (menuItem.title === 'LCL') targetPage = 'lcl';
-    if (menuItem.title === 'S² ENGINE') targetPage = 's2engine'; // S² ENGINE 메뉴 클릭 시 's2engine' 페이지로 이동
+    if (menuItem.title === 'S² ENGINE') targetPage = 's2engine';
+    if (menuItem.title === 'CREDITS') targetPage = 'credits'; // CREDITS 메뉴 클릭 시 'credits' 페이지로 이동
 
     if (targetPage) {
       gsap.to(mainLayoutRef.current, {
@@ -102,7 +102,6 @@ const MainContent = () => {
         </div>
       </div>
 
-      {/* --- BGM 플레이어 UI (기존과 동일) --- */}
       <div className={`bgm-player-container ${page !== 'main' ? 'hidden' : ''}`}>
         <button onClick={toggleBgm} className="bgm-toggle-button" aria-label="Toggle BGM">
           {isBgmPlaying ? (
@@ -141,6 +140,7 @@ const MainContent = () => {
       {page === 'secondimpact' && <SecondImpactPage onBack={handleBack} />}
       {page === 'lcl' && <LCLPage onBack={handleBack} />}
       {page === 's2engine' && <S2EnginePage onBack={handleBack} />}
+      {page === 'credits' && <CreditsPage onBack={handleBack} />}
     </div>
   );
 };

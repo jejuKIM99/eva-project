@@ -279,7 +279,7 @@ body, html {
       width: 50px;
   }
   .menu-item {
-    width: 154px; /* JS에서 설정한 모바일 너비(155px)와 일치 */
+    width: 152px; /* JS에서 설정한 모바일 너비(152px)와 일치 */
     height: 80px; /* 두 줄 텍스트를 위한 높이 확보 */
     font-size: 1rem; /* 가독성을 위한 폰트 크기 조정 */
     line-height: 1.3; /* 줄 간격 조정 */
@@ -1115,6 +1115,7 @@ body, html {
 /* --- 반응형 미디어 쿼리 (핵심 추가 사항) --- */
 @media (max-width: 768px) {
   .eva-card-container {
+    margin-right: 60px;
     flex-direction: column;
     gap: 2rem;
     perspective: none; /* 모바일에서는 3D 효과 제거 */
@@ -3921,5 +3922,306 @@ body, html {
   }
   .s2-emergency-bar {
       padding: 0.2rem 0;
+  }
+}
+/* --- Credits Page Styles (수정됨) --- */
+.credits-page-layout {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+  font-family: 'EB Garamond', serif;
+}
+
+.credits-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 101;
+}
+
+.credits-vignette {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: inset 0 0 15vw 5vw #000;
+  pointer-events: none;
+  z-index: 102;
+}
+
+.credits-page-layout .back-button {
+  z-index: 104;
+  border-color: #fff;
+  text-shadow: 0 0 5px #000;
+}
+
+.credits-content-overlay {
+  position: relative;
+  z-index: 103;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3rem 2rem;
+  box-sizing: border-box;
+}
+
+/* [수정] 상단 네비게이션과 뒤로가기 버튼 겹침 방지 */
+.credits-top-nav {
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.7rem, 1.2vw, 1rem);
+  letter-spacing: 2px;
+  text-shadow: 0 1px 8px #000;
+  margin-top: 2rem; /* 뒤로가기 버튼과의 간격 확보 */
+}
+
+.credits-title-block {
+  text-align: center;
+  text-shadow: 0 2px 10px #000;
+}
+
+.director-name {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1rem, 1.8vw, 1.5rem);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: 3px;
+}
+
+.credits-title-block h1 {
+  font-family: 'Times New Roman', Times, serif;
+  font-weight: bold;
+  font-size: clamp(3rem, 7vw, 6rem);
+  line-height: 1;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.release-date {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+  margin: 1rem 0 0 0;
+}
+
+.credits-details-section {
+  height: 100%;
+  max-height: 320px;
+  width: 100%;
+  max-width: 800px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex; /* [추가] 내부 요소 정렬을 위해 flex로 변경 */
+  flex-direction: column; /* [추가] 수직 정렬 */
+}
+
+/* [추가] 탭 메뉴와 언어 토글을 감싸는 헤더 */
+.credits-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    flex-shrink: 0; /* 헤더 높이가 줄어들지 않도록 설정 */
+}
+
+.credits-menu {
+  display: flex;
+  gap: 1rem;
+  /* [삭제] 헤더로 이동된 스타일 제거 */
+  /* margin-bottom, border-bottom, padding-bottom */
+}
+
+.credits-menu button {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.credits-menu button:hover {
+  color: #fff;
+}
+
+.credits-menu button.active {
+  color: #ff4500;
+  text-shadow: 0 0 8px #ff4500;
+}
+
+/* [추가] 언어 토글 스타일 */
+.language-toggle {
+    display: flex;
+    gap: 5px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 5px;
+    padding: 3px;
+}
+.language-toggle button {
+    background: transparent;
+    border: none;
+    color: #aaa;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.language-toggle button:hover {
+    color: #fff;
+}
+.language-toggle button.active {
+    background: #ff4500;
+    color: #000;
+    font-weight: bold;
+}
+
+.credits-main-content {
+  overflow-y: auto;
+  padding-right: 1rem; /* 스크롤바 공간 확보 */
+  text-align: left;
+  flex-grow: 1; /* [추가] 남은 공간을 모두 차지하도록 설정 */
+}
+.credits-main-content::-webkit-scrollbar { width: 5px; }
+.credits-main-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+.credits-main-content::-webkit-scrollbar-thumb { background: #ff4500; }
+
+.credits-main-content h3 {
+  font-family: 'Cinzel', serif;
+  color: #ff4500;
+  font-size: 1.3rem;
+  margin-top: 0;
+}
+
+.credits-main-content p {
+  line-height: 1.7;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* --- 이미지 리스트 관련 스타일 --- */
+.image-category-section h4 {
+    font-family: 'Cinzel', serif;
+    color: #ccc;
+    text-transform: uppercase;
+    border-bottom: 1px solid #555;
+    padding-bottom: 5px;
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+.image-category-section:first-child h4 {
+    margin-top: 0;
+}
+
+.credits-image-list {
+    list-style: none;
+    padding: 0;
+}
+.credits-image-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer; /* 미리보기를 위해 커서 변경 */
+}
+.credits-image-list li span.pinned {
+    color: #ffae70; /* 고정된 항목 하이라이트 */
+    font-weight: bold;
+}
+
+.credits-image-list a {
+    color: #ff4500;
+    text-decoration: none;
+    border: 1px solid #ff4500;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    transition: all 0.3s;
+    flex-shrink: 0; /* 버튼 크기 고정 */
+    margin-left: 1rem;
+}
+.credits-image-list a:hover {
+    background-color: #ff4500;
+    color: #000;
+}
+
+/* [추가] 이미지 미리보기 모달 스타일 */
+.image-preview-modal {
+    position: fixed;
+    z-index: 2000; /* 최상단에 위치 */
+    width: 200px;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    background: #000;
+    border: 2px solid #ff4500;
+    box-shadow: 0 0 15px rgba(255, 69, 0, 0.5);
+    pointer-events: none; /* 모달이 마우스 이벤트를 가로채지 않도록 */
+    transform: translate(0, -100%); /* 커서 위쪽에 위치하도록 조정 */
+}
+.image-preview-modal img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+
+/* --- Credits Page 모바일 반응형 --- */
+@media (max-width: 768px) {
+  .credits-content-overlay {
+    padding: 1rem;
+  }
+  .credits-top-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px 15px;
+    font-size: 0.6rem;
+    margin-top: 2.5rem; /* 뒤로가기 버튼과 겹치지 않게 */
+  }
+  .credits-details-section {
+    width: 95%;
+    padding: 0.8rem;
+    max-height: 45vh; /* 모바일에서 높이 확보 */
+  }
+  .credits-header {
+      flex-direction: column;
+      gap: 10px;
+  }
+  .credits-menu button {
+    font-size: 0.9rem;
+  }
+  .credits-main-content {
+    padding-right: 0.5rem;
+  }
+  .credits-main-content h3 {
+    font-size: 1.1rem;
+  }
+  .credits-main-content p {
+    font-size: 0.8rem;
   }
 }
