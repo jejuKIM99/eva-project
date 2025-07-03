@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-// --- 이미지 Asset Import (파일 최상단으로 이동 및 경로 수정) ---
+// --- 이미지 Asset Import ---
 import seaTexturePath from '../img/texture/sea.jpg';
+import dispossessionAlbumArt from '../img/Dispossession.jpg'; // MUSIC 탭용 앨범아트
 
 // 캐릭터 이미지
 import asukaProfile from '../img/asuka_profile.jpg';
@@ -26,7 +27,7 @@ import unit01Berserk from '../img/unit01_berserk.png';
 import unit02Full from '../img/unit02_full.png';
 import unitMass from '../img/unitMass.png';
 
-// [수정] 사도 이미지 static import
+// 사도 이미지
 import angel1 from '../img/angel/angel-1.png';
 import angel2 from '../img/angel/angel-2.png';
 import angel3 from '../img/angel/angel-3.png';
@@ -63,52 +64,94 @@ const contentData = {
     creator: {
         en: {
             title: "CREATOR",
-            name: "NAME: Gemini (Google's Large Language Model)",
-            contact: "CONTACT: Interaction via Web",
-            role: "ROLE: Designed and implemented this interactive website based on React, created the 3D dynamic background using Three.js, and curated content for Evangelion fans."
+            nameLabel: "NAME",
+            nameValue: "Hyunsoo Kim",
+            contactLabel: "CONTACT",
+            contactEmail: "E-Mail",
+            contactGithub: "Github",
+            roleLabel: "ROLE",
+            roleValue: "Solo Developer",
+            githubLinkLabel: "GITHUB"
         },
         jp: {
             title: "制作者",
-            name: "名前: Gemini (Googleの大規模言語モデル)",
-            contact: "連絡先: Web経由のインタラクション",
-            role: "役割: Reactを基盤としたこのインタラクティブなウェブサイトを設計・実装し、Three.jsを使用して3Dダイナミック背景を制作、エヴァンゲリオンファンのためのコンテンツをキュレーションしました。"
+            nameLabel: "名前",
+            nameValue: "キム・ヒョンス",
+            contactLabel: "連絡先",
+            contactEmail: "Eメール",
+            contactGithub: "Github",
+            roleLabel: "役割",
+            roleValue: "一人開発",
+            githubLinkLabel: "ギットハブリンク"
         },
         ko: {
             title: "제작자",
-            name: "이름: Gemini (Google의 대규모 언어 모델)",
-            contact: "연락처: 웹을 통한 상호작용",
-            role: "역할: React 기반의 인터랙티브 웹사이트를 설계 및 구현하고, Three.js를 사용하여 3D 동적 배경을 제작했으며, 에반게리온 팬들을 위한 콘텐츠를 큐레이션했습니다."
+            nameLabel: "이름",
+            nameValue: "김현수",
+            contactLabel: "연락처",
+            contactEmail: "이메일",
+            contactGithub: "깃허브",
+            roleLabel: "역할",
+            roleValue: "1인개발",
+            githubLinkLabel: "깃허브 링크"
         }
     },
     review: {
         en: {
             title: "REVIEW",
-            content: "It was a fascinating task to express the complex and profound world of 'Neon Genesis Evangelion' through web technology. Especially, implementing the iconic red sea from 'The End of Evangelion' with Three.js was an exploration of the boundary between code and art. I hope this fan site reawakens your affection for the masterpiece."
+            content: (
+                <>
+                    <p>With a love for <span className="highlight-eva">'Neon Genesis Evangelion'</span>, I utilized my web development skills to create a fan page for many fellow fans to enjoy. I strove to incorporate everything I experienced while watching the animation, from <span className="highlight-eva">'Neon Genesis Evangelion'</span> to <span className="highlight-eoe">'The End of Evangelion'</span>. In every aspect, including colors, fonts, UI, and interactions, I configured elements seen in the <span className="highlight-series">'Evangelion series'</span> to provide the best <span className="highlight-concept">'User Experience (UX)'</span>. For this, I used <span className="highlight-tech">'GSAP'</span>, <span className="highlight-tech">'Three.js'</span>, and <span className="highlight-tech">'SimplexNoise.js'</span> within a <span className="highlight-tech">'React.js'</span> framework development environment.</p>
+                    <p>This was quite a challenging project for me. I repeated the process of planning the UI style for each menu, designing the interactions, developing, and testing countless times. It would have been easier if I had given up on some details, but my affection for the <span className="highlight-series">'Evangelion series'</span> drove me to perfect them. Finally, completing this credits page and seeing the implemented Sea of LCL, the rush of emptiness and relief felt like the end of <span className="highlight-eoe">'The End of Evangelion'</span>. Seeing that, I believe I, as a developer, was also <span className="highlight-concept">'immersed'</span> in this site as a user.</p>
+                    <p>I hope that not only myself but all users of this fan site can have their affection for the work reawakened here.</p>
+                    <p className="highlight-annotation">*) All image sources used in this project can be downloaded from the IMAGES tab.</p>
+                    <p className="highlight-annotation">**) This is a non-commercial project.</p>
+                </>
+            )
         },
         jp: {
             title: "レビュー",
-            content: "「新世紀エヴァンゲリオン」の複雑で深遠な世界をウェブ技術で表現することは、魅力的な作業でした。特に、「The End of Evangelion」の象徴的な赤い海をThree.jsで実装することは、コードとアートの境界を探る探求でした。このファンサイトが、皆様の傑作への愛情を再燃させることを願っています。"
+            content: (
+                <>
+                    <p><span className="highlight-eva">「新世紀エヴァンゲリオン」</span>を愛する心を込めて、私のウェブ開発技術を活かし、多くの<span className="highlight-eva">「新世紀エヴァンゲリオン」</span>ファンの皆様に楽しんでいただけるファンページを制作しました。<span className="highlight-eva">「新世紀エヴァンゲリオン」</span>から<span className="highlight-eoe">「The End of Evangelion」</span>まで、私がアニメを観ながら経験したすべてを盛り込もうと努めました。色、フォント、UI、インタラクション（動作）など、あらゆる面で<span className="highlight-series">「エヴァンゲリオンシリーズ」</span>で見られた要素で構成し、ユーザーの皆様に最高の<span className="highlight-concept">「ユーザーエクスペリエンス（UX）」</span>を提供しようとしました。そのために、<span className="highlight-tech">「React.js」</span>フレームワークの開発環境で<span className="highlight-tech">「GSAP」</span>、<span className="highlight-tech">「Three.js」</span>、<span className="highlight-tech">「SimplexNoise.js」</span>を活用しました。</p>
+                    <p>私にとってはかなり難しいプロジェクトでした。各メニューに合ったUIスタイルを企画することから、インタラクションを企画し、開発し、テストするまでの過程を数え切れないほど繰り返しました。少しのディテールを諦めれば楽になりましたが、<span className="highlight-series">「エヴァンゲリオンシリーズ」</span>への愛情から諦めずにディテールを追求しました。最終的にこのクレジットページを完成させ、実装されたLCLの海を見ると、押し寄せる空虚さと安堵感は<span className="highlight-eoe">「The End of Evangelion」</span>の結末のように感じられました。そう考えると、私も開発者でありながら、一人のユーザーとしてこのサイトに<span className="highlight-concept">「没入」</span>していたのだと思います。</p>
+                    <p>私だけでなく、このファンサイトを利用するすべてのユーザーの皆様が、ここで作品への愛情を再燃させられることを願っています。</p>
+                    <p className="highlight-annotation">*) IMAGESタブにて、このプロジェクトで使用されたすべての画像ソースをダウンロードできます。</p>
+                    <p className="highlight-annotation">**) このプロジェクトは非商業用プロジェクトです。</p>
+                </>
+            )
         },
         ko: {
             title: "후기",
-            content: "'신세기 에반게리온'의 복잡하고 심오한 세계관을 웹 기술로 표현하는 것은 매력적인 작업이었습니다. 특히 '엔드 오브 에반게리온'의 상징적인 붉은 바다를 Three.js로 구현하는 과정은 코드와 예술의 경계를 탐험하는 경험이었습니다. 이 팬 사이트가 작품에 대한 여러분의 애정을 다시 한번 일깨우기를 바랍니다."
+            content: (
+                <>
+                    <p><span className="highlight-eva">'신세기 에반게리온'</span>을 좋아하는 마음을 담아 제가 할 수 있는 웹 개발 기술을 활용하여 많은 <span className="highlight-eva">'신세기 에반게리온'</span>의 팬분들이 즐길 수 있는 팬 페이지를 만들었습니다. <span className="highlight-eva">'신세기 에반게리온'</span> 부터 <span className="highlight-eoe">'엔드 오브 에반게리온'</span>까지 제가 애니메이션을 보며 경험한 모든것들을 담고자 노력했습니다. 색상,폰트,UI,인터렉션(동작)등 모든면에서 <span className="highlight-series">'에반게리온 시리즈'</span>에서 볼 수 있었던 요소들로 구성하여 사용자분들로 하여금 최상의 <span className="highlight-concept">'사용자 경험(UX)'</span>을 제공하고자 했습니다. 이를 위해 <span className="highlight-tech">'React.js'</span> 프레임워크 개발 환경에서 <span className="highlight-tech">'GSAP'</span>,<span className="highlight-tech">'Three.js'</span>,<span className="highlight-tech">'SimplexNoise.js'</span>를 활용하였습니다.</p>
+                    <p>제게는 꽤나 어려운 프로젝트였습니다. 각 메뉴에 맞는 UI스타일을 기획하는 것 부터 인터렉션을 기획하고 개발하고 테스트까지의 과정을 수도없이 반복했습니다. 조금의 디테일만 포기한다면 편해졌겠지만 <span className="highlight-series">'에반게리온 시리즈'</span>를 향한 애정으로 포기하지 않고 디테일을 잡았습니다. 최종적으로 이 크래딧 페이지를 완성하고 구현된 LCL바다를 보니 밀려오는 공허함과 후련함은 <span className="highlight-eoe">'엔드 오브 에반게리온'</span>의 마지막처럼 느껴졌습니다. 그런걸보니 나름 저 또한 개발자이지만 사용자로서 이 사이트에 <span className="highlight-concept">'몰입'</span>했다 봅니다.</p>
+                    <p>저뿐만 아니라 이 팬 사이트를 이용하시는 모든 사용자분들이 이곳으로 하여금 작품에 대한 애정을 다시 한번 일깨울 수 있기를 바랍니다.</p>
+                    <p className="highlight-annotation">*) IMAGES 탭에서 이 프로젝트에서 사용된 모든 이미지 소스를 다운받을 수 있습니다.</p>
+                    <p className="highlight-annotation">**) 이 프로젝트는 비상업용 프로젝트입니다.</p>
+                </>
+            )
         }
     },
     music: {
         en: {
             title: "MUSIC USED",
-            mainBGM: "Main BGM: Dispossession / Pluck Ver. - MONACA (NieR:Automata OST)",
-            notice: "Various background music was used to match the characteristics and atmosphere of each page. All music rights belong to the original creators."
+            bgmTitle: "Main BGM: Dispossession / Pluck Ver. - MONACA (NieR-Automata OST)",
+            description: <>This is the BGM used on the main page. I chose it because I felt the atmospheres of the <span className="highlight-series">'Evangelion series'</span> and <span className="highlight-nier">'NieR:Automata'</span> align well. Exploring the site while listening to the BGM on the main page will provide a more immersive experience.</>,
+            notice: "*) All music rights belong to their original creators."
         },
         jp: {
             title: "使用音源",
-            mainBGM: "メインBGM: Dispossession / Pluck Ver. - MONACA (NieR:Automata OST)",
-            notice: "各ページの特徴と雰囲気に合わせて様々なBGMを使用しました。すべての音楽の権利は原作者に帰属します。"
+            bgmTitle: "メインBGM: Dispossession / Pluck Ver. - MONACA (NieR-Automata OST)",
+            description: <>メインページで使用されているBGMです。<span className="highlight-series">「エヴァンゲリオンシリーズ」</span>の雰囲気と<span className="highlight-nier">「NieR:Automata」</span>の雰囲気がよく合うと判断し、使用しました。メインページでBGMを聴きながらサイトを探索すると、より高い没入感が得られます。</>,
+            notice: "*) すべての音源の権利は原作者に帰属します。"
         },
         ko: {
             title: "사용 음원",
-            mainBGM: "메인 BGM: Dispossession / Pluck Ver. - MONACA (NieR:Automata OST)",
-            notice: "각 페이지의 특징과 분위기에 맞춰 다양한 BGM을 사용했습니다. 모든 음원의 권리는 원작자에게 있습니다."
+            bgmTitle: "Main BGM: Dispossession / Pluck Ver. - MONACA (NieR-Automata OST)",
+            description: <>메인 페이지에 사용된 BGM입니다. <span className="highlight-series">'에반게리온 시리즈'</span> 분위기와 <span className="highlight-nier">'NieR:Automata'</span>의 분위기가 잘 맞는다 판단하여 사용했습니다. 메인 페이지에서 BGM을 들으며 사이트를 탐방하시면 더욱 높은 몰입감을 선사합니다.</>,
+            notice: "*) 모든 음원의 권리는 원작자에게 있습니다."
         }
     }
 };
@@ -177,6 +220,7 @@ const CreditsPage = ({ onBack }) => {
     const [activeTab, setActiveTab] = useState('creator');
     const [language, setLanguage] = useState('en');
     const [imagePreview, setImagePreview] = useState({ visible: false, src: '', x: 0, y: 0 });
+    const [linkPreview, setLinkPreview] = useState({ visible: false, text: '', x: 0, y: 0 });
     
     const { THREE, SimplexNoise, gsap } = window;
 
@@ -313,15 +357,32 @@ const CreditsPage = ({ onBack }) => {
     }, [gsap]);
 
     // --- 이미지 미리보기 이벤트 핸들러 ---
-    const handleMouseMove = (e) => {
+    const handleImageMouseMove = (e) => {
         setImagePreview(prev => ({ ...prev, x: e.clientX + 15, y: e.clientY + 15 }));
     };
-    const handleMouseEnter = (src) => {
+    const handleImageMouseEnter = (src) => {
         setImagePreview(prev => ({ ...prev, visible: true, src }));
     };
-    const handleMouseLeave = () => {
+    const handleImageMouseLeave = () => {
         setImagePreview(prev => ({ ...prev, visible: false, src: '' }));
     };
+
+    // --- 링크 미리보기 이벤트 핸들러 ---
+    const handleLinkMouseMove = (e) => {
+        setLinkPreview(prev => ({ ...prev, x: e.clientX + 15, y: e.clientY - 30 }));
+    };
+    const handleLinkMouseEnter = (text) => {
+        const modalText = language === 'jp' ? 
+            (text === 'Send E-Mail' ? 'Eメールを送る' : 'Githubへ移動') : 
+            (language === 'ko' ?
+            (text === 'Send E-Mail' ? '이메일 보내기' : 'Github으로 이동') :
+            text);
+        setLinkPreview(prev => ({ ...prev, visible: true, text: modalText }));
+    };
+    const handleLinkMouseLeave = () => {
+        setLinkPreview(prev => ({ ...prev, visible: false, text: '' }));
+    };
+
 
     // --- 탭 콘텐츠 렌더링 함수 ---
     const renderContent = () => {
@@ -329,27 +390,75 @@ const CreditsPage = ({ onBack }) => {
 
         switch (activeTab) {
             case 'creator':
+                const GITHUB_URL = 'https://github.com/jejuKIM99/eva-project';
+                const EMAIL_ADDRESS = 'khs990120@gmail.com';
+
+                const openLink = (url) => window.open(url, '_blank', 'noopener,noreferrer');
+                const openEmail = () => window.location.href = `mailto:${EMAIL_ADDRESS}`;
+
                 return (
                     <div>
                         <h3>{langContent.title}</h3>
-                        <p><strong>NAME:</strong> {langContent.name.split(':')[1]}</p>
-                        <p><strong>CONTACT:</strong> {langContent.contact.split(':')[1]}</p>
-                        <p><strong>ROLE:</strong> {langContent.role.split(':')[1]}</p>
+                        <p><strong>{langContent.nameLabel}:</strong> {langContent.nameValue}</p>
+                        <p>
+                            <strong>{langContent.contactLabel}:</strong>{' '}
+                            <span
+                                className="interactive-link"
+                                onMouseMove={handleLinkMouseMove}
+                                onMouseEnter={() => handleLinkMouseEnter('Send E-Mail')}
+                                onMouseLeave={handleLinkMouseLeave}
+                                onClick={openEmail}
+                            >
+                                {langContent.contactEmail}
+                            </span>,{' '}
+                            <span
+                                className="interactive-link"
+                                onMouseMove={handleLinkMouseMove}
+                                onMouseEnter={() => handleLinkMouseEnter('Go to Github')}
+                                onMouseLeave={handleLinkMouseLeave}
+                                onClick={() => openLink('https://github.com/jejuKIM99')}
+                            >
+                                {langContent.contactGithub}
+                            </span>
+                        </p>
+                        <p><strong>{langContent.roleLabel}:</strong> {langContent.roleValue}</p>
+                        <p>
+                            <strong>{langContent.githubLinkLabel}:</strong>{' '}
+                            <span
+                                className="interactive-link"
+                                onMouseMove={handleLinkMouseMove}
+                                onMouseEnter={() => handleLinkMouseEnter('Go to Github')}
+                                onMouseLeave={handleLinkMouseLeave}
+                                onClick={() => openLink(GITHUB_URL)}
+                            >
+                                {GITHUB_URL}
+                            </span>
+                        </p>
                     </div>
                 );
             case 'review':
                 return (
                     <div>
                         <h3>{langContent.title}</h3>
-                        <p>{langContent.content}</p>
+                        <div>{langContent.content}</div>
                     </div>
                 );
             case 'music':
+                const YOUTUBE_MUSIC_URL = 'https://music.youtube.com/watch?v=mqpxRpjqAv8&si=lOu61y4HMxz2EwQI';
                 return (
                     <div>
                         <h3>{langContent.title}</h3>
-                        <p><strong>Main BGM:</strong> {langContent.mainBGM.split(':')[1]}</p>
-                        <p>{langContent.notice}</p>
+                        <div
+                            className="interactive-bgm"
+                            onMouseMove={handleImageMouseMove}
+                            onMouseEnter={() => handleImageMouseEnter(dispossessionAlbumArt)}
+                            onMouseLeave={handleImageMouseLeave}
+                            onClick={() => window.open(YOUTUBE_MUSIC_URL, '_blank')}
+                        >
+                            <p><strong>{langContent.bgmTitle}</strong></p>
+                        </div>
+                        <p>{langContent.description}</p>
+                        <p className="highlight-annotation">{langContent.notice}</p>
                     </div>
                 );
             case 'images':
@@ -362,9 +471,9 @@ const CreditsPage = ({ onBack }) => {
                                     {items.sort((a, b) => (b.pinned || false) - (a.pinned || false)).map((item, index) => (
                                         <li 
                                             key={index}
-                                            onMouseMove={handleMouseMove}
-                                            onMouseEnter={() => handleMouseEnter(item.src)}
-                                            onMouseLeave={handleMouseLeave}
+                                            onMouseMove={handleImageMouseMove}
+                                            onMouseEnter={() => handleImageMouseEnter(item.src)}
+                                            onMouseLeave={handleImageMouseLeave}
                                         >
                                             <span className={item.pinned ? 'pinned' : ''}>{item.title}</span>
                                             <a href={item.src} download>DOWNLOAD</a>
@@ -391,6 +500,12 @@ const CreditsPage = ({ onBack }) => {
             {imagePreview.visible && (
                 <div className="image-preview-modal" style={{ top: `${imagePreview.y}px`, left: `${imagePreview.x}px` }}>
                     <img src={imagePreview.src} alt="preview" />
+                </div>
+            )}
+
+            {linkPreview.visible && (
+                <div className="link-preview-modal" style={{ top: `${linkPreview.y}px`, left: `${linkPreview.x}px` }}>
+                    {linkPreview.text}
                 </div>
             )}
 
