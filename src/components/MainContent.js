@@ -8,26 +8,53 @@ import SeelePage from './SeelePage';
 import SecondImpactPage from './SecondImpactPage';
 import LCLPage from './LCLPage';
 import S2EnginePage from './S2EnginePage';
-import CreditsPage from './CreditsPage'; // CreditsPage 컴포넌트 import 추가
+import CreditsPage from './CreditsPage';
 import mainImageEva from '../img/mainimg.png';
-// 비디오 및 오디오 파일 import
 import mainVideo from '../video/mainvideo.mp4';
 import mainBgm from '../video/mainbgm.mp3';
 
-const MainContent = () => {
-  // 'credits' 페이지 상태 추가
-  const [page, setPage] = useState('main'); // 'main', 'pilots', ..., 's2engine', 'credits'
-  const [isBgmPlaying, setIsBgmPlaying] = useState(false);
+// 클래식 GUI를 위한 장식용 컴포넌트
+const ClassicGuiPanel = ({ title, children, className = '' }) => (
+  <div className={`classic-gui-panel ${className}`}>
+    <div className="classic-panel-header">
+      <span className="header-deco-box"></span>
+      <span className="header-title">{title}</span>
+    </div>
+    <div className="classic-panel-content">{children}</div>
+  </div>
+);
 
-  const mainContentRef = useRef(null);
-  const mainLayoutRef = useRef(null);
+const MainContent = () => {
+  const [page, setPage] = useState('main');
+  const [isBgmPlaying, setIsBgmPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState('21:15:45');
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  const classicGuiRef = useRef(null);
   const gsap = window.gsap;
 
   const bgmAudio = useMemo(() => new Audio(mainBgm), []);
 
+  // --- 화면 크기 감지 로직 ---
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     bgmAudio.loop = true;
   }, [bgmAudio]);
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+        const now = new Date();
+        setCurrentTime(now.toTimeString().split(' ')[0]);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const toggleBgm = () => {
     if (isBgmPlaying) {
@@ -48,14 +75,13 @@ const MainContent = () => {
     if (menuItem.title === '2nd IMPACT') targetPage = 'secondimpact';
     if (menuItem.title === 'LCL') targetPage = 'lcl';
     if (menuItem.title === 'S² ENGINE') targetPage = 's2engine';
-    if (menuItem.title === 'CREDITS') targetPage = 'credits'; // CREDITS 메뉴 클릭 시 'credits' 페이지로 이동
+    if (menuItem.title === 'CREDITS') targetPage = 'credits';
 
     if (targetPage) {
-      gsap.to(mainLayoutRef.current, {
+      gsap.to(classicGuiRef.current, {
         autoAlpha: 0,
-        y: '-50%',
         duration: 0.8,
-        ease: 'power3.inOut',
+        ease: 'power2.in',
         onComplete: () => setPage(targetPage)
       });
     }
@@ -63,44 +89,79 @@ const MainContent = () => {
 
   const handleBack = () => {
     setPage('main');
-    gsap.fromTo(mainLayoutRef.current,
-      { autoAlpha: 0, y: '-50%' },
-      { autoAlpha: 1, y: '0%', duration: 0.8, ease: 'power3.out', delay: 0.5 }
+    gsap.fromTo(classicGuiRef.current,
+      { autoAlpha: 0 },
+      { autoAlpha: 1, duration: 1.0, ease: 'power2.out', delay: 0.5 }
     );
   };
 
   useEffect(() => {
-    gsap.to(mainContentRef.current, { autoAlpha: 1, duration: 0.5 });
+    if (page === 'main') {
+        gsap.fromTo(classicGuiRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 1, delay: 0.2 });
+    }
   }, [page, gsap]);
 
   return (
     <div className="page-container">
       <div className="background-video-container">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          src={mainVideo}
-        />
+        <video autoPlay loop muted playsInline src={mainVideo} />
         <div className="video-overlay"></div>
       </div>
 
-      <div
-        className="main-content"
-        ref={mainContentRef}
-        data-theme="eva"
-      >
-        <div className="main-layout" ref={mainLayoutRef}>
-          <div className="main-visual-container">
-            <img src={mainImageEva} alt="Main Visual" className="main-image" />
+      {page === 'main' && (
+        // --- isMobile 상태에 따라 클래스 동적 추가 ---
+        <div className={`classic-gui-container ${isMobile ? 'mobile-layout' : ''}`} ref={classicGuiRef}>
+          <div className="classic-scanlines"></div>
+          <div className="classic-grid-overlay"></div>
+          
+          <div className="classic-top-bar">
+            <span>NERV CENTRAL DOGMA - MAIN MONITOR</span>
+            <span>{currentTime}</span>
           </div>
-          <MenuCarousel
-            onActiveItemClick={handleActiveMenuClick}
-            initialDelay={0.5}
-          />
+
+          <div className="classic-main-content">
+            <div className="classic-left-sidebar">
+              <ClassicGuiPanel title="MAGI_SYSTEM_STATUS">
+                <p>CASPER-3: <span className="text-green">ONLINE</span></p>
+                <p>BALTHASAR-2: <span className="text-green">ONLINE</span></p>
+                <p>MELCHIOR-1: <span className="text-green">ONLINE</span></p>
+                <p>DECISION: <span className="text-orange">IN_PROGRESS...</span></p>
+              </ClassicGuiPanel>
+              <ClassicGuiPanel title="SYSTEM_ALERT" className="alert-panel">
+                <p className="flicker text-red large-text">PATTERN: BLUE</p>
+                <p>CLASSIFICATION: ANGEL</p>
+                <p>CODE: 4-A</p>
+              </ClassicGuiPanel>
+            </div>
+
+            <div className="classic-center-area">
+              <div className="main-visual-container">
+                <img src={mainImageEva} alt="Main Visual" className="main-image" />
+              </div>
+              <MenuCarousel
+                onActiveItemClick={handleActiveMenuClick}
+                initialDelay={0.5}
+                isMobile={isMobile} // isMobile 상태를 props로 전달
+              />
+            </div>
+
+            <div className="classic-right-sidebar">
+               <ClassicGuiPanel title="TERMINAL_LOG" className="log-panel">
+                 <p>&gt; Connection to Bridge... OK</p>
+                 <p>&gt; Sync Rate Check... 41.3%</p>
+                 <p>&gt; A.T. Field... NOMINAL</p>
+                 <p>&gt; Umbilical Cable... CONNECTED</p>
+                 <p>&gt; Internal Battery... 98%</p>
+                 <p>&gt; Ready for launch.</p>
+              </ClassicGuiPanel>
+            </div>
+          </div>
+
+          <div className="classic-bottom-bar">
+            <span>GOD'S IN HIS HEAVEN. ALL'S RIGHT WITH THE WORLD.</span>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className={`bgm-player-container ${page !== 'main' ? 'hidden' : ''}`}>
         <button onClick={toggleBgm} className="bgm-toggle-button" aria-label="Toggle BGM">

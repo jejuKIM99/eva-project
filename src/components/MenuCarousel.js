@@ -1,134 +1,105 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-// --- 메뉴 데이터 (CREDITS 추가) ---
+// --- 메뉴 데이터 ---
 const menuItemsData = [
-    { id: 1, title: 'PILOTS', content: 'The designated pilots of the Evangelion units, chosen to synchronize with the giant bio-machines.' },
-    { id: 2, title: 'EVANGELION', content: 'The synthetic humanoid entities created by NERV to defend against the Angels.' },
-    { id: 3, title: 'ANGELS', content: 'The mysterious, alien beings that threaten humanity, triggering the Second Impact.' },
-    { id: 4, title: 'NERV', content: 'A special UN agency created to lead the defense of humanity against the Angels.' },
-    { id: 5, title: 'SEELE', content: 'The secret and powerful committee that manipulates global events from the shadows, funding NERV.' },
-    { id: 6, title: '2nd IMPACT', content: 'A global cataclysm that occurred on September 13, 2000, caused by contact with the first Angel, Adam.'},
-    { id: 7, title: 'LCL', content: 'An orange, translucent liquid that fills the Evangelion entry plugs, allowing pilots to mentally link with their units.'},
-    { id: 8, title: 'S² ENGINE', content: 'A perpetual power organ possessed by the Angels, providing them with a limitless energy supply.'},
-    { id: 9, title: 'CREDITS', content: 'Information about the creator and resources used.' }, // 추가된 메뉴
+    { id: 1, title: 'PILOTS' },
+    { id: 2, title: 'EVANGELION' },
+    { id: 3, title: 'ANGELS' },
+    { id: 4, title: 'NERV' },
+    { id: 5, title: 'SEELE' },
+    { id: 6, 'title': '2nd IMPACT' },
+    { id: 7, title: 'LCL' },
+    { id: 8, title: 'S² ENGINE' },
+    { id: 9, title: 'CREDITS' },
 ];
 
-const REAL_ITEM_COUNT = menuItemsData.length;
-const displayItems = [...menuItemsData, ...menuItemsData, ...menuItemsData];
-
-const MenuCarousel = ({ onActiveItemClick, initialDelay }) => {
-    // 너비 관련 값들을 state로 관리
-    const [itemWidth, setItemWidth] = useState(0);
-    const [viewportWidth, setViewportWidth] = useState(0);
-
-    const [virtualIndex, setVirtualIndex] = useState(REAL_ITEM_COUNT);
-    const listRef = useRef(null);
-    const viewportRef = useRef(null);
-    const isAnimating = useRef(false);
+const MenuCarousel = ({ onActiveItemClick, initialDelay, isMobile }) => {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const containerRef = useRef(null);
     const gsap = window.gsap;
-    
-    // 브라우저 리사이즈를 감지하여 너비 state를 업데이트하는 useEffect
+
+    // 초기 등장 애니메이션
     useEffect(() => {
-        const calculateWidths = () => {
-            const currentWidth = window.innerWidth;
-            if (currentWidth <= 768) {
-                setItemWidth(152);
-                setViewportWidth(currentWidth);
-            } else if (currentWidth <= 1024) {
-                setItemWidth(220);
-                setViewportWidth(660); // App.css에 정의된 tablet 사이즈
-            } else {
-                setItemWidth(220);
-                setViewportWidth(880); // App.css에 정의된 desktop 사이즈
+        if (containerRef.current) {
+            gsap.fromTo(containerRef.current, 
+                { autoAlpha: 0, y: 20 }, 
+                { autoAlpha: 1, y: 0, duration: 0.8, delay: initialDelay || 0.5, ease: 'power2.out' }
+            );
+        }
+    }, [initialDelay, gsap]);
+
+    // 네비게이션 핸들러
+    const handleNavigation = (direction) => {
+        setActiveIndex(prevIndex => {
+            const newIndex = prevIndex + direction;
+            if (newIndex < 0) {
+                return menuItemsData.length - 1;
             }
-        };
+            if (newIndex >= menuItemsData.length) {
+                return 0;
+            }
+            return newIndex;
+        });
+    };
 
-        calculateWidths();
-        window.addEventListener('resize', calculateWidths);
-        return () => window.removeEventListener('resize', calculateWidths);
-    }, []);
-    
-    // 화면 중앙에 아이템을 위치시키기 위한 X축 오프셋 계산
-    const xOffset = (viewportWidth / 2) - (itemWidth / 2);
-
-    useEffect(() => {
-        if (!listRef.current || itemWidth === 0) return;
-        
-        if (isAnimating.current) {
-            gsap.to(listRef.current, {
-                x: xOffset - (virtualIndex * itemWidth),
-                duration: 0.5,
-                ease: 'power2.out',
-                onComplete: () => {
-                    isAnimating.current = false;
-                    let newIndex = virtualIndex;
-                    if (virtualIndex < REAL_ITEM_COUNT) {
-                        newIndex += REAL_ITEM_COUNT;
-                        setVirtualIndex(newIndex);
-                        gsap.set(listRef.current, { x: xOffset - (newIndex * itemWidth) });
-                    } else if (virtualIndex >= REAL_ITEM_COUNT * 2) {
-                        newIndex -= REAL_ITEM_COUNT;
-                        setVirtualIndex(newIndex);
-                        gsap.set(listRef.current, { x: xOffset - (newIndex * itemWidth) });
-                    }
-                },
-            });
+    // 활성화된 메뉴 아이템 클릭 시 페이지 전환
+    const handleItemClick = (index) => {
+        if (index === activeIndex) {
+            onActiveItemClick(menuItemsData[index]);
         } else {
-            gsap.set(listRef.current, { x: xOffset - (virtualIndex * itemWidth) });
-        }
-    }, [virtualIndex, xOffset, itemWidth, gsap, REAL_ITEM_COUNT]);
-    
-    // 초기 설정
-    useEffect(() => {
-        if (itemWidth === 0) return;
-        gsap.set(listRef.current, { x: xOffset - (REAL_ITEM_COUNT * itemWidth) });
-        gsap.fromTo(viewportRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 1, delay: initialDelay });
-    }, [initialDelay, xOffset, itemWidth, gsap, REAL_ITEM_COUNT]);
-    
-    // 네비게이션 버튼 핸들러
-    const handleNavigation = (steps) => {
-        if (isAnimating.current) return;
-        isAnimating.current = true;
-        setVirtualIndex(prevIndex => prevIndex + steps);
-    };
-    
-    // 메뉴 아이템 클릭 핸들러
-    const handleItemClick = (clickedItemIndex) => {
-        const currentActiveIndex = virtualIndex % REAL_ITEM_COUNT;
-        if (clickedItemIndex === currentActiveIndex) {
-            onActiveItemClick(menuItemsData[currentActiveIndex]);
-            return;
-        }
-        let diff = clickedItemIndex - currentActiveIndex;
-        if (diff > REAL_ITEM_COUNT / 2) diff -= REAL_ITEM_COUNT;
-        if (diff < -REAL_ITEM_COUNT / 2) diff += REAL_ITEM_COUNT;
-        
-        if (diff !== 0) {
-            handleNavigation(diff);
+            setActiveIndex(index);
         }
     };
-    
-    return (
-        <div className="carousel-container">
-            <div className="carousel-nav left">
-                <button className="nav-button" onClick={() => handleNavigation(-1)}>ᐊ</button>
+
+    // 현재 활성화된 아이템의 이전/다음 아이템 인덱스 계산
+    const prevIndex = (activeIndex - 1 + menuItemsData.length) % menuItemsData.length;
+    const nextIndex = (activeIndex + 1) % menuItemsData.length;
+
+    // PC용 렌더링
+    const renderDesktop = () => (
+        <>
+            <div className="carousel-nav-classic left">
+                <button className="nav-button-classic" onClick={() => handleNavigation(-1)}>ᐊ</button>
             </div>
-            <div className="carousel-viewport" ref={viewportRef}>
-                <div className="carousel-list" ref={listRef}>
-                    {displayItems.map((item, index) => (
-                        <div
-                            key={`${item.id}-${index}`}
-                            className={`menu-item ${ (index % REAL_ITEM_COUNT) === (virtualIndex % REAL_ITEM_COUNT) ? 'active' : ''}`}
-                            onClick={() => handleItemClick(index % REAL_ITEM_COUNT)}
-                        >
-                            {item.title}
-                        </div>
-                    ))}
+            <div className="carousel-display-classic">
+                <div className="menu-item-classic side-item">
+                    <span>{menuItemsData[prevIndex].title}</span>
+                </div>
+                <div className="menu-item-classic active-item" onClick={() => handleItemClick(activeIndex)}>
+                    <span className="active-bracket left">[</span>
+                    <span className="active-text">{menuItemsData[activeIndex].title}</span>
+                    <span className="active-bracket right">]</span>
+                </div>
+                <div className="menu-item-classic side-item">
+                    <span>{menuItemsData[nextIndex].title}</span>
                 </div>
             </div>
-            <div className="carousel-nav right">
-                <button className="nav-button" onClick={() => handleNavigation(1)}>ᐅ</button>
+            <div className="carousel-nav-classic right">
+                <button className="nav-button-classic" onClick={() => handleNavigation(1)}>ᐅ</button>
             </div>
+        </>
+    );
+
+    // 모바일용 렌더링
+    const renderMobile = () => (
+        <>
+            <div className="carousel-display-classic">
+                <div className="menu-item-classic active-item" onClick={() => handleItemClick(activeIndex)}>
+                    <span className="active-bracket left">[</span>
+                    <span className="active-text">{menuItemsData[activeIndex].title}</span>
+                    <span className="active-bracket right">]</span>
+                </div>
+            </div>
+            <div className="carousel-nav-wrapper-mobile">
+                <button className="nav-button-classic" onClick={() => handleNavigation(-1)}>ᐊ</button>
+                <button className="nav-button-classic" onClick={() => handleNavigation(1)}>ᐅ</button>
+            </div>
+        </>
+    );
+
+    return (
+        <div className="carousel-container-classic" ref={containerRef}>
+            {isMobile ? renderMobile() : renderDesktop()}
         </div>
     );
 };
