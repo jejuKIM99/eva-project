@@ -9,11 +9,11 @@ import SecondImpactPage from './SecondImpactPage';
 import LCLPage from './LCLPage';
 import S2EnginePage from './S2EnginePage';
 import CreditsPage from './CreditsPage';
+import GuestbookPage from './GuestbookPage'; // 방명록 페이지 import
 import mainImageEva from '../img/mainimg.png';
 import mainVideo from '../video/mainvideo.mp4';
 import mainBgm from '../video/mainbgm.mp3';
 
-// 클래식 GUI를 위한 장식용 컴포넌트
 const ClassicGuiPanel = ({ title, children, className = '' }) => (
   <div className={`classic-gui-panel ${className}`}>
     <div className="classic-panel-header">
@@ -29,17 +29,15 @@ const MainContent = () => {
   const [isBgmPlaying, setIsBgmPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState('21:15:45');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [activeIndex, setActiveIndex] = useState(0); // 메뉴 인덱스 상태 추가
 
   const classicGuiRef = useRef(null);
   const gsap = window.gsap;
 
   const bgmAudio = useMemo(() => new Audio(mainBgm), []);
 
-  // --- 화면 크기 감지 로직 ---
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -65,7 +63,9 @@ const MainContent = () => {
     setIsBgmPlaying(!isBgmPlaying);
   };
 
-  const handleActiveMenuClick = (menuItem) => {
+  const handleActiveMenuClick = (menuItem, index) => {
+    setActiveIndex(index); // 메뉴 인덱스 상태 업데이트
+    
     let targetPage = null;
     if (menuItem.title === 'PILOTS') targetPage = 'pilots';
     if (menuItem.title === 'EVANGELION') targetPage = 'evangelion';
@@ -76,6 +76,7 @@ const MainContent = () => {
     if (menuItem.title === 'LCL') targetPage = 'lcl';
     if (menuItem.title === 'S² ENGINE') targetPage = 's2engine';
     if (menuItem.title === 'CREDITS') targetPage = 'credits';
+    if (menuItem.title === 'GUESTBOOK') targetPage = 'guestbook'; // 방명록 페이지 라우팅 추가
 
     if (targetPage) {
       gsap.to(classicGuiRef.current, {
@@ -109,7 +110,6 @@ const MainContent = () => {
       </div>
 
       {page === 'main' && (
-        // --- isMobile 상태에 따라 클래스 동적 추가 ---
         <div className={`classic-gui-container ${isMobile ? 'mobile-layout' : ''}`} ref={classicGuiRef}>
           <div className="classic-scanlines"></div>
           <div className="classic-grid-overlay"></div>
@@ -139,9 +139,11 @@ const MainContent = () => {
                 <img src={mainImageEva} alt="Main Visual" className="main-image" />
               </div>
               <MenuCarousel
-                onActiveItemClick={handleActiveMenuClick}
+                onActiveItemClick={(menuItem) => handleActiveMenuClick(menuItem, activeIndex)}
                 initialDelay={0.5}
-                isMobile={isMobile} // isMobile 상태를 props로 전달
+                isMobile={isMobile}
+                activeIndex={activeIndex}
+                setActiveIndex={setActiveIndex}
               />
             </div>
 
@@ -202,6 +204,7 @@ const MainContent = () => {
       {page === 'lcl' && <LCLPage onBack={handleBack} />}
       {page === 's2engine' && <S2EnginePage onBack={handleBack} />}
       {page === 'credits' && <CreditsPage onBack={handleBack} />}
+      {page === 'guestbook' && <GuestbookPage onBack={handleBack} />}
     </div>
   );
 };

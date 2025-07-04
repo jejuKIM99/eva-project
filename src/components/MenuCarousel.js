@@ -1,24 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
+// src/components/MenuCarousel.js
 
-// --- 메뉴 데이터 ---
+import React, { useEffect, useRef } from 'react';
+
+// --- 메뉴 데이터 수정 ---
 const menuItemsData = [
     { id: 1, title: 'PILOTS' },
     { id: 2, title: 'EVANGELION' },
     { id: 3, title: 'ANGELS' },
     { id: 4, title: 'NERV' },
     { id: 5, title: 'SEELE' },
-    { id: 6, 'title': '2nd IMPACT' },
+    { id: 6, title: '2nd IMPACT' },
     { id: 7, title: 'LCL' },
     { id: 8, title: 'S² ENGINE' },
     { id: 9, title: 'CREDITS' },
+    { id: 10, title: 'GUESTBOOK' }, // 방명록 추가
 ];
 
-const MenuCarousel = ({ onActiveItemClick, initialDelay, isMobile }) => {
-    const [activeIndex, setActiveIndex] = useState(0);
+const MenuCarousel = ({ onActiveItemClick, initialDelay, isMobile, activeIndex, setActiveIndex }) => {
     const containerRef = useRef(null);
     const gsap = window.gsap;
 
-    // 초기 등장 애니메이션
     useEffect(() => {
         if (containerRef.current) {
             gsap.fromTo(containerRef.current, 
@@ -28,20 +29,11 @@ const MenuCarousel = ({ onActiveItemClick, initialDelay, isMobile }) => {
         }
     }, [initialDelay, gsap]);
 
-    // 네비게이션 핸들러
     const handleNavigation = (direction) => {
-        setActiveIndex(prevIndex => {
-            const newIndex = prevIndex + direction;
-            if (newIndex < 0) {
-                return menuItemsData.length - 1;
-            }
-            if (newIndex >= menuItemsData.length) {
-                return 0;
-            }
-            return newIndex;
-        });
+        const newIndex = (activeIndex + direction + menuItemsData.length) % menuItemsData.length;
+        setActiveIndex(newIndex);
     };
-
+    
     // 활성화된 메뉴 아이템 클릭 시 페이지 전환
     const handleItemClick = (index) => {
         if (index === activeIndex) {
@@ -51,18 +43,16 @@ const MenuCarousel = ({ onActiveItemClick, initialDelay, isMobile }) => {
         }
     };
 
-    // 현재 활성화된 아이템의 이전/다음 아이템 인덱스 계산
     const prevIndex = (activeIndex - 1 + menuItemsData.length) % menuItemsData.length;
     const nextIndex = (activeIndex + 1) % menuItemsData.length;
 
-    // PC용 렌더링
     const renderDesktop = () => (
         <>
             <div className="carousel-nav-classic left">
                 <button className="nav-button-classic" onClick={() => handleNavigation(-1)}>ᐊ</button>
             </div>
             <div className="carousel-display-classic">
-                <div className="menu-item-classic side-item">
+                <div className="menu-item-classic side-item" onClick={() => handleNavigation(-1)}>
                     <span>{menuItemsData[prevIndex].title}</span>
                 </div>
                 <div className="menu-item-classic active-item" onClick={() => handleItemClick(activeIndex)}>
@@ -70,7 +60,7 @@ const MenuCarousel = ({ onActiveItemClick, initialDelay, isMobile }) => {
                     <span className="active-text">{menuItemsData[activeIndex].title}</span>
                     <span className="active-bracket right">]</span>
                 </div>
-                <div className="menu-item-classic side-item">
+                <div className="menu-item-classic side-item" onClick={() => handleNavigation(1)}>
                     <span>{menuItemsData[nextIndex].title}</span>
                 </div>
             </div>
@@ -79,8 +69,7 @@ const MenuCarousel = ({ onActiveItemClick, initialDelay, isMobile }) => {
             </div>
         </>
     );
-
-    // 모바일용 렌더링
+    
     const renderMobile = () => (
         <>
             <div className="carousel-display-classic">
