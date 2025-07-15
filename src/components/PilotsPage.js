@@ -71,7 +71,7 @@ useEffect(() => {
     let i = 0;
     const typingInterval = setInterval(() => {
         if (i < text.length) {
-            setTypedText(prev => prev + text.charAt(i));
+            setTypedText(text.substring(0, i + 1));
             i++;
         } else {
             clearInterval(typingInterval);
