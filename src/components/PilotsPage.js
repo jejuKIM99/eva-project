@@ -63,27 +63,24 @@ const useTypingEffect = (text, speed = 50) => {
     const [typedText, setTypedText] = useState('');
     const [isDone, setIsDone] = useState(false);
 
-    useEffect(() => {
-        setTypedText('');
-        setIsDone(false);
-        if (!text) return;
+useEffect(() => {
+    setTypedText('');
+    setIsDone(false);
+    if (!text) return;
 
-        const timer = setTimeout(() => {
-            let i = 0;
-            const typingInterval = setInterval(() => {
-                if (i < text.length) {
-                    setTypedText(prev => prev + text.charAt(i));
-                    i++;
-                } else {
-                    clearInterval(typingInterval);
-                    setIsDone(true);
-                }
-            }, speed);
-            return () => clearInterval(typingInterval);
-        }, 500);
+    let i = 0;
+    const typingInterval = setInterval(() => {
+        if (i < text.length) {
+            setTypedText(prev => prev + text.charAt(i));
+            i++;
+        } else {
+            clearInterval(typingInterval);
+            setIsDone(true);
+        }
+    }, speed);
 
-        return () => clearTimeout(timer);
-    }, [text, speed]);
+    return () => clearInterval(typingInterval);
+}, [text, speed]);
 
     return { typedText, isDone };
 };
