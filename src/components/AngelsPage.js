@@ -84,22 +84,28 @@ const angelData = {
         abilities: ["Dirac Sea", "Pocket Dimension", "Shadow Body"]
     },
     bardiel: {
-        id: 14, name: "BARDIEL", image: angelImages['angel-14.png'], classification: "The Thirteenth Angel",
+        id: 13, name: "BARDIEL", image: angelImages['angel-13.png'], classification: "The Thirteenth Angel",
         description: "A parasitic Angel that infected and took control of Evangelion Unit-03 during its transport to Japan.",
         stats: { power: 78, defense: 70, speed: 80, 'A.T. Field': 82 },
         abilities: ["Parasitism", "Entry Plug Contamination", "Stretchable Arms"]
     },
     zeruel: {
-        id: 15, name: "ZERUEL", image: angelImages['angel-15.png'], classification: "The Fourteenth Angel",
+        id: 14, name: "ZERUEL", image: angelImages['angel-14.png'], classification: "The Fourteenth Angel",
         description: "One of the most powerful Angels. Its arms are ribbon-like weapons that can slice through anything with ease and it has a direct-fire beam.",
         stats: { power: 96, defense: 88, speed: 70, 'A.T. Field': 94 },
         abilities: ["Folding Arms (Blades)", "Eye Beam", "Core Shield"]
     },
     arael: {
-        id: 16, name: "ARAEL", image: angelImages['angel-16.png'], classification: "The Fifteenth Angel",
+        id: 15, name: "ARAEL", image: angelImages['angel-15.png'], classification: "The Fifteenth Angel",
         description: "A bird-like Angel of light that appeared in orbit. It uses a psychological attack in the form of a focused beam of light.",
         stats: { power: 70, defense: 75, speed: 90, 'A.T. Field': 88 },
         abilities: ["Psychological Wave", "Orbital Presence", "Light Form"]
+    },
+    armisael: {
+        id: 16, name: "ARMISAEL", image: angelImages['angel-16.png'], classification: "The Sixteenth Angel",
+        description: "Appearing as a shimmering, fluid ring of light, this Angel can penetrate A.T. Fields and physically merge with an Evangelion, attempting to fuse with the pilot's mind.",
+        stats: { power: 82, defense: 85, speed: 88, 'A.T. Field': 91 },
+        abilities: ["Biomolecular Fusion", "Psychic Intrusion", "Energy Thread"]
     },
     tabris: {
         id: 17, name: "TABRIS", image: angelImages['angel-17.png'], classification: "The Seventeenth Angel",
