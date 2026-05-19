@@ -255,6 +255,46 @@ body, html {
   filter: drop-shadow(0px 4px 0px #000) drop-shadow(0px 2px 8px #ff9900) drop-shadow(0px 2px 8px #00ff00);
 }
 
+/* --- Animated Logo Styles --- */
+.animated-logo-wrapper {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+.eva-logo-svg {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 10px rgba(255, 69, 0, 0.3));
+}
+.logo-main-text {
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 900;
+  font-size: 72px;
+  fill: #ff4500;
+  letter-spacing: 15px;
+}
+.logo-subtext {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  fill: #ff8c00;
+  letter-spacing: 8px;
+  opacity: 0.8;
+}
+.glitch-red {
+  fill: rgba(255, 0, 0, 0.7);
+  mix-blend-mode: screen;
+}
+.glitch-blue {
+  fill: rgba(0, 255, 255, 0.7);
+  mix-blend-mode: screen;
+}
+.logo-deco rect {
+  transition: all 0.3s ease;
+}
+
 /* 텍스트 색상 및 효과 */
 .text-green { color: #00ff00; text-shadow: 0 0 5px #00ff00; }
 .text-orange { color: #ff9900; text-shadow: 0 0 5px #ff9900; }

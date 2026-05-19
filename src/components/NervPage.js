@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
+import gsap from 'gsap';
 
 // 이미지 import
 import gendoImage from '../img/gendo.png';
@@ -56,7 +57,6 @@ const TopSecretWindow = ({ onClose, isMobile }) => {
     const [authInfo, setAuthInfo] = useState({ id: '', pw: '' });
     const [showMapView, setShowMapView] = useState(false);
     const windowRef = useRef(null);
-    const gsap = window.gsap;
 
     const mapContainerRef = useRef(null);
     const mapPanWrapperRef = useRef(null); // [수정] 이미지와 타겟을 감싸는 래퍼의 ref
@@ -297,7 +297,6 @@ const ProfileWindow = ({ personKey, deptDescription, onClose, onFocus, zIndex, i
     const person = personnelData[personKey];
     const [position, setPosition] = useState(initialPos);
     const windowRef = useRef(null);
-    const gsap = window.gsap;
 
     useEffect(() => {
         if (isMobile) {
@@ -371,7 +370,7 @@ const ProfileWindow = ({ personKey, deptDescription, onClose, onFocus, zIndex, i
 const SubMenu = ({ members, position, onSelect, onClose, isMobile }) => {
     const menuRef = useRef(null);
     useEffect(() => {
-        window.gsap.fromTo(menuRef.current, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.2 });
+        gsap.fromTo(menuRef.current, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.2 });
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) onClose();
         };
@@ -418,7 +417,6 @@ const NervOrganizationGUI = ({ onExit }) => {
     const [activeSubMenu, setActiveSubMenu] = useState(null);
     const [showTopSecret, setShowTopSecret] = useState(false); // [신규] TOP SECRET 창 상태
     const guiRef = useRef(null);
-    const gsap = window.gsap;
     const width = useWindowSize();
     const isMobile = width <= 918;
 
@@ -525,7 +523,6 @@ const NervOrganizationGUI = ({ onExit }) => {
 const NervPage = ({ onBack }) => {
     const [showGui, setShowGui] = useState(false);
     const pageRef = useRef(null);
-    const gsap = window.gsap;
 
     useEffect(() => {
         gsap.fromTo(pageRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.8, ease: 'power2.out' });

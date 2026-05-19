@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import gsap from 'gsap';
 import seeleLogoImage from '../img/seele.png';
 import unitMassImage from '../img/unitMass.png';
 import KeelLorenzProfile from '../img/KeelLorenz_profile.jpg';
@@ -17,7 +18,6 @@ const SeelePage = ({ onBack }) => {
     const mpEvaGuiRef = useRef(null);
     const keelProfileRef = useRef(null);
 
-    const gsap = window.gsap;
     const monolithCount = 7;
 
     useEffect(() => {

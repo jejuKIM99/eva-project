@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import gsap from 'gsap';
+import * as THREE from 'three';
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import lclImage from '../img/lcl.jpg'; // 이미지 경로는 실제 프로젝트에 맞게 조정
 
 // 타이핑 효과 커스텀 훅
@@ -49,9 +52,6 @@ const EntryPlugView = ({ onBack }) => {
     const dampingFactor = 0.95;
 
     const [isTextureOn, setIsTextureOn] = useState(false);
-
-    const THREE = window.THREE;
-    const gsap = window.gsap;
 
     const titleText = useTypingEffect("ENTRY PLUG: INTERNAL STATUS", 1500);
     const pilotData = useTypingEffect("IKARI SHINJI", 1000);
@@ -116,7 +116,7 @@ const EntryPlugView = ({ onBack }) => {
 
 
         const texture = new THREE.CanvasTexture(canvas);
-        texture.encoding = THREE.sRGBEncoding;
+        texture.colorSpace = THREE.SRGBColorSpace;
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.ClampToEdgeWrapping;
         texture.repeat.set(1, 1);
@@ -156,7 +156,7 @@ const EntryPlugView = ({ onBack }) => {
         ctx.fill();
 
         const texture = new THREE.CanvasTexture(canvas);
-        texture.encoding = THREE.sRGBEncoding;
+        texture.colorSpace = THREE.SRGBColorSpace;
         return texture;
     }, [THREE]);
 
@@ -187,7 +187,7 @@ const EntryPlugView = ({ onBack }) => {
         ctx.fill();
 
         const texture = new THREE.CanvasTexture(canvas);
-        texture.encoding = THREE.sRGBEncoding;
+        texture.colorSpace = THREE.SRGBColorSpace;
         return texture;
     }, [THREE]);
 
@@ -269,7 +269,7 @@ const EntryPlugView = ({ onBack }) => {
         const leftHolderGeom = leverHolderGeom.clone().translate(-1.1, 0.8, 0);
         internalCockpitGeometries.push(rightHolderGeom, leftHolderGeom);
 
-        const combinedWireframeGeom = window.THREE.BufferGeometryUtils.mergeBufferGeometries([
+        const combinedWireframeGeom = BufferGeometryUtils.mergeGeometries([
             bodyGeom, 
             topCapGeom, 
             bottomCapGeom, 
@@ -479,15 +479,17 @@ const LCLPage = ({ onBack }) => {
     const pageRef = useRef(null);
     const guiRef = useRef(null);
     const animationFrameId = useRef(null);
-    const gsap = window.gsap;
-    const THREE = window.THREE;
 
     const handleViewChange = () => {
-        gsap.to(guiRef.current, {
-            autoAlpha: 0,
-            duration: 0.5,
-            onComplete: () => setIsPlugView(true)
-        });
+        if (guiRef.current) {
+            gsap.to(guiRef.current, {
+                autoAlpha: 0,
+                duration: 0.5,
+                onComplete: () => setIsPlugView(true)
+            });
+        } else {
+            setIsPlugView(true);
+        }
     };
     
     const handleBackToLCL = () => {
@@ -560,11 +562,11 @@ const LCLPage = ({ onBack }) => {
         camera.position.z = 5;
         camera.position.y = 2;
 
-        const clock = new THREE.Clock();
+        const startTime = performance.now();
 
         const animate = () => {
             animationFrameId.current = requestAnimationFrame(animate);
-            material.uniforms.time.value = clock.getElapsedTime();
+            material.uniforms.time.value = (performance.now() - startTime) / 1000;
             renderer.render(scene, camera);
         };
 
@@ -590,7 +592,9 @@ const LCLPage = ({ onBack }) => {
     
     useEffect(() => {
         const page = pageRef.current;
-        gsap.fromTo(page, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 });
+        if (page) {
+            gsap.fromTo(page, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 });
+        }
 
         if (!isPlugView && guiRef.current) {
             gsap.fromTo(guiRef.current, 

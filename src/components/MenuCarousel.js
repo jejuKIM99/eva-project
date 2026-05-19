@@ -1,6 +1,7 @@
 // src/components/MenuCarousel.js
 
 import React, { useEffect, useRef } from 'react';
+import gsap from 'gsap';
 
 // --- 메뉴 데이터 수정 ---
 const menuItemsData = [
@@ -18,7 +19,6 @@ const menuItemsData = [
 
 const MenuCarousel = ({ onActiveItemClick, initialDelay, isMobile, activeIndex, setActiveIndex }) => {
     const containerRef = useRef(null);
-    const gsap = window.gsap;
 
     useEffect(() => {
         if (containerRef.current) {
@@ -27,7 +27,7 @@ const MenuCarousel = ({ onActiveItemClick, initialDelay, isMobile, activeIndex, 
                 { autoAlpha: 1, y: 0, duration: 0.8, delay: initialDelay || 0.5, ease: 'power2.out' }
             );
         }
-    }, [initialDelay, gsap]);
+    }, [initialDelay]);
 
     const handleNavigation = (direction) => {
         const newIndex = (activeIndex + direction + menuItemsData.length) % menuItemsData.length;

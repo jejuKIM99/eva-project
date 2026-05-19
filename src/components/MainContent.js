@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import gsap from 'gsap';
 import MenuCarousel from './MenuCarousel';
 import PilotsPage from './PilotsPage';
 import EvangelionPage from './EvangelionPage';
@@ -32,7 +33,6 @@ const MainContent = () => {
   const [activeIndex, setActiveIndex] = useState(0); // 메뉴 인덱스 상태 추가
 
   const classicGuiRef = useRef(null);
-  const gsap = window.gsap;
 
   const bgmAudio = useMemo(() => new Audio(mainBgm), []);
 
@@ -79,31 +79,37 @@ const MainContent = () => {
     if (menuItem.title === 'GUESTBOOK') targetPage = 'guestbook'; // 방명록 페이지 라우팅 추가
 
     if (targetPage) {
-      gsap.to(classicGuiRef.current, {
-        autoAlpha: 0,
-        duration: 0.8,
-        ease: 'power2.in',
-        onComplete: () => setPage(targetPage)
-      });
+      if (classicGuiRef.current) {
+        gsap.to(classicGuiRef.current, {
+          autoAlpha: 0,
+          duration: 0.8,
+          ease: 'power2.in',
+          onComplete: () => setPage(targetPage)
+        });
+      } else {
+        setPage(targetPage);
+      }
     }
   };
 
   const handleBack = () => {
     setPage('main');
-    gsap.fromTo(classicGuiRef.current,
-      { autoAlpha: 0 },
-      { autoAlpha: 1, duration: 1.0, ease: 'power2.out', delay: 0.5 }
-    );
+    if (classicGuiRef.current) {
+      gsap.fromTo(classicGuiRef.current,
+        { autoAlpha: 0 },
+        { autoAlpha: 1, duration: 1.0, ease: 'power2.out', delay: 0.5 }
+      );
+    }
   };
 
   useEffect(() => {
-    if (page === 'main') {
+    if (page === 'main' && classicGuiRef.current) {
         gsap.fromTo(classicGuiRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 1, delay: 0.2 });
     }
   }, [page, gsap]);
 
   return (
-    <div className="page-container">
+    <main className="page-container">
       <div className="background-video-container">
         <video autoPlay loop muted playsInline src={mainVideo} />
         <div className="video-overlay"></div>
@@ -205,7 +211,7 @@ const MainContent = () => {
       {page === 's2engine' && <S2EnginePage onBack={handleBack} />}
       {page === 'credits' && <CreditsPage onBack={handleBack} />}
       {page === 'guestbook' && <GuestbookPage onBack={handleBack} />}
-    </div>
+    </main>
   );
 };
 

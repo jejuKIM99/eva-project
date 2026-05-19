@@ -1,5 +1,9 @@
 import React, { useEffect, useRef } from 'react';
+import gsap from 'gsap';
+import { SplitText } from 'gsap/SplitText';
 import secondImpactImage from '../img/second_impact.png';
+
+gsap.registerPlugin(SplitText);
 
 const SecondImpactPage = ({ onBack }) => {
     const pageRef = useRef(null);
@@ -7,62 +11,36 @@ const SecondImpactPage = ({ onBack }) => {
     const textRef = useRef(null);
 
     useEffect(() => {
-        // 애니메이션을 실행하는 함수
-        const runAnimations = () => {
-            const gsap = window.gsap;
-            const SplitText = window.SplitText;
+        // --- 페이지 전체 페이드 인 ---
+        gsap.to(pageRef.current, { autoAlpha: 1, duration: 0.5 });
 
-            // GSAP 플러그인을 등록합니다.
-            gsap.registerPlugin(SplitText);
-
-            // --- 페이지 전체 페이드 인 ---
-            gsap.to(pageRef.current, { autoAlpha: 1, duration: 0.5 });
-
-            // --- 리포트 컨테이너 펼쳐지는 애니메이션 ---
-            gsap.fromTo(reportContainerRef.current,
-                { clipPath: 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)', autoAlpha: 1 },
-                { 
-                    clipPath: 'polygon(0% 0, 100% 0, 100% 100%, 0% 100%)', 
-                    duration: 1.2, 
-                    ease: 'power3.inOut',
-                    delay: 0.3
-                }
-            );
-
-            // --- 텍스트 타이핑 애니메이션 ---
-            const reportText = textRef.current;
-            if (reportText) {
-                const split = new SplitText(reportText, { type: "chars, words" });
-                const chars = split.chars;
-                
-                gsap.set(chars, { autoAlpha: 0 });
-
-                gsap.to(chars, {
-                    autoAlpha: 1,
-                    duration: 0.02,
-                    stagger: 0.02,
-                    ease: 'none',
-                    delay: 1.5
-                });
+        // --- 리포트 컨테이너 펼쳐지는 애니메이션 ---
+        gsap.fromTo(reportContainerRef.current,
+            { clipPath: 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)', autoAlpha: 1 },
+            { 
+                clipPath: 'polygon(0% 0, 100% 0, 100% 100%, 0% 100%)', 
+                duration: 1.2, 
+                ease: 'power3.inOut',
+                delay: 0.3
             }
-        };
+        );
 
-        // GSAP 라이브러리가 로드될 때까지 주기적으로 확인하는 함수
-        const checkGSAP = () => {
-            if (window.gsap && window.SplitText) {
-                // 라이브러리가 로드되면 인터벌을 중지하고 애니메이션 실행
-                clearInterval(gsapCheckInterval);
-                runAnimations();
-            }
-        };
+        // --- 텍스트 타이핑 애니메이션 ---
+        const reportText = textRef.current;
+        if (reportText) {
+            const split = new SplitText(reportText, { type: "chars, words" });
+            const chars = split.chars;
+            
+            gsap.set(chars, { autoAlpha: 0 });
 
-        // 100ms 마다 GSAP 라이브러리 로드 여부 확인
-        const gsapCheckInterval = setInterval(checkGSAP, 100);
-
-        // 컴포넌트가 언마운트될 때 인터벌 정리
-        return () => {
-            clearInterval(gsapCheckInterval);
-        };
+            gsap.to(chars, {
+                autoAlpha: 1,
+                duration: 0.02,
+                stagger: 0.02,
+                ease: 'none',
+                delay: 1.5
+            });
+        }
     }, []); // 빈 배열을 전달하여 컴포넌트가 마운트될 때 한 번만 실행
 
     return (

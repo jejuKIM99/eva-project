@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import gsap from 'gsap';
 
 const LoadingScreen = ({ onAnimationComplete }) => {
   const containerRef = useRef(null);
@@ -9,7 +10,6 @@ const LoadingScreen = ({ onAnimationComplete }) => {
   const text = "来たれ、甘き死よ";
 
   useEffect(() => {
-    const gsap = window.gsap;
     const crossPath = crossPathRef.current;
     const textChars = textRef.current.children;
 

@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-
-// [수정] 'gsap' import 문을 삭제합니다.
-// import { gsap } from 'gsap'; 
+import gsap from 'gsap';
 
 // 이미지 import
 import groupImage from '../img/group1.png';
@@ -87,9 +85,6 @@ useEffect(() => {
 
 
 const PilotsPage = ({ onBack }) => {
-    // [수정] CDN으로 불러온 gsap를 window 객체에서 직접 참조합니다.
-    const gsap = window.gsap;
-
     const [hoveredChar, setHoveredChar] = useState(null);
     const [selectedChar, setSelectedChar] = useState(null);
     const pageRef = useRef(null);
