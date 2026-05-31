@@ -1,7 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import gsap from 'gsap';
-import * as THREE from 'three';
-import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import lclImage from '../img/lcl.jpg'; // 이미지 경로는 실제 프로젝트에 맞게 조정
 
 // 타이핑 효과 커스텀 훅
@@ -52,6 +49,9 @@ const EntryPlugView = ({ onBack }) => {
     const dampingFactor = 0.95;
 
     const [isTextureOn, setIsTextureOn] = useState(false);
+
+    const THREE = window.THREE;
+    const gsap = window.gsap;
 
     const titleText = useTypingEffect("ENTRY PLUG: INTERNAL STATUS", 1500);
     const pilotData = useTypingEffect("IKARI SHINJI", 1000);
@@ -116,7 +116,7 @@ const EntryPlugView = ({ onBack }) => {
 
 
         const texture = new THREE.CanvasTexture(canvas);
-        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.encoding = THREE.sRGBEncoding;
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.ClampToEdgeWrapping;
         texture.repeat.set(1, 1);
@@ -156,7 +156,7 @@ const EntryPlugView = ({ onBack }) => {
         ctx.fill();
 
         const texture = new THREE.CanvasTexture(canvas);
-        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.encoding = THREE.sRGBEncoding;
         return texture;
     }, [THREE]);
 
@@ -187,7 +187,7 @@ const EntryPlugView = ({ onBack }) => {
         ctx.fill();
 
         const texture = new THREE.CanvasTexture(canvas);
-        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.encoding = THREE.sRGBEncoding;
         return texture;
     }, [THREE]);
 
@@ -269,7 +269,7 @@ const EntryPlugView = ({ onBack }) => {
         const leftHolderGeom = leverHolderGeom.clone().translate(-1.1, 0.8, 0);
         internalCockpitGeometries.push(rightHolderGeom, leftHolderGeom);
 
-        const combinedWireframeGeom = BufferGeometryUtils.mergeGeometries([
+        const combinedWireframeGeom = window.THREE.BufferGeometryUtils.mergeBufferGeometries([
             bodyGeom, 
             topCapGeom, 
             bottomCapGeom, 
@@ -472,24 +472,22 @@ const EntryPlugView = ({ onBack }) => {
 };
 
 // --- 메인 LCL 페이지 컴포넌트 ---
-const LCLPage = ({ onBack }) => {
+const LCLPage = ({ onBack, triggerEntrance }) => {
     const [isPlugView, setIsPlugView] = useState(false);
     const [plugViewKey, setPlugViewKey] = useState(0); 
     const mountRef = useRef(null);
     const pageRef = useRef(null);
     const guiRef = useRef(null);
     const animationFrameId = useRef(null);
+    const gsap = window.gsap;
+    const THREE = window.THREE;
 
     const handleViewChange = () => {
-        if (guiRef.current) {
-            gsap.to(guiRef.current, {
-                autoAlpha: 0,
-                duration: 0.5,
-                onComplete: () => setIsPlugView(true)
-            });
-        } else {
-            setIsPlugView(true);
-        }
+        gsap.to(guiRef.current, {
+            autoAlpha: 0,
+            duration: 0.5,
+            onComplete: () => setIsPlugView(true)
+        });
     };
     
     const handleBackToLCL = () => {
@@ -562,11 +560,11 @@ const LCLPage = ({ onBack }) => {
         camera.position.z = 5;
         camera.position.y = 2;
 
-        const startTime = performance.now();
+        const clock = new THREE.Clock();
 
         const animate = () => {
             animationFrameId.current = requestAnimationFrame(animate);
-            material.uniforms.time.value = (performance.now() - startTime) / 1000;
+            material.uniforms.time.value = clock.getElapsedTime();
             renderer.render(scene, camera);
         };
 
@@ -591,24 +589,26 @@ const LCLPage = ({ onBack }) => {
     }, [isPlugView, THREE]);
     
     useEffect(() => {
-        const page = pageRef.current;
-        if (page) {
-            gsap.fromTo(page, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 });
-        }
+        if (triggerEntrance) {
+            gsap.fromTo(pageRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 });
 
-        if (!isPlugView && guiRef.current) {
-            gsap.fromTo(guiRef.current, 
-                { autoAlpha: 0, clipPath: 'polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)' },
-                { 
-                    autoAlpha: 1, 
-                    clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
-                    duration: 1, 
-                    ease: 'power3.out',
-                    delay: 0.4 
-                }
-            );
+            if (!isPlugView && guiRef.current) {
+                gsap.fromTo(guiRef.current, 
+                    { autoAlpha: 0, clipPath: 'polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)' },
+                    { 
+                        autoAlpha: 1, 
+                        clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
+                        duration: 1, 
+                        ease: 'power3.out',
+                        delay: 0.4 
+                    }
+                );
+            }
+        } else {
+            gsap.set(pageRef.current, { autoAlpha: 0 });
+            gsap.set(guiRef.current, { autoAlpha: 0 });
         }
-    }, [isPlugView, gsap]);
+    }, [isPlugView, gsap, triggerEntrance]);
 
     return (
         <div className="lcl-page-layout" ref={pageRef}>

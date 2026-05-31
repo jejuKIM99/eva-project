@@ -1,15 +1,23 @@
 // src/components/GuestbookBackground.js
 import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
-import { createNoise3D } from 'simplex-noise';
 import logo from '../img/mainimg.png'; // 로고 이미지 경로
+
+// CDN으로 로드된 라이브러리를 window 객체에서 가져옵니다.
+const THREE = window.THREE;
+const SimplexNoise = window.SimplexNoise;
 
 const GuestbookBackground = () => {
     const mountRef = useRef(null);
 
     useEffect(() => {
+        // THREE나 SimplexNoise가 로드되지 않았을 경우를 대비한 방어 코드
+        if (!THREE || !SimplexNoise) {
+            console.error("Three.js or SimplexNoise not found on window object. Check CDN links in index.html.");
+            return;
+        }
+
         const mount = mountRef.current;
-        const noise3D = createNoise3D();
+        const simplex = new SimplexNoise();
 
         // Scene, Camera, Renderer 설정
         const scene = new THREE.Scene();
@@ -37,18 +45,18 @@ const GuestbookBackground = () => {
         const plane = new THREE.Mesh(geometry, material);
         scene.add(plane);
 
-        const startTime = performance.now();
+        const clock = new THREE.Clock();
 
         // 애니메이션 루프
         const animate = () => {
             requestAnimationFrame(animate);
-            const time = (performance.now() - startTime) / 1000;
+            const time = clock.getElapsedTime();
             const position = plane.geometry.attributes.position;
 
             for (let i = 0; i < position.count; i++) {
                 const x = position.getX(i);
                 const y = position.getY(i);
-                const z = noise3D(x * 0.5 + time * 0.1, y * 0.5 + time * 0.1, time * 0.1) * 0.15;
+                const z = simplex.noise3D(x * 0.5 + time * 0.1, y * 0.5 + time * 0.1, time * 0.1) * 0.15;
                 position.setZ(i, z);
             }
 

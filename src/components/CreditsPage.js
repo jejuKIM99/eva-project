@@ -1,7 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
-import { createNoise3D } from 'simplex-noise';
-import gsap from 'gsap';
 
 // --- 이미지 Asset Import ---
 import seaTexturePath from '../img/texture/sea.jpg';
@@ -217,7 +214,7 @@ const imageData = {
     ]
 };
 
-const CreditsPage = ({ onBack }) => {
+const CreditsPage = ({ onBack, triggerEntrance }) => {
     const mountRef = useRef(null);
     const contentRef = useRef(null);
     const [activeTab, setActiveTab] = useState('creator');
@@ -225,8 +222,15 @@ const CreditsPage = ({ onBack }) => {
     const [imagePreview, setImagePreview] = useState({ visible: false, src: '', x: 0, y: 0 });
     const [linkPreview, setLinkPreview] = useState({ visible: false, text: '', x: 0, y: 0 });
     
+    const { THREE, SimplexNoise, gsap } = window;
+
     // --- Three.js 배경 설정 ---
     useEffect(() => {
+        if (!THREE || !SimplexNoise) {
+            console.error("Three.js or SimplexNoise is not loaded");
+            return;
+        }
+
         const mountPoint = mountRef.current;
         let renderer; 
 
@@ -268,7 +272,7 @@ const CreditsPage = ({ onBack }) => {
         const stars = new THREE.Points(starGeometry, starMaterial);
         scene.add(stars);
 
-        const noise3D = createNoise3D();
+        const simplex = new SimplexNoise();
         const seaGeometry = new THREE.PlaneGeometry(300, 300, 200, 200);
 
         const textureLoader = new THREE.TextureLoader();
@@ -299,18 +303,18 @@ const CreditsPage = ({ onBack }) => {
         scene.add(seaPlane);
 
         const originalVertices = seaGeometry.attributes.position.array.slice();
-        const startTime = performance.now();
+        const clock = new THREE.Clock();
 
         const animate = () => {
-            const time = (performance.now() - startTime) / 1000;
+            const time = clock.getElapsedTime();
             const positions = seaGeometry.attributes.position.array;
 
             for (let i = 0; i < positions.length; i += 3) {
                 const x = originalVertices[i];
                 const y = originalVertices[i + 1];
-                const longWave = noise3D(x * 0.01, y * 0.01, time * 0.1) * 2.5;
-                const shortWave = noise3D(x * 0.05, y * 0.05, time * 0.2) * 1.0;
-                const ripple = noise3D(x * 0.2, y * 0.2, time * 0.4) * 0.5;
+                const longWave = simplex.noise3D(x * 0.01, y * 0.01, time * 0.1) * 2.5;
+                const shortWave = simplex.noise3D(x * 0.05, y * 0.05, time * 0.2) * 1.0;
+                const ripple = simplex.noise3D(x * 0.2, y * 0.2, time * 0.4) * 0.5;
                 positions[i + 2] = longWave + shortWave + ripple;
             }
             seaGeometry.attributes.position.needsUpdate = true;
@@ -341,17 +345,15 @@ const CreditsPage = ({ onBack }) => {
             starGeometry.dispose();
             starMaterial.dispose();
         };
-    }, [THREE]); // SimplexNoise removed as it's not imported/needed here as a dependency
+    }, [THREE, SimplexNoise]);
 
     // --- 콘텐츠 페이드인 애니메이션 ---
     useEffect(() => {
         if (!gsap) return;
-        if (contentRef.current) {
-            gsap.fromTo(contentRef.current,
-                { autoAlpha: 0, y: 20 },
-                { autoAlpha: 1, y: 0, duration: 1.5, ease: 'power2.out', delay: 0.5 }
-            );
-        }
+        gsap.fromTo(contentRef.current,
+            { autoAlpha: 0, y: 20 },
+            { autoAlpha: 1, y: 0, duration: 1.5, ease: 'power2.out', delay: 0.5 }
+        );
     }, [gsap]);
 
     // --- 이미지 미리보기 이벤트 핸들러 ---

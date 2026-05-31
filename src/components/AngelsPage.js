@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import gsap from 'gsap';
 
 // 이미지 동적 import를 위한 헬퍼 함수
 function importAll(r) {
@@ -120,6 +119,7 @@ const angels = Object.keys(angelData);
 // --- StatBar 컴포넌트 (능력치 바) ---
 const StatBar = ({ label, value }) => {
     const barRef = useRef(null);
+    const gsap = window.gsap;
 
     useEffect(() => {
         if (barRef.current) {
@@ -128,7 +128,7 @@ const StatBar = ({ label, value }) => {
                 { width: `${value}%`, duration: 1, delay: 0.5, ease: 'power3.out' }
             );
         }
-    }, [value]);
+    }, [value, gsap]);
 
     return (
         <div className="stat-item">
@@ -142,26 +142,30 @@ const StatBar = ({ label, value }) => {
 };
 
 // AngelsPage 컴포넌트
-const AngelsPage = ({ onBack }) => {
+const AngelsPage = ({ onBack, triggerEntrance }) => {
     const [selectedAngel, setSelectedAngel] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false); // 사이드바 상태
     const pageRef = useRef(null);
     const infoBoxRef = useRef(null);
+    const gsap = window.gsap;
 
     // 페이지 진입 애니메이션
     useEffect(() => {
-        if (pageRef.current) {
+        if (triggerEntrance) {
             gsap.fromTo(pageRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 });
+            gsap.fromTo(".gui-element", { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.15, delay: 0.3, ease: 'power2.out' });
+        } else {
+            gsap.set(pageRef.current, { autoAlpha: 0 });
+            gsap.set(".gui-element", { autoAlpha: 0 });
         }
-        gsap.fromTo(".gui-element", { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.15, delay: 0.3, ease: 'power2.out' });
-    }, []);
+    }, [gsap, triggerEntrance]);
 
     // 사도 선택 시 정보창 애니메이션
     useEffect(() => {
         if (selectedAngel && infoBoxRef.current) {
             gsap.fromTo(infoBoxRef.current, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out' });
         }
-    }, [selectedAngel]);
+    }, [selectedAngel, gsap]);
 
     // 사이드바 토글 핸들러
     const toggleSidebar = () => {

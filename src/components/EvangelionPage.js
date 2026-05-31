@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
-import gsap from 'gsap';
 
 // 이미지 import
 import unit01Image from '../img/unit01.png';
@@ -45,12 +44,13 @@ const evas = ['unit01', 'unit02'];
 // --- 성능 그래프 컴포넌트 ---
 const PerformanceGraph = ({ label, value, isBerserk }) => {
     const barRef = useRef(null);
+    const gsap = window.gsap;
     useEffect(() => {
         if (barRef.current) {
             const displayValue = Math.min(value, 100); // 시각적 표시는 100%를 최대로
             gsap.fromTo(barRef.current, { width: '0%' }, { width: `${displayValue}%`, duration: 1.5, ease: 'power3.out', delay: 0.5 });
         }
-    }, [value]);
+    }, [value, gsap]);
 
     return (
         <div className="performance-item">
@@ -107,32 +107,27 @@ const SyncGraph = ({ color, isBerserk }) => {
 // --- 분석 GUI 컴포넌트 ---
 const EvaAnalysisGUI = ({ eva, onClose, isBerserk, onToggleBerserk, isMobile }) => {
     const guiRef = useRef(null);
+    const gsap = window.gsap;
 
     const currentData = isBerserk && eva.berserk ? eva.berserk : eva;
     const currentPerformance = isBerserk && eva.berserk ? eva.berserk.performance : eva.performance;
 
     // GUI 등장 애니메이션
     useLayoutEffect(() => {
-        if (guiRef.current) {
-            if (isMobile) {
-                gsap.fromTo(guiRef.current, { y: '100vh' }, { y: '0vh', duration: 0.7, ease: 'power3.out' });
-            } else {
-                gsap.fromTo(guiRef.current, { autoAlpha: 0, scale: 1.1 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: 'power3.out' });
-            }
+        if (isMobile) {
+            gsap.fromTo(guiRef.current, { y: '100vh' }, { y: '0vh', duration: 0.7, ease: 'power3.out' });
+        } else {
+            gsap.fromTo(guiRef.current, { autoAlpha: 0, scale: 1.1 }, { autoAlpha: 1, scale: 1, duration: 0.7, ease: 'power3.out' });
         }
-    }, [isMobile]);
+    }, [gsap, isMobile]);
 
     // GUI 닫기 애니메이션
     const handleClose = () => {
-        if (guiRef.current) {
-            const tl = gsap.timeline({ onComplete: onClose });
-            if (isMobile) {
-                tl.to(guiRef.current, { y: '100vh', duration: 0.7, ease: 'power3.in' });
-            } else {
-                tl.to(guiRef.current, { autoAlpha: 0, scale: 1.1, duration: 0.5, ease: 'power3.in' });
-            }
+        const tl = gsap.timeline({ onComplete: onClose });
+        if (isMobile) {
+            tl.to(guiRef.current, { y: '100vh', duration: 0.7, ease: 'power3.in' });
         } else {
-            onClose();
+            tl.to(guiRef.current, { autoAlpha: 0, scale: 1.1, duration: 0.5, ease: 'power3.in' });
         }
     };
 
@@ -184,7 +179,7 @@ const EvaAnalysisGUI = ({ eva, onClose, isBerserk, onToggleBerserk, isMobile }) 
     );
 };
 
-const EvangelionPage = ({ onBack }) => {
+const EvangelionPage = ({ onBack, triggerEntrance }) => {
     const [selectedEva, setSelectedEva] = useState(null);
     const [showDescription, setShowDescription] = useState(false);
     const [isBerserk, setIsBerserk] = useState(false);
@@ -195,6 +190,7 @@ const EvangelionPage = ({ onBack }) => {
     const fullscreenViewRef = useRef(null);
     const actionButtonsRef = useRef(null);
     const cardRefs = { unit01: useRef(null), unit02: useRef(null) };
+    const gsap = window.gsap;
 
     useEffect(() => {
         const mediaQuery = window.matchMedia("(max-width: 768px)");
@@ -207,21 +203,17 @@ const EvangelionPage = ({ onBack }) => {
     const handleMouseMove = (e, key) => {
         if (selectedEva || isMobile) return;
         const card = cardRefs[key].current;
-        if (card) {
-            const { left, top, width, height } = card.getBoundingClientRect();
-            const x = e.clientX - left - width / 2;
-            const y = e.clientY - top - height / 2;
-            const rotateY = (x / width) * 30;
-            const rotateX = -(y / height) * 30;
-            gsap.to(card, { rotationY: rotateY, rotationX: rotateX, ease: 'power1.out', duration: 0.8 });
-        }
+        const { left, top, width, height } = card.getBoundingClientRect();
+        const x = e.clientX - left - width / 2;
+        const y = e.clientY - top - height / 2;
+        const rotateY = (x / width) * 30;
+        const rotateX = -(y / height) * 30;
+        gsap.to(card, { rotationY: rotateY, rotationX: rotateX, ease: 'power1.out', duration: 0.8 });
     };
 
     const handleMouseLeave = (key) => {
         if (selectedEva || isMobile) return;
-        if (cardRefs[key].current) {
-            gsap.to(cardRefs[key].current, { rotationY: 0, rotationX: 0, ease: 'power2.out', duration: 1 });
-        }
+        gsap.to(cardRefs[key].current, { rotationY: 0, rotationX: 0, ease: 'power2.out', duration: 1 });
     };
 
     const handleSelectEva = (key) => {
@@ -255,53 +247,46 @@ const EvangelionPage = ({ onBack }) => {
     };
 
     useLayoutEffect(() => {
-        if (pageRef.current) gsap.set(pageRef.current, { autoAlpha: 0 });
-        if (cardContainerRef.current) gsap.set(cardContainerRef.current, { autoAlpha: 0, y: 50 });
-        Object.values(cardRefs).forEach(ref => {
-            if (ref.current) {
-                gsap.set(ref.current, { rotationX: 0, rotationY: 0, transformPerspective: 1000 });
-            }
-        });
+        if (triggerEntrance) {
+            gsap.set(pageRef.current, { autoAlpha: 0 });
+            gsap.set(cardContainerRef.current, { autoAlpha: 0, y: 50 });
+            Object.values(cardRefs).forEach(ref => {
+                if (ref.current) {
+                    gsap.set(ref.current, { rotationX: 0, rotationY: 0, transformPerspective: 1000 });
+                }
+            });
 
-        if (pageRef.current) gsap.to(pageRef.current, { autoAlpha: 1, duration: 0.5 });
-        if (cardContainerRef.current) gsap.to(cardContainerRef.current, { autoAlpha: 1, y: 0, duration: 0.8, delay: 0.3 });
-    }, []);
+            gsap.to(pageRef.current, { autoAlpha: 1, duration: 0.5 });
+            gsap.to(cardContainerRef.current, { autoAlpha: 1, y: 0, duration: 0.8, delay: 0.3 });
+        } else {
+            gsap.set(pageRef.current, { autoAlpha: 0 });
+            gsap.set(cardContainerRef.current, { autoAlpha: 0 });
+        }
+    }, [gsap, triggerEntrance]);
 
     useEffect(() => {
         if (selectedEva) {
             const tl = gsap.timeline();
-            if (cardContainerRef.current) {
-                tl.to(cardContainerRef.current, { autoAlpha: 0, scale: 0.9, duration: 0.5, ease: 'power2.in' });
-            }
-            if (fullscreenViewRef.current) {
-                tl.to(fullscreenViewRef.current, { autoAlpha: 1, duration: 0.7, ease: 'power2.out' }, "-=0.2");
-            }
-            if (actionButtonsRef.current) {
-                tl.fromTo(actionButtonsRef.current, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.5 }, "-=0.3");
-            }
+            tl.to(cardContainerRef.current, { autoAlpha: 0, scale: 0.9, duration: 0.5, ease: 'power2.in' })
+              .to(fullscreenViewRef.current, { autoAlpha: 1, duration: 0.7, ease: 'power2.out' }, "-=0.2")
+              .fromTo(actionButtonsRef.current, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.5 }, "-=0.3");
         } else {
             // Reset berserk state when closing
             setIsBerserk(false);
             const tl = gsap.timeline();
-            if (fullscreenViewRef.current) {
-                tl.to(fullscreenViewRef.current, { autoAlpha: 0, duration: 0.5, ease: 'power2.in' });
-            }
-            if (cardContainerRef.current) {
-                tl.to(cardContainerRef.current, { autoAlpha: 1, scale: 1, duration: 0.7, ease: 'power2.out' });
-            }
+            tl.to(fullscreenViewRef.current, { autoAlpha: 0, duration: 0.5, ease: 'power2.in' })
+              .to(cardContainerRef.current, { autoAlpha: 1, scale: 1, duration: 0.7, ease: 'power2.out' });
         }
-    }, [selectedEva]);
+    }, [selectedEva, gsap]);
     
     // Toggle action buttons visibility based on description GUI state
     useEffect(() => {
-        if (actionButtonsRef.current) {
-            gsap.to(actionButtonsRef.current, {
-                autoAlpha: showDescription ? 0 : 1,
-                pointerEvents: showDescription ? 'none' : 'auto',
-                duration: 0.3
-            });
-        }
-    }, [showDescription]);
+        gsap.to(actionButtonsRef.current, {
+            autoAlpha: showDescription ? 0 : 1,
+            pointerEvents: showDescription ? 'none' : 'auto',
+            duration: 0.3
+        });
+    }, [showDescription, gsap]);
 
 
     return (

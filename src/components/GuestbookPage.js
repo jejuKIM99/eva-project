@@ -5,7 +5,7 @@ import { supabase } from '../supabaseClient';
 import md5 from 'crypto-js/md5';
 import GuestbookBackground from './GuestbookBackground'; // 3D 배경 컴포넌트 import
 
-const GuestbookPage = ({ onBack }) => {
+const GuestbookPage = ({ onBack, triggerEntrance }) => {
     const [entries, setEntries] = useState([]);
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import gsap from 'gsap';
+
+// [수정] 'gsap' import 문을 삭제합니다.
+// import { gsap } from 'gsap'; 
 
 // 이미지 import
 import groupImage from '../img/group1.png';
@@ -84,7 +86,10 @@ useEffect(() => {
 };
 
 
-const PilotsPage = ({ onBack }) => {
+const PilotsPage = ({ onBack, triggerEntrance }) => {
+    // [수정] CDN으로 불러온 gsap를 window 객체에서 직접 참조합니다.
+    const gsap = window.gsap;
+
     const [hoveredChar, setHoveredChar] = useState(null);
     const [selectedChar, setSelectedChar] = useState(null);
     const pageRef = useRef(null);
@@ -105,8 +110,12 @@ const PilotsPage = ({ onBack }) => {
     const highlightedChar = selectedChar || hoveredChar;
 
     useEffect(() => {
-        gsap.fromTo(pageRef.current, { autoAlpha: 0, x: '100%' }, { autoAlpha: 1, x: '0%', duration: 0.8, ease: 'power3.out' });
-    }, [gsap]);
+        if (triggerEntrance) {
+            gsap.fromTo(pageRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6, ease: 'power2.out' });
+        } else {
+            gsap.set(pageRef.current, { autoAlpha: 0 });
+        }
+    }, [gsap, triggerEntrance]);
 
     useEffect(() => {
         gsap.set(descriptionRef.current, { clearProps: 'transform,opacity,visibility' });
@@ -142,13 +151,7 @@ const PilotsPage = ({ onBack }) => {
     }, [selectedChar, isMobile, gsap]);
 
     const handleBackClick = () => {
-        gsap.to(pageRef.current, {
-            autoAlpha: 0,
-            x: '100%',
-            duration: 0.8,
-            ease: 'power3.inOut',
-            onComplete: onBack
-        });
+        onBack();
     };
 
     return (

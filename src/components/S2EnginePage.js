@@ -1,7 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import gsap from 'gsap';
-import * as THREE from 'three';
-import { createNoise2D, createNoise3D } from 'simplex-noise';
 
 // S² Engine 3D 모델 뷰 컴포넌트
 const S2EngineModelView = () => {
@@ -19,6 +16,9 @@ const S2EngineModelView = () => {
     const dampingFactor = 0.95;
 
     const [isTextureOn, setIsTextureOn] = useState(false);
+
+    const THREE = window.THREE;
+    const gsap = window.gsap;
 
     const handleTextureToggle = useCallback(() => {
         setIsTextureOn(prev => !prev);
@@ -46,11 +46,11 @@ const S2EngineModelView = () => {
             ctx.fillRect(x, y, 2, 2);
         }
         return new THREE.CanvasTexture(canvas);
-    }, []);
+    }, [THREE]);
 
     useEffect(() => {
         const mount = mountRef.current;
-        if (!mount) return;
+        if (!mount || !THREE) return;
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, mount.clientWidth / mount.clientHeight, 0.1, 1000);
@@ -69,10 +69,10 @@ const S2EngineModelView = () => {
         const baseGeometry = new THREE.IcosahedronGeometry(2.5, 6);
         const positionAttribute = baseGeometry.getAttribute('position');
         const vertex = new THREE.Vector3();
-        const noise3D = createNoise3D();
+        const noise = new (window.SimplexNoise)();
         for (let i = 0; i < positionAttribute.count; i++) {
             vertex.fromBufferAttribute(positionAttribute, i);
-            const displacement = 0.2 * noise3D(vertex.x * 1.5, vertex.y * 1.5, vertex.z * 1.5);
+            const displacement = 0.2 * noise.noise3D(vertex.x * 1.5, vertex.y * 1.5, vertex.z * 1.5);
             vertex.normalize().multiplyScalar(2.5 + displacement);
             positionAttribute.setXYZ(i, vertex.x, vertex.y, vertex.z);
         }
@@ -154,10 +154,10 @@ const S2EngineModelView = () => {
         mount.addEventListener('touchmove', onPointerMove, { passive: true });
         window.addEventListener('touchend', onPointerUp);
 
-        const startTime = performance.now();
+        const clock = new THREE.Clock();
         const animate = () => {
             animationFrameId.current = requestAnimationFrame(animate);
-            const elapsedTime = (performance.now() - startTime) / 1000;
+            const elapsedTime = clock.getElapsedTime();
             if (shaderMaterialRef.current) {
                 shaderMaterialRef.current.uniforms.time.value = elapsedTime;
             }
@@ -224,9 +224,10 @@ const S2EngineModelView = () => {
 
 const Psychograph = () => {
     const canvasRef = useRef(null);
-    const noise2D = createNoise2D();
+    const noiseRef = useRef(new (window.SimplexNoise)());
 
     useEffect(() => {
+        const noise = noiseRef.current;
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         let animationFrameId;
@@ -264,13 +265,13 @@ const Psychograph = () => {
                 const frequency = 0.1 + unstableProgress * 0.5;
                 const spikeChance = 0.02 + unstableProgress * 0.1;
                 
-                newY = canvas.height / 2 + noise2D(lastX * frequency, time * 3) * amplitude;
+                newY = canvas.height / 2 + noise.noise2D(lastX * frequency, time * 3) * amplitude;
                 
                 if (Math.random() < spikeChance) {
                     newY += (Math.random() - 0.5) * 100;
                 }
             } else {
-                const noiseFactor = noise2D(lastX * 0.05, time);
+                const noiseFactor = noise.noise2D(lastX * 0.05, time);
                 newY = canvas.height / 2 + noiseFactor * 10;
             }
             points.push(newY);
@@ -330,15 +331,23 @@ const Psychograph = () => {
 
 
 // 메인 S² Engine 페이지 컴포넌트
-const S2EnginePage = ({ onBack }) => {
+const S2EnginePage = ({ onBack, triggerEntrance }) => {
     const pageRef = useRef(null);
     const timeRef = useRef(null);
     const [currentTime, setCurrentTime] = useState('');
+    const gsap = window.gsap;
 
     useEffect(() => {
-        gsap.fromTo(pageRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 });
-        gsap.fromTo('.s2-panel', { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.2, ease: 'power3.out', delay: 0.3 });
-        
+        if (triggerEntrance) {
+            gsap.fromTo(pageRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 });
+            gsap.fromTo('.s2-panel', { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.8, stagger: 0.2, ease: 'power3.out', delay: 0.3 });
+        } else {
+            gsap.set(pageRef.current, { autoAlpha: 0 });
+            gsap.set('.s2-panel', { autoAlpha: 0 });
+        }
+    }, [gsap, triggerEntrance]);
+
+    useEffect(() => {
         gsap.utils.toArray('.s2-level-bar-fill').forEach(bar => {
             gsap.to(bar, {
                 width: () => `${60 + Math.random() * 40}%`,

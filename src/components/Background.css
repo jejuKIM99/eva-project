@@ -1,0 +1,26 @@
+/* [수정] 강제 z-index 및 레이아웃 수정 - 배경 컴포넌트들이 제대로 보이도록 보장 */
+.thematic-bg-container {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1; /* 서브페이지 콘텐츠 뒤로 가야함 */
+  overflow: hidden;
+  background-color: #000;
+  pointer-events: none;
+}
+
+/* Force sub-pages to be transparent to show backgrounds */
+.pilots-page-layout, 
+.evangelion-page-layout, 
+.angels-page-layout, 
+.nerv-page-layout, 
+.seele-page-layout, 
+.second-impact-page-layout, 
+.lcl-page-layout, 
+.s2-engine-page-layout, 
+.credits-page-layout, 
+.guestbook-page-layout {
+  background-color: transparent !important;
+}

@@ -1,0 +1,78 @@
+.eva-title-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: auto;
+  padding-bottom: 20px;
+  padding-top: 20px;
+  user-select: none;
+}
+
+.eva-logo-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  filter: drop-shadow(0 0 15px rgba(255, 0, 0, 0.7));
+}
+
+.eva-logo-top {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 400px;
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  letter-spacing: 0.5rem;
+  margin-bottom: -0.5rem;
+  border-bottom: 2px solid #fff;
+  padding-bottom: 5px;
+  justify-content: center;
+}
+
+.eva-logo-bottom {
+  font-family: 'Cinzel', serif;
+  font-size: 5rem;
+  font-weight: 900;
+  letter-spacing: -0.2rem;
+  line-height: 1;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+  animation: logo-glow 2s infinite alternate;
+}
+
+.eva-logo-japanese {
+  font-family: 'serif'; /* Fallback for Japanese characters */
+  font-size: 1.2rem;
+  letter-spacing: 1.2rem;
+  margin-top: 1rem;
+  padding-left: 1.2rem; /* Balance letter spacing */
+  color: #ff2a2a;
+  text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
+
+@keyframes logo-glow {
+  from {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  }
+  to {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 0, 0, 0.4);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .eva-logo-top {
+    font-size: 0.8rem;
+    letter-spacing: 0.2rem;
+  }
+  .eva-logo-bottom {
+    font-size: 2.5rem;
+  }
+  .eva-logo-japanese {
+    font-size: 0.7rem;
+    letter-spacing: 0.5rem;
+    padding-left: 0.5rem;
+  }
+}

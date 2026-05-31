@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import gsap from 'gsap';
 import seeleLogoImage from '../img/seele.png';
 import unitMassImage from '../img/unitMass.png';
 import KeelLorenzProfile from '../img/KeelLorenz_profile.jpg';
 
-const SeelePage = ({ onBack }) => {
+const SeelePage = ({ onBack, triggerEntrance }) => {
     const [view, setView] = useState('monolith');
     const [activeGui, setActiveGui] = useState(null);
     const [isClosing, setIsClosing] = useState(false);
@@ -18,27 +17,30 @@ const SeelePage = ({ onBack }) => {
     const mpEvaGuiRef = useRef(null);
     const keelProfileRef = useRef(null);
 
+    const gsap = window.gsap;
     const monolithCount = 7;
-
-    useEffect(() => {
-        const monoliths = gsap.utils.toArray('.monolith');
-        const monolithContents = gsap.utils.toArray('.monolith-content');
-        const tl = gsap.timeline({
-            onComplete: () => {
-                gsap.to(toggleButtonRef.current, { autoAlpha: 1, duration: 1 });
-            }
-        });
-
-        tl.fromTo(pageRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 })
-          .fromTo(seeleLogoRef.current, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.7, delay: 0.3 })
-          .fromTo(monoliths, { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.15, ease: 'power2.out' }, "-=0.5")
-          .to(monolithContents, { autoAlpha: 1, duration: 0.5, stagger: 0.15 }, "-=0.8");
-
-    }, [gsap]);
 
     const toggleMainInfo = () => {
         setView(prev => prev === 'mainInfo' ? 'monolith' : 'mainInfo');
     };
+
+    useEffect(() => {
+        const monoliths = pageRef.current.querySelectorAll('.monolith');
+        const monolithContents = pageRef.current.querySelectorAll('.monolith-content');
+        
+        if (triggerEntrance) {
+            const tl = gsap.timeline();
+            tl.fromTo(pageRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 })
+              .fromTo(seeleLogoRef.current, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.7, delay: 0.3 })
+              .fromTo(monoliths, { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.15, ease: 'power2.out' }, "-=0.5")
+              .to(monolithContents, { autoAlpha: 1, duration: 0.5, stagger: 0.15 }, "-=0.8");
+
+            gsap.to(toggleButtonRef.current, { autoAlpha: 1, duration: 1 });
+        } else {
+            gsap.set(pageRef.current, { autoAlpha: 0 });
+            gsap.set([seeleLogoRef.current, monoliths, monolithContents, toggleButtonRef.current], { autoAlpha: 0 });
+        }
+    }, [gsap, triggerEntrance]);
 
     useEffect(() => {
         if (view === 'mainInfo') {
