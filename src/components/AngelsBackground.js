@@ -1,85 +1,115 @@
 import React, { useEffect, useRef } from 'react';
 
 const AngelsBackground = () => {
-  const canvasRef = useRef(null);
+  const mountRef = useRef(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
+    const THREE = window.THREE;
+    if (!THREE) return;
 
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    let width = window.innerWidth;
+    let height = window.innerHeight;
 
-    let angle = 0;
-    const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x050000);
+
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera.position.z = 200;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    mountRef.current.appendChild(renderer.domElement);
+
+    // Radar Rings
+    const rings = [];
+    for (let i = 0; i < 5; i++) {
+      const geo = new THREE.RingGeometry(i * 40, i * 40 + 1, 64);
+      const mat = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.2, side: THREE.DoubleSide });
+      const ring = new THREE.Mesh(geo, mat);
+      ring.rotation.x = Math.PI / 2;
+      scene.add(ring);
+      rings.push(ring);
+    }
+
+    // Radar Sweep
+    const sweepGeo = new THREE.CircleGeometry(200, 32, 0, Math.PI / 4);
+    const sweepMat = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.1, side: THREE.DoubleSide });
+    const sweep = new THREE.Mesh(sweepGeo, sweepMat);
+    sweep.rotation.x = Math.PI / 2;
+    scene.add(sweep);
+
+    // Angel Detections (Random Dots)
+    const dots = [];
+    for (let i = 0; i < 3; i++) {
+      const dotGeo = new THREE.SphereGeometry(3, 8, 8);
+      const dotMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      const dot = new THREE.Mesh(dotGeo, dotMat);
+      dot.position.set(
+        (Math.random() - 0.5) * 300,
+        0,
+        (Math.random() - 0.5) * 300
+      );
+      scene.add(dot);
+      dots.push(dot);
+    }
+
+    // Scanning Beam
+    const beamGeo = new THREE.CylinderGeometry(0.5, 0.5, 400, 8);
+    const beamMat = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.3 });
+    const beam = new THREE.Mesh(beamGeo, beamMat);
+    beam.rotation.z = Math.PI / 2;
+    scene.add(beam);
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      sweep.rotation.z -= 0.02;
+      beam.rotation.y += 0.01;
       
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      
-      // Radar Rings
-      ctx.strokeStyle = 'rgba(255, 0, 0, 0.15)';
-      ctx.lineWidth = 1;
-      for (let r = 100; r < 1000; r += 200) {
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, r, 0, Math.PI * 2);
-        ctx.stroke();
-      }
+      dots.forEach((dot, i) => {
+        dot.scale.setScalar(1 + Math.sin(Date.now() * 0.005 + i) * 0.5);
+      });
 
-      // Rotating Sweep
-      angle += 0.01;
-      const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, 1000);
-      gradient.addColorStop(0, 'rgba(255, 0, 0, 0)');
-      gradient.addColorStop(1, 'rgba(255, 0, 0, 0.1)');
-      
-      ctx.save();
-      ctx.translate(centerX, centerY);
-      ctx.rotate(angle);
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.arc(0, 0, 1000, 0, Math.PI / 4);
-      ctx.fillStyle = gradient;
-      ctx.fill();
-      ctx.restore();
-
-      // Hexagon Overlay Pattern
-      ctx.strokeStyle = 'rgba(255, 0, 0, 0.05)';
-      const size = 60;
-      const h = size * Math.sqrt(3);
-      for (let y = 0; y < canvas.height + h; y += h) {
-        for (let x = 0; x < canvas.width + size * 3; x += size * 3) {
-          drawHexagon(ctx, x, y, size);
-          drawHexagon(ctx, x + size * 1.5, y + h / 2, size);
-        }
-      }
-
-      animationFrameId = requestAnimationFrame(draw);
+      renderer.render(scene, camera);
     };
 
-    const drawHexagon = (ctx, x, y, r) => {
-      ctx.beginPath();
-      for (let i = 0; i < 6; i++) {
-        ctx.lineTo(x + r * Math.cos(i * Math.PI / 3), y + r * Math.sin(i * Math.PI / 3));
-      }
-      ctx.closePath();
-      ctx.stroke();
+    animate();
+
+    const handleResize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(width, height);
     };
 
-    draw();
+    window.addEventListener('resize', handleResize);
+
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
-      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', handleResize);
+      if (mountRef.current) {
+        mountRef.current.removeChild(renderer.domElement);
+      }
+      rings.forEach(r => { r.geometry.dispose(); r.material.dispose(); });
+      sweepGeo.dispose();
+      sweepMat.dispose();
+      beamGeo.dispose();
+      beamMat.dispose();
+      dots.forEach(d => { d.geometry.dispose(); d.material.dispose(); });
+      renderer.dispose();
     };
   }, []);
 
   return (
-    <div className="thematic-bg-container angels-bg">
-      <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0 }} />
+    <div className="thematic-bg-container angels-bg" ref={mountRef}>
+      <div className="angels-radar-overlay">
+        <div className="radar-status flicker">PATTERN_BLUE // CONFIRMED</div>
+        <div className="radar-target">TARGET: ANGEL_DETECTED</div>
+        <div className="radar-data">
+          <div>DISTANCE: 12,000M</div>
+          <div>VELOCITY: MACH_2.5</div>
+          <div>A.T._FIELD: ACTIVE</div>
+        </div>
+      </div>
       <div className="blood-overlay"></div>
     </div>
   );

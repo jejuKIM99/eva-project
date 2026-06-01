@@ -265,22 +265,24 @@ const EvangelionPage = ({ onBack, triggerEntrance }) => {
     }, [gsap, triggerEntrance]);
 
     useEffect(() => {
+        if (!gsap) return;
         if (selectedEva) {
             const tl = gsap.timeline();
-            tl.to(cardContainerRef.current, { autoAlpha: 0, scale: 0.9, duration: 0.5, ease: 'power2.in' })
-              .to(fullscreenViewRef.current, { autoAlpha: 1, duration: 0.7, ease: 'power2.out' }, "-=0.2")
-              .fromTo(actionButtonsRef.current, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.5 }, "-=0.3");
+            if (cardContainerRef.current) tl.to(cardContainerRef.current, { autoAlpha: 0, scale: 0.9, duration: 0.5, ease: 'power2.in' });
+            if (fullscreenViewRef.current) tl.to(fullscreenViewRef.current, { autoAlpha: 1, duration: 0.7, ease: 'power2.out' }, "-=0.2");
+            if (actionButtonsRef.current) tl.fromTo(actionButtonsRef.current, { autoAlpha: 0, y: 20 }, { autoAlpha: 1, y: 0, duration: 0.5 }, "-=0.3");
         } else {
             // Reset berserk state when closing
             setIsBerserk(false);
             const tl = gsap.timeline();
-            tl.to(fullscreenViewRef.current, { autoAlpha: 0, duration: 0.5, ease: 'power2.in' })
-              .to(cardContainerRef.current, { autoAlpha: 1, scale: 1, duration: 0.7, ease: 'power2.out' });
+            if (fullscreenViewRef.current) tl.to(fullscreenViewRef.current, { autoAlpha: 0, duration: 0.5, ease: 'power2.in' });
+            if (cardContainerRef.current) tl.to(cardContainerRef.current, { autoAlpha: 1, scale: 1, duration: 0.7, ease: 'power2.out' });
         }
     }, [selectedEva, gsap]);
     
     // Toggle action buttons visibility based on description GUI state
     useEffect(() => {
+        if (!gsap || !actionButtonsRef.current) return;
         gsap.to(actionButtonsRef.current, {
             autoAlpha: showDescription ? 0 : 1,
             pointerEvents: showDescription ? 'none' : 'auto',

@@ -166,7 +166,8 @@ const MainContent = () => {
           transform: `translate(${mousePos.x * -0.5}px, ${mousePos.y * -0.5}px)`,
           opacity: (isTransitioning || page !== 'main') ? 0 : 1,
           visibility: (isTransitioning || page !== 'main') ? 'hidden' : 'visible',
-          transition: 'opacity 0.3s ease'
+          transition: 'opacity 0.3s ease',
+          zIndex: 0
         }}
       >
         <video autoPlay loop muted playsInline src={mainVideo} />

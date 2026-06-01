@@ -25,27 +25,25 @@ const SeelePage = ({ onBack, triggerEntrance }) => {
     };
 
     useEffect(() => {
-        const monoliths = pageRef.current.querySelectorAll('.monolith');
-        const monolithContents = pageRef.current.querySelectorAll('.monolith-content');
-        
         if (triggerEntrance) {
             const tl = gsap.timeline();
             tl.fromTo(pageRef.current, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.5 })
-              .fromTo(seeleLogoRef.current, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.7, delay: 0.3 })
-              .fromTo(monoliths, { autoAlpha: 0, y: 50 }, { autoAlpha: 1, y: 0, duration: 0.5, stagger: 0.15, ease: 'power2.out' }, "-=0.5")
-              .to(monolithContents, { autoAlpha: 1, duration: 0.5, stagger: 0.15 }, "-=0.8");
+              .fromTo(seeleLogoRef.current, { autoAlpha: 0, scale: 0.8 }, { autoAlpha: 1, scale: 1, duration: 0.7, delay: 0.3 });
 
             gsap.to(toggleButtonRef.current, { autoAlpha: 1, duration: 1 });
         } else {
             gsap.set(pageRef.current, { autoAlpha: 0 });
-            gsap.set([seeleLogoRef.current, monoliths, monolithContents, toggleButtonRef.current], { autoAlpha: 0 });
+            gsap.set([seeleLogoRef.current, toggleButtonRef.current], { autoAlpha: 0 });
         }
     }, [gsap, triggerEntrance]);
 
     useEffect(() => {
+        if (!gsap) return;
         if (view === 'mainInfo') {
-            gsap.fromTo(mainContentRef.current, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out' });
-        } else if (gsap.getProperty(mainContentRef.current, 'autoAlpha') > 0) {
+            if (mainContentRef.current) {
+                gsap.fromTo(mainContentRef.current, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out' });
+            }
+        } else if (mainContentRef.current && gsap.getProperty(mainContentRef.current, 'autoAlpha') > 0) {
             gsap.to(mainContentRef.current, { autoAlpha: 0, y: 30, duration: 0.5, ease: 'power3.in' });
         }
     }, [view, gsap]);
@@ -103,24 +101,6 @@ const SeelePage = ({ onBack, triggerEntrance }) => {
 
                 <div className="seele-logo" ref={seeleLogoRef}>
                     <img src={seeleLogoImage} alt="Seele Logo" />
-                </div>
-
-                <div className="seele-container">
-                    <div className="monolith-circle">
-                        {[...Array(monolithCount)].map((_, i) => {
-                            const angle = (360 / monolithCount) * i;
-                            const style = { transform: `rotateY(${angle}deg) translateZ(350px)` };
-                            return (
-                                <div key={i} className="monolith" style={style}>
-                                    <div className="monolith-content">
-                                        <div className="monolith-header">SEELE</div>
-                                        <div className="monolith-number">{`0${i + 1}`}</div>
-                                        <div className="monolith-footer">SOUND ONLY</div>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
                 </div>
 
                 <button

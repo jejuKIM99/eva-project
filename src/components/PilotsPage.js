@@ -118,34 +118,41 @@ const PilotsPage = ({ onBack, triggerEntrance }) => {
     }, [gsap, triggerEntrance]);
 
     useEffect(() => {
-        gsap.set(descriptionRef.current, { clearProps: 'transform,opacity,visibility' });
+        if (!gsap) return;
+        if (descriptionRef.current) gsap.set(descriptionRef.current, { clearProps: 'transform,opacity,visibility' });
 
         if (selectedChar) {
-            gsap.set(descriptionRef.current, { pointerEvents: 'auto' });
+            if (descriptionRef.current) gsap.set(descriptionRef.current, { pointerEvents: 'auto' });
             if (isMobile) {
-                gsap.to(descriptionRef.current, {
-                    y: '-50%',
-                    autoAlpha: 1,
-                    duration: 0.6,
-                    ease: 'power3.out'
-                });
+                if (descriptionRef.current) {
+                    gsap.to(descriptionRef.current, {
+                        y: '-50%',
+                        autoAlpha: 1,
+                        duration: 0.6,
+                        ease: 'power3.out'
+                    });
+                }
             } else {
-                gsap.to(descriptionRef.current, { autoAlpha: 1, duration: 0.5, delay: 0.2 });
-                gsap.to(imageGroupRef.current, { x: '-25%', scale: 0.9, duration: 0.8, ease: 'power3.inOut' });
+                if (descriptionRef.current) gsap.to(descriptionRef.current, { autoAlpha: 1, duration: 0.5, delay: 0.2 });
+                if (imageGroupRef.current) gsap.to(imageGroupRef.current, { x: '-25%', scale: 0.9, duration: 0.8, ease: 'power3.inOut' });
             }
         } else {
-            const onHideComplete = () => gsap.set(descriptionRef.current, { pointerEvents: 'none' });
+            const onHideComplete = () => {
+                if (descriptionRef.current) gsap.set(descriptionRef.current, { pointerEvents: 'none' });
+            };
             if (isMobile) {
-                gsap.to(descriptionRef.current, {
-                    y: '100vh',
-                    autoAlpha: 0,
-                    duration: 0.5,
-                    ease: 'power3.in',
-                    onComplete: onHideComplete
-                });
+                if (descriptionRef.current) {
+                    gsap.to(descriptionRef.current, {
+                        y: '100vh',
+                        autoAlpha: 0,
+                        duration: 0.5,
+                        ease: 'power3.in',
+                        onComplete: onHideComplete
+                    });
+                }
             } else {
-                gsap.to(descriptionRef.current, { autoAlpha: 0, duration: 0.4, onComplete: onHideComplete });
-                gsap.to(imageGroupRef.current, { x: '0%', scale: 1, duration: 0.8, ease: 'power3.inOut' });
+                if (descriptionRef.current) gsap.to(descriptionRef.current, { autoAlpha: 0, duration: 0.4, onComplete: onHideComplete });
+                if (imageGroupRef.current) gsap.to(imageGroupRef.current, { x: '0%', scale: 1, duration: 0.8, ease: 'power3.inOut' });
             }
         }
     }, [selectedChar, isMobile, gsap]);
