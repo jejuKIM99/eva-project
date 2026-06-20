@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { initCrtComposer } from '../utils/crtPostProcessing';
 
 const NervBackground = () => {
   const mountRef = useRef(null);
@@ -19,6 +20,8 @@ const NervBackground = () => {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     mountRef.current.appendChild(renderer.domElement);
+
+    const composer = initCrtComposer(THREE, renderer, scene, camera);
 
     // Tactical Floor Grid
     const gridHelper = new THREE.GridHelper(1000, 50, 0xff6600, 0x331100);
@@ -64,7 +67,11 @@ const NervBackground = () => {
       });
       lineGroup.rotation.z += 0.0005;
       gridHelper.rotation.y += 0.001;
-      renderer.render(scene, camera);
+      if (composer) {
+        composer.render();
+      } else {
+        renderer.render(scene, camera);
+      }
     };
 
     animate();
@@ -75,6 +82,9 @@ const NervBackground = () => {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      if (composer) {
+        composer.setSize(width, height);
+      }
     };
 
     window.addEventListener('resize', handleResize);

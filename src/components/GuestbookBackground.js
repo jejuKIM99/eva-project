@@ -1,5 +1,6 @@
 // src/components/GuestbookBackground.js
 import React, { useEffect, useRef } from 'react';
+import { initCrtComposer } from '../utils/crtPostProcessing';
 import logo from '../img/mainimg.png'; // 로고 이미지 경로
 
 // CDN으로 로드된 라이브러리를 window 객체에서 가져옵니다.
@@ -28,6 +29,8 @@ const GuestbookBackground = () => {
         renderer.setSize(mount.clientWidth, mount.clientHeight);
         renderer.setPixelRatio(window.devicePixelRatio);
         mount.appendChild(renderer.domElement);
+
+        const composer = initCrtComposer(THREE, renderer, scene, camera);
 
         // Plane Geometry 및 Texture 설정
         const loader = new THREE.TextureLoader();
@@ -61,7 +64,11 @@ const GuestbookBackground = () => {
             }
 
             position.needsUpdate = true;
-            renderer.render(scene, camera);
+            if (composer) {
+                composer.render();
+            } else {
+                renderer.render(scene, camera);
+            }
         };
 
         animate();
@@ -71,6 +78,9 @@ const GuestbookBackground = () => {
             camera.aspect = mount.clientWidth / mount.clientHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(mount.clientWidth, mount.clientHeight);
+            if (composer) {
+                composer.setSize(mount.clientWidth, mount.clientHeight);
+            }
         };
         window.addEventListener('resize', handleResize);
 

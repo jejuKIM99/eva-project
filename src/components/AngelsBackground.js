@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { initCrtComposer } from '../utils/crtPostProcessing';
 
 const AngelsBackground = () => {
   const mountRef = useRef(null);
@@ -19,6 +20,8 @@ const AngelsBackground = () => {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     mountRef.current.appendChild(renderer.domElement);
+
+    const composer = initCrtComposer(THREE, renderer, scene, camera);
 
     // Radar Rings
     const rings = [];
@@ -69,7 +72,11 @@ const AngelsBackground = () => {
         dot.scale.setScalar(1 + Math.sin(Date.now() * 0.005 + i) * 0.5);
       });
 
-      renderer.render(scene, camera);
+      if (composer) {
+        composer.render();
+      } else {
+        renderer.render(scene, camera);
+      }
     };
 
     animate();
@@ -80,6 +87,9 @@ const AngelsBackground = () => {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      if (composer) {
+        composer.setSize(width, height);
+      }
     };
 
     window.addEventListener('resize', handleResize);

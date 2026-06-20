@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { initCrtComposer } from '../utils/crtPostProcessing';
 import rockTextureImg from '../img/texture/dark_rock.jpg'; 
 
 const SeeleBackground = () => {
@@ -21,6 +22,8 @@ const SeeleBackground = () => {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     mountRef.current.appendChild(renderer.domElement);
+
+    const composer = initCrtComposer(THREE, renderer, scene, camera);
 
     const textureLoader = new THREE.TextureLoader();
     const rockTex = textureLoader.load(rockTextureImg);
@@ -149,7 +152,11 @@ const SeeleBackground = () => {
         item.lightLine.material.opacity = 0.7 * pulse;
       });
 
-      renderer.render(scene, camera);
+      if (composer) {
+        composer.render();
+      } else {
+        renderer.render(scene, camera);
+      }
     };
 
     animate();
@@ -160,6 +167,9 @@ const SeeleBackground = () => {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      if (composer) {
+        composer.setSize(width, height);
+      }
     };
 
     window.addEventListener('resize', handleResize);

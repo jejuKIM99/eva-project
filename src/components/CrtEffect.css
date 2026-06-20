@@ -1,0 +1,106 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   CRT Monitor Overlay — Evangelion NERV Terminal
+   
+   철학: 사용자가 "CRT 효과가 적용됐구나"를 의식적으로 느껴서는 안 됨.
+   무의식적으로 화면이 조금 이상하고, 오래된 기계를 통해 보는 느낌만 남아야 함.
+   
+   포함: 수평 주사선(scanline) + 코너 비네팅 + 미세 인광 틴트
+   제거: 유리 경계선, 빛 번짐, 구면 반사광, 모든 명시적 "효과"
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* 최상위 오버레이: 완전 투명, pointer-events 없음 */
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   1. Scanlines — 수평 주사선
+   
+   실제 CRT는 전자총이 화면을 위→아래로 1줄씩 주사(scan)하여 그림.
+   매 홀수/짝수 라인 사이의 미세한 어두운 띠가 텍스처를 만들어냄.
+   
+   opacity: 0.35 — 화면이 뿌옇게 되지 않는 한계값
+   배경색이 어두울 때만 보이는 레벨 (밝은 요소 위에서는 거의 안 보임)
+   ───────────────────────────────────────────────────────────────────────────── */
+.crt-scanlines {
+  position: absolute;
+  inset: 0;
+
+  /* 2px 주기: 1px 투명(픽셀 on) + 1px rgba 0.18 암화(픽셀 off) */
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 1px,
+    rgba(0, 0, 0, 0.18) 1px,
+    rgba(0, 0, 0, 0.18) 2px
+  );
+
+  /* mix-blend-mode: multiply → 밝은 영역에서는 자동으로 약해짐 */
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   2. Vignette — 코너 비네팅
+   
+   실제 CRT 전자총은 화면 중앙에서 직각으로 발사되고
+   코너로 갈수록 발사 각도가 기울어져 광도가 떨어짐.
+   중앙부는 완전 투명, 코너에서만 점진적으로 어두워짐.
+   ───────────────────────────────────────────────────────────────────────────── */
+.crt-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 90% 85% at 50% 50%,
+    transparent 55%,
+    rgba(0, 0, 0, 0.25) 80%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   3. Phosphor Tint — 인광 물질 색상 틴트
+   
+   CRT 형광체(phosphor)는 완전 중성 백색을 발광하지 않음.
+   P3 형광체(초록 계열), P4(백색 계열), P22(RGB 혼합)에 따라
+   화면 전체에 미세한 황록 또는 황적 틴트가 깔림.
+   에반게리온 NERV 단말기는 P22 계열 → 따뜻한 황적 틴트.
+   ───────────────────────────────────────────────────────────────────────────── */
+.crt-phosphor-tint {
+  position: absolute;
+  inset: 0;
+  /* 극히 미세한 황적 틴트: 화면을 "오래된 단말기"처럼 만들어줌 */
+  background: radial-gradient(
+    ellipse 100% 100% at 50% 50%,
+    rgba(255, 140, 20, 0.025) 0%,
+    rgba(255, 80, 10, 0.015) 60%,
+    transparent 100%
+  );
+  mix-blend-mode: screen;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   4. 미세 정전기 노이즈
+   아날로그 신호의 불완전성 — 극히 낮은 opacity로만 존재해야 함
+   ───────────────────────────────────────────────────────────────────────────── */
+.crt-noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  animation: crt-static 0.1s steps(1) infinite;
+  mix-blend-mode: overlay;
+}
+
+@keyframes crt-static {
+  0%   { opacity: 0.020; background-position: 0 0; }
+  25%  { opacity: 0.028; background-position: -3px -1px; }
+  50%  { opacity: 0.022; background-position: 2px 1px; }
+  75%  { opacity: 0.030; background-position: -1px 2px; }
+  100% { opacity: 0.025; background-position: 0 0; }
+}

@@ -1,5 +1,60 @@
 @import './components/Background.css';
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   CRT Screen Wrapper — Barrel Distortion via CSS 3D Perspective
+
+   구현 방식:
+   .crt-screen-wrapper: CSS perspective context 생성 (3D 스태이징 컨테이너)
+   .crt-inner: 화면 콘텐츠를 실제 3D 플레인에 올림
+              서간 포인트에서 perspective가 적용되어 바깥쪽이
+              안쪽보다 약간 더 잘려는 구면 렌즈 효과 없음
+
+   핵심: perspective(기준) = 1200px
+          → 너무 작으면 과도한 원근법 투시, 너무 크면 왜곡 없음
+          1200px = 실제 CRT 모니터를 약 60cm에서 보는 는낌
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Outer: perspective context 생성 + 콘텐츠 클리핑 */
+.crt-screen-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+
+  /* perspective context: 1200px = 자연스러운 외장 시야각 */
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+
+  /* GPU 스택 */
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+
+  /* 폰트 안티앨리어싱 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+  Inner: 실제 3D 플레인. perspective context 안에서
+  translateZ(-18px) + scale(1.015)로 컰텐츠를
+  약간 뒤로 미는 듯이 놓았다가 스케일로
+  다시 화면을 채움.
+  중앙부는 상대적으로 가까워 3D 볼록 효과 없음.
+  바깥 코너는 perspective에 의해 알게 모드시지 얜으로 간 듯 보임.
+*/
+.crt-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  /* 핵심: 약간 뒤로 미는 듯이 3D 본 다음 scale로 화면 커버 유지 */
+  /* translateZ 없이도 perspective 만으로도 코너 원근법이 약간 강해짘 */
+  transform: translateZ(-12px) scale(1.01);
+  transform-origin: center center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
 /* 기본 스타일 초기화 */
 body, html {
   margin: 0;
@@ -10,6 +65,8 @@ body, html {
   color: #fff;
   font-family: 'EB Garamond', 'Times New Roman', serif;
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 #root {
@@ -22,6 +79,8 @@ body, html {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
 }
 
 /* --- 배경 비디오 스타일 --- */

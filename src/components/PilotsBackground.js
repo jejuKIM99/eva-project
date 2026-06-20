@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { initCrtComposer } from '../utils/crtPostProcessing';
 
 const PilotsBackground = () => {
   const mountRef = useRef(null);
@@ -26,6 +27,8 @@ const PilotsBackground = () => {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     mountRef.current.appendChild(renderer.domElement);
+
+    const composer = initCrtComposer(THREE, renderer, scene, camera);
 
     // Wireframe Grid
     const gridGeometry = new THREE.PlaneGeometry(1000, 1000, 50, 50);
@@ -82,7 +85,11 @@ const PilotsBackground = () => {
         cube.position.y += Math.sin(Date.now() * 0.001 + index) * 0.1;
       });
 
-      renderer.render(scene, camera);
+      if (composer) {
+        composer.render();
+      } else {
+        renderer.render(scene, camera);
+      }
     };
 
     animate();
@@ -93,6 +100,9 @@ const PilotsBackground = () => {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      if (composer) {
+        composer.setSize(width, height);
+      }
     };
 
     window.addEventListener('resize', handleResize);

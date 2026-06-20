@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { initCrtComposer } from '../utils/crtPostProcessing';
 
 const LCLBackground = () => {
   const mountRef = useRef(null);
@@ -18,6 +19,8 @@ camera.position.z = 100;
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(width, height);
 mountRef.current.appendChild(renderer.domElement);
+
+const composer = initCrtComposer(THREE, renderer, scene, camera);
 
 // LCL Bubbles
 const bubbleGroup = new THREE.Group();
@@ -54,7 +57,11 @@ scene.fog = new THREE.Fog(0x3d1c00, 30, 150);
         b.mesh.position.x += Math.sin(Date.now() * 0.001 + b.mesh.position.y) * 0.1;
       });
 
-      renderer.render(scene, camera);
+      if (composer) {
+        composer.render();
+      } else {
+        renderer.render(scene, camera);
+      }
     };
 
     animate();
@@ -65,6 +72,9 @@ scene.fog = new THREE.Fog(0x3d1c00, 30, 150);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      if (composer) {
+        composer.setSize(width, height);
+      }
     };
 
     window.addEventListener('resize', handleResize);

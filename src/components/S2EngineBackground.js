@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { initCrtComposer } from '../utils/crtPostProcessing';
 
 const S2EngineBackground = () => {
   const mountRef = useRef(null);
@@ -19,6 +20,8 @@ const S2EngineBackground = () => {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     mountRef.current.appendChild(renderer.domElement);
+
+    const composer = initCrtComposer(THREE, renderer, scene, camera);
 
     // S2 Core (Fruit of Life)
     const coreGroup = new THREE.Group();
@@ -61,7 +64,11 @@ const S2EngineBackground = () => {
       
       particles.rotation.y -= 0.002;
       
-      renderer.render(scene, camera);
+      if (composer) {
+        composer.render();
+      } else {
+        renderer.render(scene, camera);
+      }
     };
 
     animate();
@@ -72,6 +79,9 @@ const S2EngineBackground = () => {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      if (composer) {
+        composer.setSize(width, height);
+      }
     };
 
     window.addEventListener('resize', handleResize);

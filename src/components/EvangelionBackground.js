@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { initCrtComposer } from '../utils/crtPostProcessing';
 
 const EvangelionBackground = () => {
   const mountRef = useRef(null);
@@ -19,6 +20,8 @@ const EvangelionBackground = () => {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     mountRef.current.appendChild(renderer.domElement);
+
+    const composer = initCrtComposer(THREE, renderer, scene, camera);
 
     // Blueprint Grid
     const size = 1000;
@@ -70,7 +73,11 @@ const EvangelionBackground = () => {
       unitGroup.rotation.x += 0.001;
       gridHelper.rotation.z += 0.0005;
       particles.rotation.y += 0.001;
-      renderer.render(scene, camera);
+      if (composer) {
+        composer.render();
+      } else {
+        renderer.render(scene, camera);
+      }
     };
 
     animate();
@@ -81,6 +88,9 @@ const EvangelionBackground = () => {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      if (composer) {
+        composer.setSize(width, height);
+      }
     };
 
     window.addEventListener('resize', handleResize);

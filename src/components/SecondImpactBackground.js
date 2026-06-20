@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { initCrtComposer } from '../utils/crtPostProcessing';
 
 const SecondImpactBackground = () => {
   const mountRef = useRef(null);
@@ -20,6 +21,8 @@ const SecondImpactBackground = () => {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
     mountRef.current.appendChild(renderer.domElement);
+
+    const composer = initCrtComposer(THREE, renderer, scene, camera);
 
     // Red Ocean
     const oceanGeo = new THREE.PlaneGeometry(1000, 1000, 100, 100);
@@ -50,7 +53,11 @@ const SecondImpactBackground = () => {
       
       giant.scale.setScalar(1 + Math.sin(time * 0.5) * 0.1);
       
-      renderer.render(scene, camera);
+      if (composer) {
+        composer.render();
+      } else {
+        renderer.render(scene, camera);
+      }
     };
 
     animate();
@@ -61,6 +68,9 @@ const SecondImpactBackground = () => {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
+      if (composer) {
+        composer.setSize(width, height);
+      }
     };
 
     window.addEventListener('resize', handleResize);
