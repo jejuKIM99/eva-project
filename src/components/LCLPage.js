@@ -376,6 +376,27 @@ const EntryPlugView = ({ onBack }) => {
             if (mount.contains(renderer.domElement)) {
                 mount.removeChild(renderer.domElement);
             }
+            // Clean up WebGL resources
+            bodyGeom.dispose();
+            topCapGeom.dispose();
+            bottomCapGeom.dispose();
+            mainChassisGeom.dispose();
+            headrestGeom.dispose();
+            handleGeom.dispose();
+            baseGeom.dispose();
+            if (combinedWireframeGeom) combinedWireframeGeom.dispose();
+            wireframeGeom.dispose();
+            
+            wireframeMaterial.dispose();
+            bodyMaterial.dispose();
+            topCapMaterial.dispose();
+            bottomCapMaterial.dispose();
+            
+            bodyTexture.dispose();
+            topCapTexture.dispose();
+            bottomCapTexture.dispose();
+            
+            renderer.dispose();
         };
     }, [THREE, gsap, generatePlugBodyTexture, generatePlugCapTexture, generatePlugBottomCapTexture]);
 
@@ -585,6 +606,10 @@ const LCLPage = ({ onBack, triggerEntrance }) => {
             if (mount && mount.contains(renderer.domElement)) {
                 mount.removeChild(renderer.domElement);
             }
+            // Clean up WebGL resources
+            geometry.dispose();
+            material.dispose();
+            renderer.dispose();
         };
     }, [isPlugView, THREE]);
     

@@ -1,58 +1,20 @@
 @import './components/Background.css';
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   CRT Screen Wrapper — Barrel Distortion via CSS 3D Perspective
+   CRT Screen Wrapper
 
-   구현 방식:
-   .crt-screen-wrapper: CSS perspective context 생성 (3D 스태이징 컨테이너)
-   .crt-inner: 화면 콘텐츠를 실제 3D 플레인에 올림
-              서간 포인트에서 perspective가 적용되어 바깥쪽이
-              안쪽보다 약간 더 잘려는 구면 렌즈 효과 없음
-
-   핵심: perspective(기준) = 1200px
-          → 너무 작으면 과도한 원근법 투시, 너무 크면 왜곡 없음
-          1200px = 실제 CRT 모니터를 약 60cm에서 보는 는낌
+   콘텐츠 레이아웃을 왜곡하지 않음.
+   CRT 유리 느낌은 CrtEffectManager 오버레이로만 달성.
    ───────────────────────────────────────────────────────────────────────────── */
 
-/* Outer: perspective context 생성 + 콘텐츠 클리핑 */
 .crt-screen-wrapper {
   position: relative;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
 
-  /* perspective context: 1200px = 자연스러운 외장 시야각 */
-  perspective: 1200px;
-  perspective-origin: 50% 50%;
-
-  /* GPU 스택 */
-  transform: translate3d(0, 0, 0);
-  will-change: transform;
-
-  /* 폰트 안티앨리어싱 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/*
-  Inner: 실제 3D 플레인. perspective context 안에서
-  translateZ(-18px) + scale(1.015)로 컰텐츠를
-  약간 뒤로 미는 듯이 놓았다가 스케일로
-  다시 화면을 채움.
-  중앙부는 상대적으로 가까워 3D 볼록 효과 없음.
-  바깥 코너는 perspective에 의해 알게 모드시지 얜으로 간 듯 보임.
-*/
-.crt-inner {
-  width: 100%;
-  height: 100%;
-  position: relative;
-
-  /* 핵심: 약간 뒤로 미는 듯이 3D 본 다음 scale로 화면 커버 유지 */
-  /* translateZ 없이도 perspective 만으로도 코너 원근법이 약간 강해짘 */
-  transform: translateZ(-12px) scale(1.01);
-  transform-origin: center center;
-  transform-style: preserve-3d;
-  backface-visibility: hidden;
 }
 
 /* 기본 스타일 초기화 */
@@ -2391,100 +2353,367 @@ body, html {
   overflow: hidden;
 }
 
-/* 메인 콘텐츠를 감싸는 래퍼 */
 .seele-content-wrapper {
   position: relative;
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
+  padding: 70px 30px 30px;
+  box-sizing: border-box;
   transition: filter 0.5s ease-in-out;
 }
 
-/* 오버레이가 활성화될 때 메인 콘텐츠에 블러 효과 적용 */
 .seele-content-wrapper.blurred {
-  filter: blur(8px) brightness(0.7);
-  pointer-events: none; /* 블러 처리된 배경과의 상호작용 방지 */
+  filter: blur(8px) brightness(0.6);
+  pointer-events: none;
 }
 
-.seele-container {
-  width: 1000px;
-  height: 1000px;
+.seele-logo-small {
+  width: 90px;
+  height: auto;
+  filter: drop-shadow(0 0 8px #ff0000);
+  opacity: 0.85;
+  margin-bottom: 10px;
+  animation: seele-logo-shimmer 4s infinite ease-in-out;
+}
+
+@keyframes seele-logo-shimmer {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(255,0,0,0.5)); opacity: 0.7; }
+  50% { filter: drop-shadow(0 0 15px rgba(255,0,0,1)); opacity: 1; }
+}
+
+.seele-assembly-container {
+  display: flex;
+  width: 100%;
+  max-width: 1300px;
+  height: calc(100% - 90px);
+  gap: 30px;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+}
+
+.seele-monoliths-column {
+  display: grid;
+  grid-template-rows: repeat(6, 1fr);
+  gap: 12px;
+  height: 100%;
+  width: 15%;
+  min-width: 120px;
+}
+
+.seele-monolith-card {
+  background: #020000;
+  border: 1px solid rgba(255, 0, 0, 0.25);
+  box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.05);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 8px 5px;
+  color: #880000;
+  font-family: 'Orbitron', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+.seele-monolith-card::before {
+  content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  perspective: 1200px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 0, 0, 0.4);
+  filter: blur(2px);
+  opacity: 0.7;
 }
 
-.monolith-circle {
+.seele-monolith-card:hover, .seele-monolith-card.active {
+  border-color: #ff0000;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.4), inset 0 0 10px rgba(255, 0, 0, 0.15);
+  color: #ff0000;
+  transform: translateY(-2px);
+  background: #050000;
+}
+
+.seele-monolith-card.active {
+  background: rgba(255, 0, 0, 0.03);
+}
+
+.seele-monolith-card.speaking {
+  animation: monolith-shimmer 0.15s infinite;
+  border-color: #ff3333;
+  color: #ff3333;
+}
+
+@keyframes monolith-shimmer {
+  0%, 100% { border-color: #ff0000; box-shadow: 0 0 15px rgba(255,0,0,0.6); }
+  50% { border-color: #ff6666; box-shadow: 0 0 25px rgba(255,0,0,0.8); }
+}
+
+.seele-monolith-card .card-header {
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+  opacity: 0.75;
+}
+
+.seele-monolith-card .card-number {
+  font-size: 1.6rem;
+  font-weight: 900;
+  margin: 2px 0;
+  text-shadow: 0 0 5px currentColor;
+}
+
+.seele-monolith-card .card-status {
+  font-size: 0.55rem;
+  font-weight: bold;
+  border: 1px solid currentColor;
+  padding: 1px 4px;
+  border-radius: 2px;
+  margin-top: 2px;
+  letter-spacing: 0.5px;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.seele-monolith-card .card-status.speaking {
+  background: #ff0000;
+  color: #000 !important;
+}
+
+/* center console */
+.seele-center-console {
+  flex-grow: 1;
+  height: 100%;
+  max-width: 700px;
+  background: rgba(3, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+  border: 2px solid rgba(255, 0, 0, 0.4);
+  box-shadow: 0 0 25px rgba(255, 0, 0, 0.2);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 25px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.seele-center-console::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(rgba(255,0,0,0.02) 50%, rgba(0,0,0,0.2) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+
+.seele-console-header {
+  border-bottom: 1px solid rgba(255, 0, 0, 0.3);
+  padding-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.seele-console-title {
+  color: #ff3333;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.1rem;
+  letter-spacing: 2px;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(255, 51, 51, 0.5);
+}
+
+.seele-console-status {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.seele-console-main {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+  min-height: 200px;
+}
+
+.seele-console-standby {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: rgba(255, 0, 0, 0.4);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.seele-console-standby svg {
+  margin-bottom: 15px;
+  opacity: 0.3;
+  animation: seele-logo-shimmer 3s infinite;
+}
+
+.seele-console-active {
   width: 100%;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.seele-member-title {
+  font-family: 'Orbitron', sans-serif;
+  color: #ff0000;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+  letter-spacing: 2px;
+  border-bottom: 1px solid rgba(255, 0, 0, 0.2);
+  padding-bottom: 5px;
+  text-align: center;
+}
+
+.seele-member-role {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.seele-waveform-wrapper {
+  background: #000;
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 15px;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.seele-waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 50px;
+  width: 100%;
+}
+
+.seele-wave-bar {
+  width: 6px;
+  background: #ff0000;
+  border-radius: 3px;
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.7);
+}
+
+.seele-transmission-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #eee;
+  min-height: 100px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px dashed rgba(255, 0, 0, 0.2);
+  box-sizing: border-box;
+  border-radius: 4px;
   position: relative;
-  transform-style: preserve-3d;
-  animation: rotate-circle 120s linear infinite;
 }
 
-@keyframes rotate-circle {
-  from { transform: rotateY(0deg); }
-  to { transform: rotateY(360deg); }
-}
-
-.monolith {
+.seele-transmission-text::before {
+  content: 'MSG_TRANSCRIPT //';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 120px;
-  height: 250px;
-  margin-left: -60px;
-  margin-top: -125px;
-  background: #080808;
-  border: 1px solid #222;
-  border-bottom: none;
-  opacity: 0; /* 초기 등장은 GSAP가 처리 */
+  top: -10px;
+  left: 10px;
+  background: #050000;
+  color: rgba(255, 0, 0, 0.5);
+  font-size: 0.65rem;
+  padding: 0 5px;
 }
 
-.monolith-content {
-    width: 100%; height: 100%; transform: translateZ(0); display: flex; flex-direction: column;
-    justify-content: flex-start; padding-top: 15px; align-items: center; font-family: 'Orbitron', sans-serif;
-    color: #f00; opacity: 0;
+.seele-action-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  border-top: 1px solid rgba(255, 0, 0, 0.2);
+  padding-top: 15px;
+  gap: 15px;
 }
-.monolith::after {
-    content: ''; position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%);
-    width: 126px; height: 7px; background: #fff; filter: blur(4px); border-radius: 14%; opacity: 0.8;
+
+.seele-dossier-btn {
+  background: transparent;
+  border: 1px solid #ff0000;
+  color: #ff0000;
+  font-family: 'Orbitron', sans-serif;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.85rem;
 }
-.monolith-header { font-size: 1rem; font-weight: 700; letter-spacing: 1px; }
-.monolith-number { font-size: 2.5rem; font-weight: 700; margin: 5px 0; }
-.monolith-footer { font-size: 0.8rem; }
-.seele-logo {
-    position: absolute; top: 8%; left: 50%; transform: translateX(-50%);
-    width: 150px; height: 120px; z-index: 5; opacity: 0; filter: drop-shadow(0 0 10px #f00);
+
+.seele-dossier-btn:hover {
+  background: #ff0000;
+  color: #000;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
 }
-.seele-logo img { width: 100%; height: 100%; object-fit: contain; }
-.seele-main-content {
-  position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%); z-index: 10;
-  width: 100%; max-width: 800px; text-align: center; padding: 2rem; background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(8px); border: 1px solid rgba(255,0,0,0.7); opacity: 0; visibility: hidden;
+
+.seele-debate-btn {
+  background: #ff0000;
+  border: none;
+  color: #000;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.90rem;
+  letter-spacing: 1px;
 }
-.seele-title {
-  font-family: 'Cinzel', serif; font-size: 3rem; color: #f00;
-  text-shadow: 0 0 10px #f00; margin: 0 0 1rem 0;
+
+.seele-debate-btn:hover:not(:disabled) {
+  background: #ff3333;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+  transform: scale(1.02);
 }
-.seele-description {
-  font-size: 1.1rem; line-height: 1.8; color: #ccc; max-width: 650px; margin: 0 auto 2rem;
+
+.seele-debate-btn:disabled {
+  background: #331111;
+  color: #884444;
+  cursor: not-allowed;
 }
-.seele-sub-menu { display: flex; justify-content: center; gap: 1.5rem; }
-.seele-menu-item {
-  font-family: 'Orbitron', sans-serif; border: 1px solid #f00; padding: 10px 20px;
-  color: #f00; cursor: pointer; transition: all 0.3s;
+
+.seele-center-console .tactical-bracket {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid rgba(255, 0, 0, 0.5);
 }
-.seele-menu-item:hover { background: #f00; color: #000; }
-.seele-toggle-info {
-    position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%); z-index: 20;
-    background: transparent; border: 1px solid #f00; color: #f00; font-family: 'Orbitron', sans-serif;
-    padding: 10px 25px; font-size: 1rem; cursor: pointer; transition: all 0.3s; opacity: 0;
-}
+.seele-center-console .top-left-bracket { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+.seele-center-console .top-right-bracket { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+.seele-center-console .bottom-left-bracket { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+.seele-center-console .bottom-right-bracket { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
 .seele-toggle-info:hover { background: #f00; color: #000; }
 
 /* --- 범용 GUI 오버레이 스타일 --- */
@@ -2874,31 +3103,63 @@ body, html {
 /* --- Seele Page 모바일 반응형 스타일 --- */
 @media (max-width: 768px) {
   .seele-page-layout {
-    padding-top: 60px;
+    padding-top: 40px;
     box-sizing: border-box;
+    overflow-y: auto;
   }
-  .seele-logo {
-    width: 100px;
-    height: 80px;
-    top: 5%;
+  .seele-content-wrapper {
+    padding: 60px 10px 20px;
+    height: auto;
+    min-height: 100%;
   }
-  .seele-container {
-    transform: translate(-50%, -50%) scale(0.45);
-    top: 45%;
+  .seele-logo-small {
+    width: 60px;
+    margin-bottom: 5px;
   }
-  .seele-main-content {
-    width: 90%;
-    max-width: 90vw;
-    padding: 1.5rem;
-    bottom: auto;
-    top: 38%;
-    transform: translateX(-50%);
+  .seele-assembly-container {
+    flex-direction: column;
+    height: auto;
+    gap: 15px;
   }
-  .seele-title { font-size: 2rem; }
-  .seele-description { font-size: 1rem; margin-bottom: 1.5rem; }
-  .seele-sub-menu { flex-direction: column; gap: 0.75rem; }
-  .seele-menu-item { padding: 12px 20px; }
-  .seele-toggle-info { bottom: 4%; padding: 12px 25px; font-size: 1rem; }
+  .seele-monoliths-column {
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: none;
+    width: 100%;
+    gap: 5px;
+    height: auto;
+  }
+  .seele-monolith-card {
+    padding: 4px 2px;
+    height: 70px;
+  }
+  .seele-monolith-card .card-number {
+    font-size: 1.1rem;
+  }
+  .seele-monolith-card .card-header,
+  .seele-monolith-card .card-status {
+    display: none;
+  }
+  .seele-center-console {
+    width: 100%;
+    max-width: 100%;
+    padding: 15px;
+    height: auto;
+    min-height: auto;
+  }
+  .seele-transmission-text {
+    font-size: 0.9rem;
+    min-height: 120px;
+  }
+  .seele-action-panel {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+  .seele-dossier-btn, .seele-debate-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px;
+  }
 
   /* --- GUI 모바일 스타일 --- */
   .seele-gui-overlay {
@@ -4748,4 +5009,210 @@ body, html {
     .back-button { /* back-button이 3D 배경 위에 오도록 z-index 추가 */
         z-index: 2;
     }
+}
+
+/* --- NERV-style Guestbook Modal Overlay --- */
+.guestbook-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.guestbook-modal {
+    width: 90%;
+    max-width: 500px;
+    background: #0c0805;
+    border: 2px solid;
+    box-shadow: 0 0 25px rgba(255, 106, 0, 0.4);
+    font-family: 'Share Tech Mono', monospace;
+    color: #fff;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.guestbook-modal.warning-border {
+    border-color: #ff6a00;
+}
+
+.guestbook-modal.alert-border {
+    border-color: #ff2a2a;
+}
+
+.guestbook-modal-header {
+    padding: 10px 15px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #000;
+}
+
+.guestbook-modal-header.warning-bg {
+    background: #ff6a00;
+}
+
+.guestbook-modal-header.alert-bg {
+    background: #ff2a2a;
+}
+
+.guestbook-modal-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.emergency-caution-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ff2a2a;
+    padding: 5px;
+    gap: 10px;
+    background: rgba(255, 42, 42, 0.1);
+}
+
+.emergency-stripe {
+    width: 20px;
+    height: 4px;
+    background: #ff2a2a;
+}
+
+.emergency-text {
+    font-size: 0.8rem;
+    color: #ff2a2a;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.prompt-text {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #e0e0e0;
+    margin: 0;
+    letter-spacing: 0.5px;
+}
+
+.alert-message {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #ff9900;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.terminal-input {
+    width: 100%;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid #ff6a00;
+    color: #ff9900;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.1rem;
+    box-sizing: border-box;
+    outline: none;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.terminal-input:focus {
+    box-shadow: 0 0 10px rgba(255, 106, 0, 0.5);
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal-btn {
+    border: 1px solid;
+    padding: 8px 20px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    background: none;
+    transition: all 0.3s;
+    outline: none;
+}
+
+.modal-btn.confirm {
+    border-color: #ff6a00;
+    color: #ff6a00;
+}
+
+.modal-btn.confirm:hover {
+    background: #ff6a00;
+    color: #000;
+    box-shadow: 0 0 15px rgba(255, 106, 0, 0.6);
+}
+
+.modal-btn.cancel {
+    border-color: #777;
+    color: #aaa;
+}
+
+.modal-btn.cancel:hover {
+    background: #555;
+    color: #fff;
+}
+
+/* --- PATTERN BLUE Alert Warning Overlay Styles --- */
+.pattern-blue-warning {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.94);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 999999;
+    border: 4px solid #ff1e00;
+    box-sizing: border-box;
+    pointer-events: none;
+    animation: alert-flash-bg 0.4s infinite alternate;
+}
+
+.warning-stripes {
+    width: 100%;
+    height: 35px;
+    background: repeating-linear-gradient(
+        45deg,
+        #ff1e00,
+        #ff1e00 15px,
+        #000 15px,
+        #000 30px
+    );
+    box-shadow: 0 0 20px rgba(255, 30, 0, 0.6);
+}
+
+.warning-alert-text {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 3.2rem;
+    font-weight: 900;
+    color: #ff1e00;
+    margin: 45px 0;
+    letter-spacing: 6px;
+    text-shadow: 0 0 25px #ff1e00;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+@keyframes alert-flash-bg {
+    0% { background: rgba(0, 0, 0, 0.94); }
+    100% { background: rgba(30, 3, 0, 0.96); }
 }

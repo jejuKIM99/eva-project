@@ -58,29 +58,51 @@ const characterData = {
 };
 const characters = ['rei', 'shinji', 'asuka'];
 
-// --- 타이핑 효과를 위한 커스텀 훅 ---
-const useTypingEffect = (text, speed = 50) => {
+// --- 타이핑 효과를 위한 커스텀 훅 (Scrambled / Binary Decode Shimmer Effect) ---
+const useTypingEffect = (text, speed = 15) => {
     const [typedText, setTypedText] = useState('');
     const [isDone, setIsDone] = useState(false);
 
-useEffect(() => {
-    setTypedText('');
-    setIsDone(false);
-    if (!text) return;
-
-    let i = 0;
-    const typingInterval = setInterval(() => {
-        if (i < text.length) {
-            setTypedText(text.substring(0, i + 1));
-            i++;
-        } else {
-            clearInterval(typingInterval);
-            setIsDone(true);
+    useEffect(() => {
+        if (!text) {
+            setTypedText('');
+            setIsDone(false);
+            return;
         }
-    }, speed);
 
-    return () => clearInterval(typingInterval);
-}, [text, speed]);
+        setTypedText('');
+        setIsDone(false);
+
+        let index = 0;
+        let settledText = '';
+        const matrixChars = '01$#@%&?_+*[]=';
+
+        const typingInterval = setInterval(() => {
+            if (index < text.length) {
+                const nextChar = text[index];
+                let scrambleCycles = 0;
+                
+                // Rapidly cycle random characters before settling the actual letter
+                const scrambleInterval = setInterval(() => {
+                    const randomChar = matrixChars[Math.floor(Math.random() * matrixChars.length)];
+                    setTypedText(settledText + randomChar);
+                    scrambleCycles++;
+
+                    if (scrambleCycles >= 3) {
+                        clearInterval(scrambleInterval);
+                        settledText += nextChar;
+                        setTypedText(settledText);
+                        index++;
+                    }
+                }, 8);
+            } else {
+                clearInterval(typingInterval);
+                setIsDone(true);
+            }
+        }, speed + 24);
+
+        return () => clearInterval(typingInterval);
+    }, [text, speed]);
 
     return { typedText, isDone };
 };
@@ -104,8 +126,15 @@ const PilotsPage = ({ onBack, triggerEntrance }) => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // Broadcast pilot state sync rate changes dynamically
+    useEffect(() => {
+        const syncRateStr = selectedChar ? characterData[selectedChar].syncRate : '41.3%';
+        const event = new CustomEvent('activePilotSyncChange', { detail: syncRateStr });
+        window.dispatchEvent(event);
+    }, [selectedChar]);
+
     const content = selectedChar ? characterData[selectedChar] : null;
-    const { typedText, isDone } = useTypingEffect(content?.description, 25);
+    const { typedText, isDone } = useTypingEffect(content?.description, 10);
 
     const highlightedChar = selectedChar || hoveredChar;
 

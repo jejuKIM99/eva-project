@@ -366,3 +366,467 @@
   padding: 5px 10px;
   animation: flicker-anim 0.1s infinite alternate;
 }
+
+/* ==========================================================================
+   NERV Command Console & Tactical HUD Overlay Styling
+   ========================================================================== */
+
+/* Generic Font Fallback class */
+.font-mono {
+  font-family: 'Share Tech Mono', 'VT323', monospace !important;
+}
+
+/* Tactical Corner Brackets (Framing HUD) */
+.tactical-bracket {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  z-index: 100;
+  border: 2px solid transparent;
+}
+
+/* NERV Amber Theme (Default) */
+.nerv-bg .tactical-bracket,
+.guestbook-bg .tactical-bracket,
+.guestbook-bg-overlay .tactical-bracket {
+  border-color: rgba(255, 153, 0, 0.4);
+}
+.pilots-bg .tactical-bracket,
+.angels-bg .tactical-bracket,
+.second-impact-bg .tactical-bracket,
+.s2-bg .tactical-bracket {
+  border-color: rgba(255, 42, 42, 0.4);
+}
+.eva-bg .tactical-bracket {
+  border-color: rgba(0, 102, 255, 0.4);
+}
+
+.top-left-bracket { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+.top-right-bracket { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+.bottom-left-bracket { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+.bottom-right-bracket { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+
+/* Corner Bracket overlays for radar */
+.radar-corner {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  border: 1px solid rgba(255, 0, 0, 0.5);
+  pointer-events: none;
+}
+.tc-top-left { top: 40px; left: 40px; border-right: none; border-bottom: none; }
+.tc-top-right { top: 40px; right: 40px; border-left: none; border-bottom: none; }
+.tc-bottom-left { bottom: 40px; left: 40px; border-right: none; border-top: none; }
+.tc-bottom-right { bottom: 40px; right: 40px; border-left: none; border-top: none; }
+
+/* Corner Tags for Amber Grid Panels */
+.border-decor {
+  position: relative;
+}
+.corner-tag {
+  position: absolute;
+  font-size: 0.6rem;
+  font-family: 'Share Tech Mono', monospace;
+  padding: 1px 4px;
+}
+.corner-tag.top-left {
+  top: -10px;
+  left: 10px;
+  background: #ff0000;
+  color: #000;
+}
+.corner-tag.top-right {
+  top: -10px;
+  right: 10px;
+  background: #222;
+  color: #ff0000;
+  border: 1px solid #ff0000;
+}
+
+/* Pilots Neural Waveform Monitor Styles */
+.a10-nerve-grid-svg {
+  width: 100%;
+  max-width: 450px;
+  height: auto;
+  opacity: 0.4;
+  margin: 15px 0;
+}
+
+.wave-anim-1 {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: wave-flow 4s linear infinite;
+}
+
+.wave-anim-2 {
+  stroke-dasharray: 600;
+  stroke-dashoffset: -600;
+  animation: wave-flow 6s linear infinite;
+}
+
+@keyframes wave-flow {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.sync-data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.sync-pct {
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+
+/* Evangelion Blueprint GUI details */
+.blueprint-header-panel {
+  border-bottom: 2px solid rgba(0, 102, 255, 0.4);
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+.blueprint-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #0066ff;
+}
+.blueprint-sub-info {
+  font-size: 0.7rem;
+  color: rgba(0, 102, 255, 0.6);
+  letter-spacing: 1px;
+}
+
+.blueprint-specs-overlay {
+  position: absolute;
+  top: 100px;
+  width: calc(100% - 80px);
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.spec-col {
+  font-size: 0.75rem;
+  line-height: 2;
+  color: rgba(0, 102, 255, 0.85);
+}
+.spec-col.col-right {
+  text-align: right;
+}
+
+.tactical-gauge-ring {
+  position: absolute;
+  bottom: 40px;
+  left: 40px;
+}
+.rotating-gauge {
+  animation: rotate-clock 20s linear infinite;
+}
+
+@keyframes rotate-clock {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.blueprint-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+  opacity: 0.3;
+}
+.ch-line-h {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: #0066ff;
+}
+.ch-line-v {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: #0066ff;
+}
+.ch-box {
+  position: absolute;
+  top: 25%;
+  left: 25%;
+  width: 50%;
+  height: 50%;
+  border: 1px solid #0066ff;
+}
+
+/* Angels central radar alert banner */
+.radar-alert-banner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.alert-stripes {
+  width: 100%;
+  height: 4px;
+  background: repeating-linear-gradient(
+    45deg,
+    #ff0000,
+    #ff0000 10px,
+    #000 10px,
+    #000 20px
+  );
+}
+
+.radar-target-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.radar-target-tag {
+  background: rgba(20, 0, 0, 0.85);
+  border: 1px solid #ff0000;
+  padding: 15px 30px;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-align: center;
+}
+.target-code {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+.target-loc {
+  font-size: 0.75rem;
+  color: rgba(255, 0, 0, 0.7);
+}
+.tracking-blink {
+  font-size: 0.7rem;
+  color: #fff;
+  background: #ff0000;
+  padding: 2px 8px;
+  align-self: center;
+  animation: blink-fast 0.6s infinite alternate;
+}
+
+/* NERV MAGI hex node overlay details */
+.magi-header-panel {
+  border-bottom: 2px solid rgba(255, 153, 0, 0.4);
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+.magi-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #ff9900;
+  border-left: 5px solid #ff9900;
+  padding-left: 10px;
+}
+.magi-sub-status {
+  font-size: 0.7rem;
+  color: rgba(255, 153, 0, 0.6);
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.magi-nodes-overlay {
+  position: absolute;
+  top: 110px;
+  left: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.magi-hex-node {
+  background: rgba(15, 10, 5, 0.8);
+  border: 1px solid rgba(255, 153, 0, 0.3);
+  width: 250px;
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.magi-hex-node .hex-title {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #ff9900;
+}
+.magi-hex-node .hex-status {
+  font-size: 0.85rem;
+  font-weight: bold;
+  align-self: flex-end;
+}
+.magi-hex-node .hex-status.resolved {
+  color: #00ff00;
+  text-shadow: 0 0 5px #00ff00;
+}
+.magi-hex-node .hex-data {
+  font-size: 0.65rem;
+  color: rgba(255, 153, 0, 0.6);
+  border-top: 1px solid rgba(255, 153, 0, 0.15);
+  margin-top: 5px;
+  padding-top: 4px;
+}
+
+/* S2 containment diagnostic overlays */
+.s2-header-panel {
+  border-bottom: 2px solid rgba(255, 60, 0, 0.4);
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+.s2-instability-overlay {
+  position: absolute;
+  top: 110px;
+  right: 40px;
+}
+.s2-metric-box {
+  background: rgba(15, 5, 5, 0.8);
+  border: 1px solid rgba(255, 60, 0, 0.3);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 240px;
+  text-align: right;
+  font-size: 0.8rem;
+}
+.s2-footer-overlay {
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+/* Second Impact ground zero details */
+.impact-header-panel {
+  border-bottom: 2px solid rgba(255, 50, 50, 0.4);
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+.impact-target-indicator {
+  position: absolute;
+  top: 120px;
+  left: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.impact-alert {
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: 1px solid #ff3333;
+  background: rgba(255, 0, 0, 0.15);
+  padding: 10px 20px;
+  text-shadow: 0 0 5px #ff3333;
+}
+.coord-grid {
+  font-size: 0.8rem;
+  line-height: 1.8;
+  color: rgba(255, 50, 50, 0.8);
+}
+.impact-footer-overlay {
+  font-size: 0.7rem;
+  color: rgba(255, 50, 50, 0.6);
+}
+
+/* LCL Fluid density overlays */
+.lcl-header-panel {
+  border-bottom: 2px solid rgba(255, 106, 0, 0.4);
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+.lcl-vignette {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle, transparent 40%, rgba(26, 9, 0, 0.8) 100%);
+  pointer-events: none;
+  z-index: 8;
+}
+.lcl-gauge-panel {
+  position: absolute;
+  bottom: 80px;
+  right: 40px;
+  width: 200px;
+}
+.lcl-wave-1 {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: wave-flow 8s linear infinite;
+}
+.lcl-wave-2 {
+  stroke-dasharray: 300;
+  stroke-dashoffset: -300;
+  animation: wave-flow 12s linear infinite;
+}
+
+/* Guestbook directory database overlays */
+.guestbook-bg-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  color: #ff9900;
+  padding: 40px;
+  box-sizing: border-box;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.gb-header-panel {
+  border-bottom: 2px solid rgba(255, 153, 0, 0.4);
+  padding-bottom: 8px;
+  margin-bottom: 15px;
+}
+.gb-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+.gb-net-status {
+  font-size: 0.7rem;
+  color: rgba(255, 153, 0, 0.6);
+  letter-spacing: 1px;
+}
+.gb-decor-grid {
+  position: absolute;
+  top: 100px;
+  right: 40px;
+  width: 150px;
+  height: 150px;
+  opacity: 0.3;
+}
+.gb-footer-panel {
+  font-size: 0.7rem;
+  color: rgba(255, 153, 0, 0.6);
+}
+
+/* Blinking helpers */
+.blink-fast {
+  animation: blink-fast-anim 0.4s infinite alternate;
+}
+.blink-slow {
+  animation: blink-slow-anim 1.2s infinite alternate;
+}
+
+@keyframes blink-fast-anim {
+  0% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+
+@keyframes blink-slow-anim {
+  0% { opacity: 0.3; }
+  100% { opacity: 1; }
+}

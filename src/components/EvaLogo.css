@@ -43,7 +43,7 @@
 }
 
 .eva-logo-japanese {
-  font-family: 'serif'; /* Fallback for Japanese characters */
+  font-family: serif; /* Fallback for Japanese characters */
   font-size: 1.2rem;
   letter-spacing: 1.2rem;
   margin-top: 1rem;

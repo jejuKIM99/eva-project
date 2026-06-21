@@ -19,9 +19,18 @@ import worldMapImage from '../img/world_map_eva.jpg'; // 월드맵 이미지
 const useWindowSize = () => {
     const [width, setWidth] = useState(window.innerWidth);
     useEffect(() => {
-        const handleResize = () => setWidth(window.innerWidth);
+        let timeoutId;
+        const handleResize = () => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                setWidth(window.innerWidth);
+            }, 150);
+        };
         window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+            clearTimeout(timeoutId);
+        };
     }, []);
     return width;
 };

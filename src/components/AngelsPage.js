@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import clickSound from '../video/click.wav';
 
 // 이미지 동적 import를 위한 헬퍼 함수
 function importAll(r) {
@@ -145,9 +146,18 @@ const StatBar = ({ label, value }) => {
 const AngelsPage = ({ onBack, triggerEntrance }) => {
     const [selectedAngel, setSelectedAngel] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false); // 사이드바 상태
+    const [alertActive, setAlertActive] = useState(false);
+
     const pageRef = useRef(null);
     const infoBoxRef = useRef(null);
     const gsap = window.gsap;
+    const clickAudio = useMemo(() => new Audio(clickSound), []);
+
+    const playBeep = () => {
+        clickAudio.currentTime = 0;
+        clickAudio.volume = 0.55;
+        clickAudio.play().catch(() => {});
+    };
 
     // 페이지 진입 애니메이션
     useEffect(() => {
@@ -176,10 +186,17 @@ const AngelsPage = ({ onBack, triggerEntrance }) => {
     const handleSelectAngel = (angelKey) => {
         const newAngel = angelData[angelKey];
         if (selectedAngel && selectedAngel.name === newAngel.name) {
-            // 이미 선택된 사도를 다시 클릭해도 아무것도 하지 않음 (또는 선택 해제)
-        } else {
-            setSelectedAngel(newAngel);
+            return;
         }
+
+        playBeep();
+        setAlertActive(true);
+
+        setTimeout(() => {
+            setSelectedAngel(newAngel);
+            setAlertActive(false);
+        }, 1100);
+
         // 모바일 환경에서 사도를 선택하면 사이드바를 닫음
         setIsSidebarOpen(false);
     };
@@ -252,9 +269,16 @@ const AngelsPage = ({ onBack, triggerEntrance }) => {
                      </div>
                 </div>
 
-            </div>
-        </div>
-    );
-};
+             </div>
+             {alertActive && (
+                 <div className="pattern-blue-warning">
+                     <div className="warning-stripes"></div>
+                     <div className="warning-alert-text blink-fast">PATTERN BLUE: ANGEL IDENTIFIED</div>
+                     <div className="warning-stripes"></div>
+                 </div>
+             )}
+         </div>
+     );
+ };
 
 export default AngelsPage;

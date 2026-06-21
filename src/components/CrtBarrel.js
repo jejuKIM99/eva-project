@@ -17,15 +17,15 @@
 import { useEffect } from 'react';
 
 // ── 파라미터 ──────────────────────────────────────────────────────────────────
-const K1        = 0.18;  // 왜곡 강도 (0.1=미세, 0.18=명확한 CRT, 0.3=fisheye)
-const SVG_SCALE = 640;   // feDisplacementMap scale (CSS 픽셀 단위)
-const MAP_RES   = 512;   // 변위 맵 해상도 (높을수록 부드러움)
+const K1        = 0.15;  // 왜곡 강도 — 실제 CRT 유리의 곡률에 가까운 값
+const SVG_SCALE = 500;   // feDisplacementMap scale
+const MAP_RES   = 512;   // 변위 맵 해상도
 
-// RGB 채널별 스케일 차이 → 색수차 (유리를 통해 보는 효과)
-// 빨강이 가장 많이, 파랑이 가장 적게 왜곡 → 엣지에서 색 번짐
-const SCALE_R = SVG_SCALE * 1.06;  // +6%
+// RGB 채널별 스케일 차이 → 색수차
+// 실제 유리 색수차는 극히 미세함 — 의식하면 안 되고 느껴져야 함
+const SCALE_R = SVG_SCALE * 1.03;  // +3%
 const SCALE_G = SVG_SCALE * 1.00;  // 기준
-const SCALE_B = SVG_SCALE * 0.94;  // -6%
+const SCALE_B = SVG_SCALE * 0.97;  // -3%
 
 // ── 변위 맵 생성 ──────────────────────────────────────────────────────────────
 function buildDisplacementMap(W, H) {

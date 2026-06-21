@@ -12,7 +12,7 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  font-family: 'serif';
+  font-family: serif;
   opacity: 1;
 }
 
@@ -178,7 +178,7 @@
 }
 
 .eva-ep-main {
-  font-family: 'serif';
+  font-family: serif;
   font-size: 10rem;
   font-weight: 900;
   letter-spacing: -0.8rem;
@@ -245,7 +245,7 @@
 }
 
 .eva-ep-subtext {
-  font-family: 'serif';
+  font-family: serif;
   font-size: 3.5rem;
   font-weight: 900;
   letter-spacing: -0.1rem;
@@ -255,7 +255,7 @@
 }
 
 .eva-ep-subtext-en {
-  font-family: 'serif';
+  font-family: serif;
   font-size: 1.4rem;
   font-weight: 900;
   letter-spacing: 1.2rem;
@@ -339,4 +339,34 @@
     font-size: 0.7rem;
     padding: 4px 10px;
   }
+}
+
+/* Horizontal Warning Bar Marquee Animations */
+.access-warning-bar {
+  width: 100vw;
+  background: #ff3b30;
+  color: #000;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 4px 0;
+  font-family: 'Share Tech Mono', monospace;
+  font-weight: bold;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  box-shadow: 0 0 10px rgba(255, 59, 48, 0.4);
+  border-top: 1px solid #ff5950;
+  border-bottom: 1px solid #ff5950;
+  margin-top: 10px;
+}
+
+.warning-scroll-fast {
+  display: inline-block;
+  white-space: nowrap;
+  animation: transition-warning-marquee 12s linear infinite;
+  padding-left: 100%;
+}
+
+@keyframes transition-warning-marquee {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-100%, 0, 0); }
 }

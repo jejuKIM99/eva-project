@@ -195,6 +195,13 @@ const S2EngineModelView = () => {
             if (mount.contains(renderer.domElement)) {
                 mount.removeChild(renderer.domElement);
             }
+            // Clean up WebGL resources
+            baseGeometry.dispose();
+            wireframeGeom.dispose();
+            wireframeMaterial.dispose();
+            texture.dispose();
+            shaderMaterial.dispose();
+            renderer.dispose();
         };
     }, [THREE, gsap, createCoreTexture]);
 

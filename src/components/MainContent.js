@@ -23,7 +23,6 @@ import SecondImpactBackground from './SecondImpactBackground';
 import LCLBackground from './LCLBackground';
 import S2EngineBackground from './S2EngineBackground';
 import CreditsBackground from './CreditsBackground';
-import GuestbookBackgroundThematic from './GuestbookBackgroundThematic';
 
 const ClassicGuiPanel = ({ title, children, className = '' }) => (
   <div className={`classic-gui-panel ${className}`}>
@@ -52,9 +51,18 @@ const MainContent = () => {
   const bgmAudio = useMemo(() => new Audio(mainBgm), []);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    let timeoutId;
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setIsMobile(window.innerWidth <= 768);
+      }, 150);
+    };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   useEffect(() => {
@@ -157,7 +165,6 @@ const MainContent = () => {
       {page === 'lcl' && <LCLBackground />}
       {page === 's2engine' && <S2EngineBackground />}
       {page === 'credits' && <CreditsBackground />}
-      {page === 'guestbook' && <GuestbookBackgroundThematic />}
 
       {/* Background elements - hidden during transition or when on sub-pages */}
       <div 

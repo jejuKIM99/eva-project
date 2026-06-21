@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import './PageTransition.css';
 
 const PageTransition = ({ onComplete, onPageChange, targetPage }) => {
@@ -23,6 +23,12 @@ const PageTransition = ({ onComplete, onPageChange, targetPage }) => {
   };
 
   const title = getPageTitle(targetPage);
+
+  const randomHexCodes = useMemo(() => {
+    return Array.from({ length: 30 }, () => 
+      `0x${Math.random().toString(16).substr(2, 6).toUpperCase()}`
+    );
+  }, []);
 
   useEffect(() => {
     if (!gsap) {
@@ -74,8 +80,8 @@ const PageTransition = ({ onComplete, onPageChange, targetPage }) => {
       {/* ... rest of data streams ... */}
 
       <div className="bg-data-column left-far">
-        {[...Array(30)].map((_, i) => (
-          <div key={i} className="bg-data-bit">0x{Math.random().toString(16).substr(2, 6).toUpperCase()} // DATA_BLOCK_{i}</div>
+        {randomHexCodes.map((code, i) => (
+          <div key={i} className="bg-data-bit">{code} // DATA_BLOCK_{i}</div>
         ))}
       </div>
       <div className="bg-data-column right-far">

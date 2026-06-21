@@ -17,6 +17,19 @@ const GuestbookPage = ({ onBack, triggerEntrance }) => {
     const [editingEntry, setEditingEntry] = useState(null); // 수정 중인 글의 정보
     const [editMessage, setEditMessage] = useState(''); // 수정 중인 메시지 내용
 
+    // Custom Modal & Alert state
+    const [passwordModal, setPasswordModal] = useState({
+        isOpen: false,
+        type: 'delete', // 'delete' or 'edit'
+        targetId: null,
+        targetEntry: null,
+        passwordInput: ''
+    });
+    const [customAlert, setCustomAlert] = useState({
+        isOpen: false,
+        message: ''
+    });
+
     const fetchEntries = useCallback(async () => {
         setLoading(true);
         const { data, error } = await supabase
@@ -26,7 +39,7 @@ const GuestbookPage = ({ onBack, triggerEntrance }) => {
 
         if (error) {
             console.error('Error fetching entries:', error);
-            setError('Faile to load. Please try again later.');
+            setError('Failed to load. Please try again later.');
         } else {
             setEntries(data);
             setError(null);
@@ -38,23 +51,31 @@ const GuestbookPage = ({ onBack, triggerEntrance }) => {
         fetchEntries();
     }, [fetchEntries]);
 
+    const showAlert = (msg) => {
+        setCustomAlert({ isOpen: true, message: msg });
+    };
+
+    const closeAlert = () => {
+        setCustomAlert({ isOpen: false, message: '' });
+    };
+
     const validateName = (name) => {
         const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
         const japaneseRegex = /[ぁ-んァ-ヶ一-龠]/;
 
         if (koreanRegex.test(name)) {
             if (name.length > 10) {
-                alert('이름(한글)은 10자 이내로 입력해주세요.');
+                showAlert('이름(한글)은 10자 이내로 입력해주세요.');
                 return false;
             }
         } else if (japaneseRegex.test(name)) {
             if (name.length > 20) {
-                alert('名前（日本語）は20文字以内で入力してください。');
+                showAlert('名前（日本語）は20文字以内で入力してください。');
                 return false;
             }
         } else { // 영문 및 기타
             if (name.length > 20) {
-                alert('Name must be within 20 characters.');
+                showAlert('Name must be within 20 characters.');
                 return false;
             }
         }
@@ -64,7 +85,7 @@ const GuestbookPage = ({ onBack, triggerEntrance }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!name || !password || !message) {
-            alert('Name, password, and message are required.');
+            showAlert('Name, password, and message are required.');
             return;
         }
         if (!validateName(name)) return;
@@ -85,44 +106,58 @@ const GuestbookPage = ({ onBack, triggerEntrance }) => {
         }
     };
 
-    const handleDelete = async (id) => {
-        const inputPassword = prompt('Please enter the password to delete this entry.');
-        if (inputPassword === null) return;
-
-        const { data, error: fetchError } = await supabase.from('guestbook').select('password').eq('id', id).single();
-        if (fetchError || !data) {
-            alert('Entry not found.');
-            return;
-        }
-
-        if (data.password === md5(inputPassword).toString()) {
-            const { error: deleteError } = await supabase.from('guestbook').delete().eq('id', id);
-            if (deleteError) {
-                alert('Failed to delete. Please try again later.');
-            } else {
-                alert('Entry deleted successfully.');
-                fetchEntries();
-            }
-        } else {
-            alert('Password does not match.');
-        }
+    const handleDeleteClick = (id) => {
+        setPasswordModal({
+            isOpen: true,
+            type: 'delete',
+            targetId: id,
+            targetEntry: null,
+            passwordInput: ''
+        });
     };
 
-    const handleEdit = async (entry) => {
-        const inputPassword = prompt('Please enter the password to edit this entry.');
-        if (inputPassword === null) return;
+    const handleEditClick = (entry) => {
+        setPasswordModal({
+            isOpen: true,
+            type: 'edit',
+            targetId: null,
+            targetEntry: entry,
+            passwordInput: ''
+        });
+    };
 
-        const { data, error: fetchError } = await supabase.from('guestbook').select('password').eq('id', entry.id).single();
-        if (fetchError || !data) {
-            alert('Entry not found.');
+    const handlePasswordSubmit = async (e) => {
+        e.preventDefault();
+        const { type, targetId, targetEntry, passwordInput } = passwordModal;
+
+        if (!passwordInput) {
+            showAlert('Password is required.');
             return;
         }
 
-        if (data.password === md5(inputPassword).toString()) {
-            setEditingEntry(entry);
-            setEditMessage(entry.message);
+        const id = type === 'delete' ? targetId : targetEntry.id;
+        const { data, error: fetchError } = await supabase.from('guestbook').select('password').eq('id', id).single();
+        if (fetchError || !data) {
+            showAlert('Entry not found.');
+            return;
+        }
+
+        if (data.password === md5(passwordInput).toString()) {
+            setPasswordModal(prev => ({ ...prev, isOpen: false }));
+            if (type === 'delete') {
+                const { error: deleteError } = await supabase.from('guestbook').delete().eq('id', id);
+                if (deleteError) {
+                    showAlert('Failed to delete. Please try again later.');
+                } else {
+                    showAlert('Entry deleted successfully.');
+                    fetchEntries();
+                }
+            } else {
+                setEditingEntry(targetEntry);
+                setEditMessage(targetEntry.message);
+            }
         } else {
-            alert('Password does not match.');
+            showAlert('Password does not match.');
         }
     };
 
@@ -134,9 +169,9 @@ const GuestbookPage = ({ onBack, triggerEntrance }) => {
             .eq('id', editingEntry.id);
 
         if (error) {
-            alert('Failed to update. Please try again later.');
+            showAlert('Failed to update. Please try again later.');
         } else {
-            alert('Updated successfully.');
+            showAlert('Updated successfully.');
             setEditingEntry(null);
             setEditMessage('');
             fetchEntries();
@@ -145,12 +180,11 @@ const GuestbookPage = ({ onBack, triggerEntrance }) => {
 
     return (
         <div className="guestbook-page-layout">
-            <GuestbookBackground /> {/* 3D 배경 추가 */}
+            <GuestbookBackground />
             <button onClick={onBack} className="back-button">← MENU</button>
             <div className="guestbook-container">
                 <h1 className="guestbook-title">GUESTBOOK</h1>
                 
-                {/* 글 작성 폼 */}
                 <form className="guestbook-form" onSubmit={handleSubmit}>
                     <div className="form-row">
                         <input type="text" placeholder="NAME" value={name} onChange={(e) => setName(e.target.value)} />
@@ -160,14 +194,12 @@ const GuestbookPage = ({ onBack, triggerEntrance }) => {
                     <button type="submit" className="submit-button">SUBMIT</button>
                 </form>
 
-                {/* 글 목록 */}
                 <div className="guestbook-list">
                     {loading && <p className="loading-text-gb">LOADING...</p>}
                     {error && <p className="error-text-gb">{error}</p>}
                     {!loading && entries.map(entry => (
                         <div key={entry.id} className="guestbook-entry">
                             {editingEntry?.id === entry.id ? (
-                                // 수정 폼
                                 <form className="guestbook-edit-form" onSubmit={handleUpdate}>
                                     <div className="entry-header">
                                         <span className="entry-name">{entry.name}</span>
@@ -184,7 +216,6 @@ const GuestbookPage = ({ onBack, triggerEntrance }) => {
                                     </div>
                                 </form>
                             ) : (
-                                // 일반 뷰
                                 <>
                                     <div className="entry-header">
                                         <span className="entry-name">{entry.name}</span>
@@ -192,8 +223,8 @@ const GuestbookPage = ({ onBack, triggerEntrance }) => {
                                     </div>
                                     <p className="entry-message">{entry.message}</p>
                                     <div className="entry-actions">
-                                        <button className="action-button edit" onClick={() => handleEdit(entry)}>EDIT</button>
-                                        <button className="action-button delete" onClick={() => handleDelete(entry.id)}>DELETE</button>
+                                        <button className="action-button edit" onClick={() => handleEditClick(entry)}>EDIT</button>
+                                        <button className="action-button delete" onClick={() => handleDeleteClick(entry.id)}>DELETE</button>
                                     </div>
                                 </>
                             )}
@@ -201,6 +232,60 @@ const GuestbookPage = ({ onBack, triggerEntrance }) => {
                     ))}
                 </div>
             </div>
+
+            {/* Custom NERV-style Password Modal */}
+            {passwordModal.isOpen && (
+                <div className="guestbook-modal-overlay">
+                    <div className="guestbook-modal warning-border">
+                        <div className="guestbook-modal-header warning-bg">
+                            <span>CLASSIFIED ACCESS AUTHENTICATION</span>
+                        </div>
+                        <div className="guestbook-modal-body">
+                            <div className="emergency-caution-box">
+                                <div className="emergency-stripe"></div>
+                                <div className="emergency-text">ALERT: ENTRY MUTATION REQUIRED</div>
+                                <div className="emergency-stripe"></div>
+                            </div>
+                            <p className="prompt-text">
+                                {passwordModal.type === 'delete' 
+                                    ? 'ENTER PASSWORD TO DECLASSIFY AND PURGE ENTRY FROM DATABASE:' 
+                                    : 'ENTER PASSWORD TO AUTHORIZE EDIT PRIVILEGES:'}
+                            </p>
+                            <form onSubmit={handlePasswordSubmit}>
+                                <input 
+                                    type="password" 
+                                    className="terminal-input"
+                                    placeholder="PASSWORD" 
+                                    value={passwordModal.passwordInput} 
+                                    onChange={(e) => setPasswordModal(prev => ({ ...prev, passwordInput: e.target.value }))} 
+                                    autoFocus
+                                />
+                                <div className="modal-buttons">
+                                    <button type="submit" className="modal-btn confirm">CONFIRM</button>
+                                    <button type="button" className="modal-btn cancel" onClick={() => setPasswordModal(prev => ({ ...prev, isOpen: false }))}>ABORT</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Custom NERV-style Alert Modal */}
+            {customAlert.isOpen && (
+                <div className="guestbook-modal-overlay">
+                    <div className="guestbook-modal alert-border">
+                        <div className="guestbook-modal-header alert-bg">
+                            <span>SYSTEM NOTICE</span>
+                        </div>
+                        <div className="guestbook-modal-body">
+                            <p className="alert-message">{customAlert.message}</p>
+                            <div className="modal-buttons">
+                                <button className="modal-btn confirm" onClick={closeAlert}>ACKNOWLEDGE</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
